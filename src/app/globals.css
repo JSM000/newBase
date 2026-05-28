@@ -1,0 +1,55 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@font-face {
+  font-family: 'Pretendard';
+  src: url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css');
+}
+
+@layer base {
+  :root {
+    --radius: 0.5rem;
+
+    /* shadcn 호환 CSS 변수 — primary를 TeacherCan 레드 계열로 */
+    --background:   0 0% 99%;
+    --foreground:   240 10% 4%;
+
+    --card:         0 0% 100%;
+    --card-foreground: 240 10% 4%;
+
+    --popover:      0 0% 100%;
+    --popover-foreground: 240 10% 4%;
+
+    /* primary: #e77474 → hsl(0, 67%, 68%) */
+    --primary:          0 67% 68%;
+    --primary-foreground: 0 0% 100%;
+
+    /* secondary: #0072a1 → hsl(200, 100%, 32%) */
+    --secondary:          200 100% 32%;
+    --secondary-foreground: 0 0% 100%;
+
+    --muted:          240 5% 96%;
+    --muted-foreground: 240 4% 46%;
+
+    --accent:         0 67% 95%;
+    --accent-foreground: 0 67% 40%;
+
+    --destructive:    0 84% 60%;
+    --destructive-foreground: 0 0% 98%;
+
+    --border:         240 6% 90%;
+    --input:          240 6% 90%;
+    --ring:           0 67% 68%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border box-border;
+  }
+  body {
+    @apply bg-[#fefefe] text-zinc-900 leading-normal;
+    font-family: 'Pretendard', 'Apple SD Gothic Neo', 'Malgun Gothic', 'Noto Sans KR', sans-serif;
+  }
+}
