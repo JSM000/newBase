@@ -9,8 +9,6 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { RawSection } from '@/components/raw-section';
-
 const SUPPLEMENTARY_TYPE_LABEL: Record<string, string> = {
   subject_class: '교과전담',
   homeroom: '담임교사',
@@ -54,7 +52,6 @@ export function SupplementaryTab() {
           </TableBody>
         </Table>
       )}
-      <RawSection text={parsed?.rawSections['보충기재']} />
     </div>
   );
 }

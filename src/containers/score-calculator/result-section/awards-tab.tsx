@@ -9,7 +9,6 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { RawSection } from '@/components/raw-section';
 import { cn } from '@/utils/cn';
 
 export function AwardsTab() {
@@ -52,7 +51,6 @@ export function AwardsTab() {
           </TableBody>
         </Table>
       )}
-      <RawSection text={parsed?.rawSections['포상']} />
     </div>
   );
 }

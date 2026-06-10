@@ -1,5 +1,5 @@
-import { ScoreCalculatorContainer } from '@/containers/score-calculator/score-calculator-container';
+import { HomeContainer } from '@/containers/home/home-container';
 
 export default function Home() {
-  return <ScoreCalculatorContainer />;
+  return <HomeContainer />;
 }

@@ -1,6 +1,5 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
-  darkMode: ['class'],
   content: [
     './src/app/**/*.{ts,tsx}',
     './src/containers/**/*.{ts,tsx}',
@@ -54,20 +53,6 @@ module.exports = {
           900: '#2a5631',
           950: '#102f15',
         },
-        beige: {
-          DEFAULT: '#dcd9c9',
-          50:  '#f9f9f7',
-          100: '#f7f7f4',
-          200: '#f3f3ed',
-          300: '#efefe7',
-          400: '#e9e9e1',
-          500: '#dcd9c9',
-          600: '#bfb6a1',
-          700: '#9e8f76',
-          800: '#7f725c',
-          900: '#675c4b',
-          950: '#3d3529',
-        },
         border:      'hsl(var(--border))',
         input:       'hsl(var(--input))',
         ring:        'hsl(var(--ring))',
@@ -104,25 +89,6 @@ module.exports = {
       },
       boxShadow: {
         custom: 'rgba(0,0,0,0.02) 0px 12px 32px, rgba(0,0,0,0.05) 0px 0px 0px 1px',
-      },
-      keyframes: {
-        'accordion-down': {
-          from: { height: '0' },
-          to: { height: 'var(--radix-accordion-content-height)' },
-        },
-        'accordion-up': {
-          from: { height: 'var(--radix-accordion-content-height)' },
-          to: { height: '0' },
-        },
-        'fade-in': {
-          '0%':   { opacity: '0' },
-          '100%': { opacity: '1' },
-        },
-      },
-      animation: {
-        'accordion-down': 'accordion-down 0.2s ease-out',
-        'accordion-up':   'accordion-up 0.2s ease-out',
-        'fade-in':        'fade-in 0.3s ease-out forwards',
       },
     },
   },

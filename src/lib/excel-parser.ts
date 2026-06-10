@@ -270,7 +270,6 @@ export function parseExcelBuffer(buffer: Buffer): ParsedFile {
     training,
     degrees,
     supplementary,
-    rawSections: {},
     parseErrors: errors,
   };
 }

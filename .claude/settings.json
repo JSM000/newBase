@@ -1,0 +1,20 @@
+{
+  "permissions": {
+    "deny": [
+      "Bash(rm *)",
+      "Bash(git push *)",
+      "Bash(git push)",
+      "Bash(git reset --hard *)",
+      "Bash(yarn add *)",
+      "Bash(yarn install *)",
+      "Bash(yarn install)",
+      "Bash(npm install *)",
+      "Bash(npm install)",
+      "Bash(bun install *)",
+      "Bash(bun install)",
+      "Bash(bun add *)",
+      "Bash(npm ci *)",
+      "Bash(npm ci)"
+    ]
+  }
+}

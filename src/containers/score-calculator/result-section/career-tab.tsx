@@ -9,8 +9,6 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { RawSection } from '@/components/raw-section';
-
 export function CareerTab() {
   const parsed = useScoreStore((state) => state.parsed);
 
@@ -42,7 +40,6 @@ export function CareerTab() {
           </TableBody>
         </Table>
       )}
-      <RawSection text={parsed?.rawSections['경력']} />
     </div>
   );
 }

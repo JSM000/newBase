@@ -42,3 +42,14 @@ next-env.d.ts
 
 # local reference files
 /_refs
+public/maps/bnd_all_00_2025_2Q/
+*.shp
+*.dbf
+*.shx
+
+public/maps/bnd_all_00_2025_2Q/
+*.shp
+*.dbf
+*.shx
+*.prj
+*.cpg

@@ -278,7 +278,7 @@ export function calculateScore(parsed: ParsedFile, inputs: UserInputs): Calculat
   let headTeacherMonthlyRate = 0;
   if (inputs.headTeacherSchoolZone === 'urban') {
     headTeacherMonthlyRate = 0.03;
-  } else if (inputs.headTeacherSchoolZone === 'rural_large' && inputs.headTeacherClassCount >= 18) {
+  } else if (inputs.headTeacherSchoolZone === 'rural_large') {
     headTeacherMonthlyRate = 0.02;
   }
   const headTeacherScoreRaw = parseFloat((headTeacherMonths * headTeacherMonthlyRate).toFixed(4));

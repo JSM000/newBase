@@ -23,7 +23,6 @@ const defaultInputs: UserInputs = {
   preferentialBonus: 'none',
   preferentialBonusMonths: 0,
   headTeacherSchoolZone: 'urban',
-  headTeacherClassCount: 0,
 };
 
 interface ScoreStore {

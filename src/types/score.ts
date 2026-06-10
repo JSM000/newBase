@@ -67,7 +67,6 @@ export interface ParsedFile {
   training: TrainingEntry[];
   degrees: DegreeEntry[];
   supplementary: SupplementaryEntry[];
-  rawSections: Record<string, string>;
   parseErrors: string[];
 }
 
@@ -94,7 +93,6 @@ export interface UserInputs {
   preferentialBonus: PreferentialBonusType;
   preferentialBonusMonths: number;
   headTeacherSchoolZone: 'urban' | 'rural_large' | 'rural_small';
-  headTeacherClassCount: number;
 }
 
 export interface AwardScoreDetail {
