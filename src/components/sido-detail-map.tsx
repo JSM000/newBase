@@ -76,6 +76,11 @@ export function SidoDetailMap({ sidoCode, selected, onSelect }: SidoDetailMapPro
         </div>
       )}
 
+      {/* 출처 */}
+      <p className="absolute bottom-1 right-2 text-[10px] text-zinc-300 pointer-events-none select-none">
+        © 통계청 SGIS
+      </p>
+
       {/* 터치 확인 바 */}
       {pending && (
         <div className="absolute bottom-0 left-0 right-0 flex items-center justify-between rounded-b-xl bg-white/95 px-4 py-3 shadow-lg backdrop-blur-sm">
