@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useRef, useCallback } from 'react';
+import Link from 'next/link';
 import { useParseExcel } from '@/hooks/apis/excel/use-parse-excel';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 
@@ -31,11 +32,16 @@ export function UploadSection() {
 
   return (
     <div className="flex min-h-screen flex-col">
-      <header className="bg-primary px-6 py-4 text-white shadow">
-        <h1 className="text-xl font-bold">관외전보 점수 계산기</h1>
-        <p className="mt-0.5 text-sm text-primary-100">
-          청주교육지원청 유치원·초등교사 | 기준일: 2026.2.28. | NEIS 인사기록카드 엑셀 파일
-        </p>
+      <header className="flex items-center justify-between bg-primary px-6 py-4 text-white shadow">
+        <div>
+          <h1 className="text-xl font-bold">관외전보 점수 계산기</h1>
+          <p className="mt-0.5 text-sm text-primary-100">
+            청주교육지원청 유치원·초등교사 | 기준일: 2026.2.28. | NEIS 인사기록카드 엑셀 파일
+          </p>
+        </div>
+        <Link href="/" className="text-sm text-primary-100 underline hover:text-white">
+          지역 변경
+        </Link>
       </header>
 
       <main className="flex flex-1 items-center justify-center p-6">

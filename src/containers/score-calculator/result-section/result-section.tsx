@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { useScoreStore, TabType } from '@/store/use-score-store';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Alert, AlertDescription } from '@/components/ui/alert';
@@ -59,16 +60,21 @@ export function ResultSection() {
             {parsed?.teacherName && `${parsed.teacherName} 교사`}
           </p>
         </div>
-        <button
-          onClick={() => {
-            setStep('upload');
-            setParsed(null);
-            setResult(null);
-          }}
-          className="text-sm text-primary-100 underline hover:text-white"
-        >
-          다시 업로드
-        </button>
+        <div className="flex items-center gap-4">
+          <Link href="/" className="text-sm text-primary-100 underline hover:text-white">
+            지역 변경
+          </Link>
+          <button
+            onClick={() => {
+              setStep('upload');
+              setParsed(null);
+              setResult(null);
+            }}
+            className="text-sm text-primary-100 underline hover:text-white"
+          >
+            다시 업로드
+          </button>
+        </div>
       </header>
 
       <main className="mx-auto w-full max-w-5xl flex-1 space-y-4 p-4">
