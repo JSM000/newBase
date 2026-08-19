@@ -10,6 +10,7 @@ import {
 } from '@/types/score';
 
 type Row = (string | number | boolean)[];
+type ColMap = Record<string, number>;
 
 function cell(row: Row, col: number): string {
   return String(row?.[col] ?? '').trim();
@@ -38,35 +39,55 @@ function findSection(data: Row[], pattern: RegExp): number {
   );
 }
 
-function parseTraining(data: Row[], sectionStart: number, sectionEnd: number): TrainingEntry[] {
+// 헤더 행을 읽어 컬럼 이름 → 인덱스 맵을 반환
+// 셀 값의 공백/줄바꿈을 제거한 뒤 패턴 매칭
+function buildColMap(headerRow: Row, keywords: Record<string, RegExp>): ColMap {
+  const result: ColMap = {};
+  for (let c = 0; c < headerRow.length; c++) {
+    const v = String(headerRow[c] ?? '').replace(/[\s\r\n]+/g, '');
+    for (const [key, pat] of Object.entries(keywords)) {
+      if (!(key in result) && pat.test(v)) {
+        result[key] = c;
+      }
+    }
+  }
+  return result;
+}
+
+function parseTraining(data: Row[], sectionRow: number, sectionEnd: number): TrainingEntry[] {
   const TYPES = new Set(['직무연수', '기타연수', '자격연수']);
   const entries: TrainingEntry[] = [];
 
-  for (let i = sectionStart; i < sectionEnd; ) {
+  const headerRow = data[sectionRow + 2] ?? [];
+  const cols = buildColMap(headerRow, {
+    id:               /이수번호/,
+    name:             /과정명/,
+    institution:      /연수기관/,
+    type:             /연수구분/,
+    period:           /연수기간/,
+    workRelated:      /직무연관성/,
+    registrationDate: /등록일자/,
+  });
+
+  for (let i = sectionRow + 4; i < sectionEnd; ) {
     const r = data[i];
-    const id = cell(r, 0);
-    const type = cell(r, 30);
+    const id = cell(r, cols.id ?? 0);
+    const type = cell(r, cols.type ?? 30);
 
     if (id && TYPES.has(type)) {
-      const startDate = parseKorDate(cell(r, 34)) ?? '';
-      const workRelated = cell(r, 48) === 'Y';
-      const registrationDate = parseKorDate(cell(r, 63)) ?? '';
-      const name = cell(r, 7);
-      const institution = cell(r, 19);
-
-      const endDate = parseKorDate(cell(data[i + 1], 34)) ?? '';
-      const durationMinutes = parseMinutes(cell(data[i + 3], 34));
+      const periodCol = cols.period ?? 34;
+      const startDate = parseKorDate(cell(r, periodCol)) ?? '';
+      const workRelated = cell(r, cols.workRelated ?? 48) === 'Y';
+      const registrationDate = parseKorDate(cell(r, cols.registrationDate ?? 63)) ?? '';
+      const name = cell(r, cols.name ?? 7);
+      const institution = cell(r, cols.institution ?? 19);
+      const endDate = parseKorDate(cell(data[i + 1], periodCol)) ?? '';
+      const durationMinutes = parseMinutes(cell(data[i + 3], periodCol));
 
       entries.push({
-        id,
-        name,
-        institution,
+        id, name, institution,
         type: type as '직무연수' | '기타연수' | '자격연수',
-        startDate,
-        endDate,
-        durationMinutes,
-        workRelated,
-        registrationDate,
+        startDate, endDate, durationMinutes, workRelated, registrationDate,
       });
       i += 4;
     } else {
@@ -77,24 +98,41 @@ function parseTraining(data: Row[], sectionStart: number, sectionEnd: number): T
   return entries;
 }
 
-function parseAwards(data: Row[], sectionStart: number, sectionEnd: number): AwardEntry[] {
+function parseAwards(data: Row[], sectionRow: number, sectionEnd: number): AwardEntry[] {
   const entries: AwardEntry[] = [];
-  for (let i = sectionStart; i < sectionEnd; i++) {
+
+  const headerRow = data[sectionRow + 2] ?? [];
+  const cols = buildColMap(headerRow, {
+    grade:  /포상훈격/,
+    name:   /상세포상명/,
+    agency: /시행기관/,
+  });
+
+  for (let i = sectionRow + 3; i < sectionEnd; i++) {
     const r = data[i];
     const dateRaw = cell(r, 0);
     if (!dateRaw.match(/^\d{4}\.\d{2}\.\d{2}$/)) continue;
     const date = parseKorDate(dateRaw) ?? dateRaw;
-    const grade = cell(r, 8);
-    const name = cell(r, 27);
-    const agency = cell(r, 59);
+    const grade = cell(r, cols.grade ?? 8);
+    const name = cell(r, cols.name ?? 27);
+    const agency = cell(r, cols.agency ?? 59);
     if (grade) entries.push({ date, grade, name, agency });
   }
   return entries;
 }
 
-function parseCareer(data: Row[], sectionStart: number, sectionEnd: number): CareerEntry[] {
+function parseCareer(data: Row[], sectionRow: number, sectionEnd: number): CareerEntry[] {
   const entries: CareerEntry[] = [];
-  for (let i = sectionStart; i < sectionEnd; i++) {
+
+  const headerRow = data[sectionRow + 2] ?? [];
+  const cols = buildColMap(headerRow, {
+    appointmentType: /임용구분/,
+    rank:            /직급/,
+    department:      /부서/,
+    agency:          /발령청/,
+  });
+
+  for (let i = sectionRow + 3; i < sectionEnd; i++) {
     const r = data[i];
     const period = cell(r, 0);
     if (!period.match(/^\d{4}\.\d{2}\.\d{2}/)) continue;
@@ -103,10 +141,10 @@ function parseCareer(data: Row[], sectionStart: number, sectionEnd: number): Car
     const startDate = parseKorDate(parts[0]) ?? '';
     const endDate = parts[1]?.trim() ? (parseKorDate(parts[1]) ?? null) : null;
 
-    const appointmentType = cell(r, 10);
-    const rank = cell(r, 24);
-    const department = cell(r, 38);
-    const agencyCol = cell(r, 61);
+    const appointmentType = cell(r, cols.appointmentType ?? 10);
+    const rank = cell(r, cols.rank ?? 24);
+    const department = cell(r, cols.department ?? 38);
+    const agencyCol = cell(r, cols.agency ?? 61);
 
     let school = '';
     if (agencyCol.match(/(?:초등학교|유치원)$/)) {
@@ -121,17 +159,26 @@ function parseCareer(data: Row[], sectionStart: number, sectionEnd: number): Car
   return entries;
 }
 
-function parseResearch(data: Row[], sectionStart: number, sectionEnd: number): ResearchEntry[] {
+function parseResearch(data: Row[], sectionRow: number, sectionEnd: number): ResearchEntry[] {
   const entries: ResearchEntry[] = [];
-  for (let i = sectionStart; i < sectionEnd; i++) {
+
+  const headerRow = data[sectionRow + 2] ?? [];
+  const cols = buildColMap(headerRow, {
+    period:          /연구기간/,
+    grade:           /등급/,
+    awardDate:       /수상일자/,
+    researcherCount: /연구자수/,
+  });
+
+  for (let i = sectionRow + 3; i < sectionEnd; i++) {
     const r = data[i];
     const titleAgency = cell(r, 0);
     if (!titleAgency || titleAgency.startsWith('연구주제')) continue;
 
-    const periodRaw = cell(r, 31);
-    const gradeRaw = cell(r, 41);
-    const awardDate = parseKorDate(cell(r, 56)) ?? '';
-    const researcherCount = parseInt(String(r[68] ?? '1')) || 1;
+    const periodRaw = cell(r, cols.period ?? 31);
+    const gradeRaw = cell(r, cols.grade ?? 41);
+    const awardDate = parseKorDate(cell(r, cols.awardDate ?? 56)) ?? '';
+    const researcherCount = parseInt(String(r[cols.researcherCount ?? 68] ?? '1')) || 1;
 
     const tildeParts = titleAgency.split('~');
     const title = tildeParts[0]?.trim() ?? '';
@@ -149,16 +196,24 @@ function parseResearch(data: Row[], sectionStart: number, sectionEnd: number): R
   return entries;
 }
 
-function parseDegrees(data: Row[], sectionStart: number, sectionEnd: number): DegreeEntry[] {
+function parseDegrees(data: Row[], sectionRow: number, sectionEnd: number): DegreeEntry[] {
   const entries: DegreeEntry[] = [];
-  for (let i = sectionStart; i < sectionEnd; i++) {
+
+  const headerRow = data[sectionRow + 2] ?? [];
+  const cols = buildColMap(headerRow, {
+    major:          /전공학과/,
+    degree:         /^학위$/,
+    completionDate: /등록일자/,
+  });
+
+  for (let i = sectionRow + 3; i < sectionEnd; i++) {
     const r = data[i];
     const schoolName = cell(r, 0);
     if (!schoolName || schoolName === '조회된 데이터가 없습니다.' || schoolName.startsWith('학교명')) continue;
 
-    const major = cell(r, 8);
-    const degreeRaw = cell(r, 23);
-    const completionDate = parseKorDate(cell(r, 51)) ?? '';
+    const major = cell(r, cols.major ?? 8);
+    const degreeRaw = cell(r, cols.degree ?? 23);
+    const completionDate = parseKorDate(cell(r, cols.completionDate ?? 51)) ?? '';
 
     let degree: '박사' | '석사' | null = null;
     if (degreeRaw.includes('박사')) degree = '박사';
@@ -226,39 +281,54 @@ export function parseExcelBuffer(buffer: Buffer): ParsedFile {
     credential:    findSection(data, /^19\.\s*자격취득/),
   };
 
-  const trainingDataStart = sec.training >= 0 ? sec.training + 4 : -1;
-  const trainingDataEnd   = sec.nationalVisit >= 0 ? sec.nationalVisit : data.length;
-
   let training: TrainingEntry[] = [];
   try {
-    if (trainingDataStart >= 0) training = parseTraining(data, trainingDataStart, trainingDataEnd);
+    if (sec.training >= 0) {
+      const end = sec.nationalVisit >= 0 ? sec.nationalVisit : data.length;
+      training = parseTraining(data, sec.training, end);
+    }
   } catch (e) { errors.push(`연수이수 파싱 오류: ${e}`); }
 
   let awards: AwardEntry[] = [];
   try {
-    if (sec.awards >= 0) awards = parseAwards(data, sec.awards, sec.discipline >= 0 ? sec.discipline : data.length);
+    if (sec.awards >= 0) {
+      const end = sec.discipline >= 0 ? sec.discipline : data.length;
+      awards = parseAwards(data, sec.awards, end);
+    }
   } catch (e) { errors.push(`포상 파싱 오류: ${e}`); }
 
   let research: ResearchEntry[] = [];
   try {
-    const researchEnd = sec.bonus >= 0 ? sec.bonus : (sec.career >= 0 ? sec.career : data.length);
-    if (sec.research >= 0) research = parseResearch(data, sec.research, researchEnd);
+    if (sec.research >= 0) {
+      const end = sec.bonus >= 0 ? sec.bonus : (sec.career >= 0 ? sec.career : data.length);
+      research = parseResearch(data, sec.research, end);
+    }
   } catch (e) { errors.push(`연구실적 파싱 오류: ${e}`); }
 
   let career: CareerEntry[] = [];
   try {
-    if (sec.career >= 0) career = parseCareer(data, sec.career, sec.supplementary >= 0 ? sec.supplementary : data.length);
-    else errors.push('경력(16절) 섹션을 찾지 못했습니다 — 다른 버전의 인사기록카드일 수 있습니다.');
+    if (sec.career >= 0) {
+      const end = sec.supplementary >= 0 ? sec.supplementary : data.length;
+      career = parseCareer(data, sec.career, end);
+    } else {
+      errors.push('경력(16절) 섹션을 찾지 못했습니다 — 다른 버전의 인사기록카드일 수 있습니다.');
+    }
   } catch (e) { errors.push(`경력 파싱 오류: ${e}`); }
 
   let supplementary: SupplementaryEntry[] = [];
   try {
-    if (sec.supplementary >= 0) supplementary = parseSupplementary(data, sec.supplementary, sec.degree >= 0 ? sec.degree : data.length);
+    if (sec.supplementary >= 0) {
+      const end = sec.degree >= 0 ? sec.degree : data.length;
+      supplementary = parseSupplementary(data, sec.supplementary, end);
+    }
   } catch (e) { errors.push(`보충기재 파싱 오류: ${e}`); }
 
   let degrees: DegreeEntry[] = [];
   try {
-    if (sec.degree >= 0) degrees = parseDegrees(data, sec.degree, sec.credential >= 0 ? sec.credential : data.length);
+    if (sec.degree >= 0) {
+      const end = sec.credential >= 0 ? sec.credential : data.length;
+      degrees = parseDegrees(data, sec.degree, end);
+    }
   } catch (e) { errors.push(`학위 파싱 오류: ${e}`); }
 
   const schoolEntry = [...career].reverse().find(c => c.school.match(/(?:초등학교|유치원)$/));
