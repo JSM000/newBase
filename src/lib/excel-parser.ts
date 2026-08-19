@@ -33,7 +33,9 @@ function parseMinutes(s: string): number {
 }
 
 function findSection(data: Row[], pattern: RegExp): number {
-  return data.findIndex(row => pattern.test(String(row[0] ?? '')));
+  return data.findIndex(row =>
+    row.slice(0, 5).some(cell => pattern.test(String(cell ?? '')))
+  );
 }
 
 function parseTraining(data: Row[], sectionStart: number, sectionEnd: number): TrainingEntry[] {
@@ -246,6 +248,7 @@ export function parseExcelBuffer(buffer: Buffer): ParsedFile {
   let career: CareerEntry[] = [];
   try {
     if (sec.career >= 0) career = parseCareer(data, sec.career, sec.supplementary >= 0 ? sec.supplementary : data.length);
+    else errors.push('경력(16절) 섹션을 찾지 못했습니다 — 다른 버전의 인사기록카드일 수 있습니다.');
   } catch (e) { errors.push(`경력 파싱 오류: ${e}`); }
 
   let supplementary: SupplementaryEntry[] = [];
