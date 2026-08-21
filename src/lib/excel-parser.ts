@@ -201,7 +201,7 @@ function parseResearch(data: Row[], sectionRow: number, sectionEnd: number): Res
   for (let i = headerRowIdx + 1; i < sectionEnd; i++) {
     const r = data[i];
     const titleAgency = cell(r, 0);
-    if (!titleAgency || titleAgency.startsWith('연구주제')) continue;
+    if (!titleAgency || titleAgency.startsWith('연구주제') || titleAgency === '조회된 데이터가 없습니다.') continue;
 
     const periodRaw = cell(r, cols.period ?? 31);
     const gradeRaw = cell(r, cols.grade ?? 41);
