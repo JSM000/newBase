@@ -39,8 +39,17 @@ function findSection(data: Row[], pattern: RegExp): number {
   );
 }
 
+// 섹션 타이틀 아래에서 keyword 패턴이 처음 등장하는 행을 헤더 행으로 반환
+// 공백/줄바꿈을 제거한 뒤 매칭하며, maxLookAhead 내에 못 찾으면 sectionRow+2 폴백
+function findHeaderRow(data: Row[], sectionRow: number, keywords: Record<string, RegExp>, maxLookAhead = 8): number {
+  for (let i = sectionRow + 1; i < Math.min(sectionRow + maxLookAhead, data.length); i++) {
+    const stripped = (data[i] ?? []).map(c => String(c ?? '').replace(/[\s\r\n]+/g, ''));
+    if (Object.values(keywords).some(pat => stripped.some(v => pat.test(v)))) return i;
+  }
+  return sectionRow + 2;
+}
+
 // 헤더 행을 읽어 컬럼 이름 → 인덱스 맵을 반환
-// 셀 값의 공백/줄바꿈을 제거한 뒤 패턴 매칭
 function buildColMap(headerRow: Row, keywords: Record<string, RegExp>): ColMap {
   const result: ColMap = {};
   for (let c = 0; c < headerRow.length; c++) {
@@ -58,8 +67,7 @@ function parseTraining(data: Row[], sectionRow: number, sectionEnd: number): Tra
   const TYPES = new Set(['직무연수', '기타연수', '자격연수']);
   const entries: TrainingEntry[] = [];
 
-  const headerRow = data[sectionRow + 2] ?? [];
-  const cols = buildColMap(headerRow, {
+  const keywords = {
     id:               /이수번호/,
     name:             /과정명/,
     institution:      /연수기관/,
@@ -67,29 +75,50 @@ function parseTraining(data: Row[], sectionRow: number, sectionEnd: number): Tra
     period:           /연수기간/,
     workRelated:      /직무연관성/,
     registrationDate: /등록일자/,
-  });
+  };
 
-  for (let i = sectionRow + 4; i < sectionEnd; ) {
+  const headerRowIdx = findHeaderRow(data, sectionRow, keywords);
+  const cols = buildColMap(data[headerRowIdx] ?? [], keywords);
+  const idCol = cols.id ?? 0;
+  const typeCol = cols.type ?? 30;
+  const periodCol = cols.period ?? 34;
+
+  for (let i = headerRowIdx + 1; i < sectionEnd; ) {
     const r = data[i];
-    const id = cell(r, cols.id ?? 0);
-    const type = cell(r, cols.type ?? 30);
+    const id = cell(r, idCol);
+    const type = cell(r, typeCol);
 
     if (id && TYPES.has(type)) {
-      const periodCol = cols.period ?? 34;
       const startDate = parseKorDate(cell(r, periodCol)) ?? '';
       const workRelated = cell(r, cols.workRelated ?? 48) === 'Y';
       const registrationDate = parseKorDate(cell(r, cols.registrationDate ?? 63)) ?? '';
       const name = cell(r, cols.name ?? 7);
       const institution = cell(r, cols.institution ?? 19);
-      const endDate = parseKorDate(cell(data[i + 1], periodCol)) ?? '';
-      const durationMinutes = parseMinutes(cell(data[i + 3], periodCol));
+
+      // 다음 항목 시작 행을 찾아 이 항목의 범위를 결정
+      let nextEntry = i + 1;
+      while (nextEntry < sectionEnd) {
+        const nId = cell(data[nextEntry], idCol);
+        const nType = cell(data[nextEntry], typeCol);
+        if (nId && TYPES.has(nType)) break;
+        nextEntry++;
+      }
+
+      // 이 항목 행 범위 내에서 종료일(~로 시작)과 시간수((로 시작)를 내용으로 탐색
+      let endDate = '';
+      let durationMinutes = 0;
+      for (let k = i + 1; k < nextEntry; k++) {
+        const periodVal = cell(data[k], periodCol);
+        if (periodVal.startsWith('~')) endDate = parseKorDate(periodVal) ?? '';
+        else if (periodVal.startsWith('(')) durationMinutes = parseMinutes(periodVal);
+      }
 
       entries.push({
         id, name, institution,
         type: type as '직무연수' | '기타연수' | '자격연수',
         startDate, endDate, durationMinutes, workRelated, registrationDate,
       });
-      i += 4;
+      i = nextEntry;
     } else {
       i++;
     }
@@ -101,14 +130,11 @@ function parseTraining(data: Row[], sectionRow: number, sectionEnd: number): Tra
 function parseAwards(data: Row[], sectionRow: number, sectionEnd: number): AwardEntry[] {
   const entries: AwardEntry[] = [];
 
-  const headerRow = data[sectionRow + 2] ?? [];
-  const cols = buildColMap(headerRow, {
-    grade:  /포상훈격/,
-    name:   /상세포상명/,
-    agency: /시행기관/,
-  });
+  const keywords = { grade: /포상훈격/, name: /상세포상명/, agency: /시행기관/ };
+  const headerRowIdx = findHeaderRow(data, sectionRow, keywords);
+  const cols = buildColMap(data[headerRowIdx] ?? [], keywords);
 
-  for (let i = sectionRow + 3; i < sectionEnd; i++) {
+  for (let i = headerRowIdx + 1; i < sectionEnd; i++) {
     const r = data[i];
     const dateRaw = cell(r, 0);
     if (!dateRaw.match(/^\d{4}\.\d{2}\.\d{2}$/)) continue;
@@ -124,15 +150,16 @@ function parseAwards(data: Row[], sectionRow: number, sectionEnd: number): Award
 function parseCareer(data: Row[], sectionRow: number, sectionEnd: number): CareerEntry[] {
   const entries: CareerEntry[] = [];
 
-  const headerRow = data[sectionRow + 2] ?? [];
-  const cols = buildColMap(headerRow, {
+  const keywords = {
     appointmentType: /임용구분/,
     rank:            /직급/,
     department:      /부서/,
     agency:          /발령청/,
-  });
+  };
+  const headerRowIdx = findHeaderRow(data, sectionRow, keywords);
+  const cols = buildColMap(data[headerRowIdx] ?? [], keywords);
 
-  for (let i = sectionRow + 3; i < sectionEnd; i++) {
+  for (let i = headerRowIdx + 1; i < sectionEnd; i++) {
     const r = data[i];
     const period = cell(r, 0);
     if (!period.match(/^\d{4}\.\d{2}\.\d{2}/)) continue;
@@ -162,15 +189,16 @@ function parseCareer(data: Row[], sectionRow: number, sectionEnd: number): Caree
 function parseResearch(data: Row[], sectionRow: number, sectionEnd: number): ResearchEntry[] {
   const entries: ResearchEntry[] = [];
 
-  const headerRow = data[sectionRow + 2] ?? [];
-  const cols = buildColMap(headerRow, {
+  const keywords = {
     period:          /연구기간/,
     grade:           /등급/,
     awardDate:       /수상일자/,
     researcherCount: /연구자수/,
-  });
+  };
+  const headerRowIdx = findHeaderRow(data, sectionRow, keywords);
+  const cols = buildColMap(data[headerRowIdx] ?? [], keywords);
 
-  for (let i = sectionRow + 3; i < sectionEnd; i++) {
+  for (let i = headerRowIdx + 1; i < sectionEnd; i++) {
     const r = data[i];
     const titleAgency = cell(r, 0);
     if (!titleAgency || titleAgency.startsWith('연구주제')) continue;
@@ -199,14 +227,11 @@ function parseResearch(data: Row[], sectionRow: number, sectionEnd: number): Res
 function parseDegrees(data: Row[], sectionRow: number, sectionEnd: number): DegreeEntry[] {
   const entries: DegreeEntry[] = [];
 
-  const headerRow = data[sectionRow + 2] ?? [];
-  const cols = buildColMap(headerRow, {
-    major:          /전공학과/,
-    degree:         /^학위$/,
-    completionDate: /등록일자/,
-  });
+  const keywords = { major: /전공학과/, degree: /^학위$/, completionDate: /등록일자/ };
+  const headerRowIdx = findHeaderRow(data, sectionRow, keywords);
+  const cols = buildColMap(data[headerRowIdx] ?? [], keywords);
 
-  for (let i = sectionRow + 3; i < sectionEnd; i++) {
+  for (let i = headerRowIdx + 1; i < sectionEnd; i++) {
     const r = data[i];
     const schoolName = cell(r, 0);
     if (!schoolName || schoolName === '조회된 데이터가 없습니다.' || schoolName.startsWith('학교명')) continue;
