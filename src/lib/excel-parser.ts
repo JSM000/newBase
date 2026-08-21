@@ -75,6 +75,7 @@ function parseTraining(data: Row[], sectionRow: number, sectionEnd: number): Tra
     period:           /연수기간/,
     workRelated:      /직무연관성/,
     registrationDate: /등록일자/,
+    score:            /평정학점/,
   };
 
   const headerRowIdx = findHeaderRow(data, sectionRow, keywords);
@@ -104,19 +105,23 @@ function parseTraining(data: Row[], sectionRow: number, sectionEnd: number): Tra
         nextEntry++;
       }
 
-      // 이 항목 행 범위 내에서 종료일(~로 시작)과 시간수((로 시작)를 내용으로 탐색
+      // 이 항목 행 범위 내에서 종료일(~로 시작), 시간수((로 시작), 연도별누계(X시간Y분)를 탐색
       let endDate = '';
       let durationMinutes = 0;
+      let yearCumulative: number | undefined;
+      const scoreCol = cols.score ?? 53;
       for (let k = i + 1; k < nextEntry; k++) {
         const periodVal = cell(data[k], periodCol);
+        const scoreVal = cell(data[k], scoreCol);
         if (periodVal.startsWith('~')) endDate = parseKorDate(periodVal) ?? '';
         else if (periodVal.startsWith('(')) durationMinutes = parseMinutes(periodVal);
+        if (/^\d+시간/.test(scoreVal)) yearCumulative = parseMinutes(scoreVal);
       }
 
       entries.push({
         id, name, institution,
         type: type as '직무연수' | '기타연수' | '자격연수',
-        startDate, endDate, durationMinutes, workRelated, registrationDate,
+        startDate, endDate, durationMinutes, workRelated, registrationDate, yearCumulative,
       });
       i = nextEntry;
     } else {
@@ -130,7 +135,7 @@ function parseTraining(data: Row[], sectionRow: number, sectionEnd: number): Tra
 function parseAwards(data: Row[], sectionRow: number, sectionEnd: number): AwardEntry[] {
   const entries: AwardEntry[] = [];
 
-  const keywords = { grade: /포상훈격/, name: /상세포상명/, agency: /시행기관/ };
+  const keywords = { grade: /포상훈격/, name: /상세포상명/, merit: /공적/, agency: /시행기관/ };
   const headerRowIdx = findHeaderRow(data, sectionRow, keywords);
   const cols = buildColMap(data[headerRowIdx] ?? [], keywords);
 
@@ -140,7 +145,7 @@ function parseAwards(data: Row[], sectionRow: number, sectionEnd: number): Award
     if (!dateRaw.match(/^\d{4}\.\d{2}\.\d{2}$/)) continue;
     const date = parseKorDate(dateRaw) ?? dateRaw;
     const grade = cell(r, cols.grade ?? 8);
-    const name = cell(r, cols.name ?? 27);
+    const name = cell(r, cols.name ?? 27) || cell(r, cols.merit ?? 40);
     const agency = cell(r, cols.agency ?? 59);
     if (grade) entries.push({ date, grade, name, agency });
   }

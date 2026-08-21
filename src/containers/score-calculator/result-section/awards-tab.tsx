@@ -25,6 +25,7 @@ export function AwardsTab() {
         <Table>
           <TableHeader>
             <TableRow>
+              <TableHead className="w-8 text-center text-xs">#</TableHead>
               <TableHead>포상일</TableHead>
               <TableHead>포상훈격</TableHead>
               <TableHead>포상명</TableHead>
@@ -35,6 +36,7 @@ export function AwardsTab() {
           <TableBody>
             {result?.awardDetails.map((d, i) => (
               <TableRow key={i} className={cn(!d.used && 'opacity-50')}>
+                <TableCell className="text-center text-xs text-slate-400">{i + 1}</TableCell>
                 <TableCell className="whitespace-nowrap">{d.award.date}</TableCell>
                 <TableCell>{d.award.grade}</TableCell>
                 <TableCell className="text-xs text-slate-600">{d.award.name}</TableCell>

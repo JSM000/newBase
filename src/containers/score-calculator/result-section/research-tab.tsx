@@ -25,6 +25,7 @@ export function ResearchTab() {
         <Table>
           <TableHeader>
             <TableRow>
+              <TableHead className="w-8 text-center text-xs">#</TableHead>
               <TableHead>연구주제</TableHead>
               <TableHead>등급</TableHead>
               <TableHead>수상일</TableHead>
@@ -35,6 +36,7 @@ export function ResearchTab() {
           <TableBody>
             {result?.researchDetails.map((d, i) => (
               <TableRow key={i} className={cn(!d.used && 'opacity-50')}>
+                <TableCell className="text-center text-xs text-slate-400">{i + 1}</TableCell>
                 <TableCell className="text-xs">
                   {d.research.title || '(제목 미파싱)'}
                 </TableCell>

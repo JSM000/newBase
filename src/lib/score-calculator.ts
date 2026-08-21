@@ -230,15 +230,13 @@ export function calculateScore(parsed: ParsedFile, inputs: UserInputs): Calculat
 
   for (const sy of SCHOOL_YEARS) {
     const syStart = new Date(`${sy}-03-01`);
-    const syQualCutoff = new Date(`${sy}-12-31`);
     const syEnd = new Date(`${sy + 1}-02-28`);
 
     const relevantTraining = parsed.training.filter(t => {
       if (t.type !== '직무연수' || !t.workRelated) return false;
       const endD = parseDate(t.endDate);
-      const regD = parseDate(t.registrationDate) ?? endD;
       if (!endD) return false;
-      return endD >= syStart && endD <= syEnd && (regD ? regD <= syQualCutoff : endD <= syQualCutoff);
+      return endD >= syStart && endD <= syEnd;
     });
 
     const totalMinutes = relevantTraining.reduce((s, t) => s + t.durationMinutes, 0);

@@ -9,6 +9,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+
 export function CareerTab() {
   const parsed = useScoreStore((state) => state.parsed);
 
@@ -22,6 +23,7 @@ export function CareerTab() {
         <Table>
           <TableHeader>
             <TableRow>
+              <TableHead className="w-8 text-center text-xs">#</TableHead>
               <TableHead>기간</TableHead>
               <TableHead>임용구분</TableHead>
               <TableHead>학교</TableHead>
@@ -30,6 +32,7 @@ export function CareerTab() {
           <TableBody>
             {parsed?.career.map((c, i) => (
               <TableRow key={i}>
+                <TableCell className="text-center text-xs text-slate-400">{i + 1}</TableCell>
                 <TableCell className="whitespace-nowrap">
                   {c.startDate} ~ {c.endDate ?? '현재'}
                 </TableCell>

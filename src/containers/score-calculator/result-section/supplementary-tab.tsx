@@ -9,6 +9,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+
 const SUPPLEMENTARY_TYPE_LABEL: Record<string, string> = {
   subject_class: '교과전담',
   homeroom: '담임교사',
@@ -30,6 +31,7 @@ export function SupplementaryTab() {
         <Table>
           <TableHeader>
             <TableRow>
+              <TableHead className="w-8 text-center text-xs">#</TableHead>
               <TableHead>구분</TableHead>
               <TableHead>기간</TableHead>
               <TableHead>내용</TableHead>
@@ -38,6 +40,7 @@ export function SupplementaryTab() {
           <TableBody>
             {parsed?.supplementary.map((s, i) => (
               <TableRow key={i}>
+                <TableCell className="text-center text-xs text-slate-400">{i + 1}</TableCell>
                 <TableCell className="whitespace-nowrap">
                   {SUPPLEMENTARY_TYPE_LABEL[s.type] ?? s.type}
                 </TableCell>

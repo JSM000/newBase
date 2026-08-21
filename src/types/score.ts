@@ -40,6 +40,7 @@ export interface TrainingEntry {
   durationMinutes: number;
   workRelated: boolean;
   registrationDate: string;
+  yearCumulative?: number; // NEIS 연도별연수시간누계 (분 단위)
 }
 
 export interface DegreeEntry {

@@ -44,9 +44,9 @@ export function ResultSection() {
     { value: 'eligibility',   label: '전보 판단' },
     { value: 'score',         label: '점수 상세' },
     { value: 'career',        label: `경력 (${parsed?.career.length ?? 0})` },
-    { value: 'awards',        label: `포상 (${parsed?.awards.length ?? 0})` },
-    { value: 'research',      label: `연구실적 (${parsed?.research.length ?? 0})` },
-    { value: 'training',      label: `연수이수 (${parsed?.training.length ?? 0})` },
+    { value: 'awards',        label: (() => { const used = result?.awardDetails.filter(d => d.used).length ?? 0; const total = parsed?.awards.length ?? 0; return total > 0 ? `포상 (${used}/${total})` : '포상 (0)'; })() },
+    { value: 'research',      label: (() => { const used = result?.researchDetails.filter(d => d.used).length ?? 0; const total = parsed?.research.length ?? 0; return total > 0 ? `연구실적 (${used}/${total})` : '연구실적 (0)'; })() },
+    { value: 'training',      label: (() => { const qualified = result?.trainingByYear.filter(y => y.qualifies).length ?? 0; const total = result?.trainingByYear.length ?? 5; return `연수이수 (${qualified}/${total})`; })() },
     { value: 'supplementary', label: `보충기재 (${parsed?.supplementary.length ?? 0})` },
   ];
 
