@@ -173,6 +173,8 @@ export function calculateScore(parsed: ParsedFile, inputs: UserInputs): Calculat
   const researchDetails: ResearchScoreDetail[] = [];
   const researchInWindow = parsed.research
     .filter(r => isWithin5Years(r.awardDate) && isBeforeCutoff(r.awardDate, AWARD_NEIS_CUTOFF));
+  const researchOutOfWindow = parsed.research
+    .filter(r => !isWithin5Years(r.awardDate) || !isBeforeCutoff(r.awardDate, AWARD_NEIS_CUTOFF));
 
   const usedResearchYears = new Set<number>();
   let usedResearchCount = 0;
@@ -198,6 +200,19 @@ export function calculateScore(parsed: ParsedFile, inputs: UserInputs): Calculat
         : usedResearchYears.has(year) ? `${year}년 이미 최상위 연구실적 적용됨` : '연구실적 최대 2개 초과',
     });
     if (used) { usedResearchYears.add(year); usedResearchCount++; }
+  }
+
+  for (const r of researchOutOfWindow) {
+    const base = getResearchBaseScore(r.levelType, r.grade);
+    const discount = getResearchDiscount(r.researcherCount);
+    researchDetails.push({
+      research: r,
+      baseScore: base,
+      discountRate: discount,
+      finalScore: 0,
+      used: false,
+      reason: '평정기간(최근 5년) 외',
+    });
   }
 
   const researchScore = parseFloat(researchDetails.filter(d => d.used).reduce((s, d) => s + d.finalScore, 0).toFixed(4));
