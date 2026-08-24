@@ -29,7 +29,7 @@ export function HomeContainer() {
 
   return (
     <div className="flex h-screen flex-col bg-zinc-50">
-      <AppHeader title="전보 점수 계산" subtitle="현재 근무지를 선택하세요" />
+      <AppHeader title="테스크" subtitle="현재 근무지를 선택하세요" />
 
       {/* 지도 영역 */}
       <div className="flex min-h-0 flex-1 flex-col px-4 pb-4">
