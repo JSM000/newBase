@@ -2,8 +2,6 @@
   "permissions": {
     "deny": [
       "Bash(rm *)",
-      "Bash(git push *)",
-      "Bash(git push)",
       "Bash(git reset --hard *)",
       "Bash(yarn add *)",
       "Bash(yarn install *)",
