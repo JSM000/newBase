@@ -13,3 +13,4 @@ export async function parseExcelApi(file: File): Promise<ParseExcelResponse> {
   if (!res.ok) throw new Error(data.error ?? '서버 오류');
   return data;
 }
+

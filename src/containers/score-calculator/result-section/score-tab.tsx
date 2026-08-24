@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import { useScoreStore } from '@/store/use-score-store';
 import {
   Table,
@@ -21,14 +22,36 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { ScoreRow } from '@/components/score-row';
+import { PdfViewerSheet } from '@/components/pdf-viewer-sheet';
 import { fmt } from '@/utils/formatter';
 import { SchoolZoneType, PreferentialBonusType } from '@/types/score';
+
+// 공문(인사계획.pdf) 페이지 번호 — "초등교육공무원 인사관리기준 적용 시 유의사항"(부록 i~vii) 기준
+// 학위·담임교사·특수통합학급 담임은 이 공문에 월점수 기재가 없어 확인 전까지 1로 둠
+const PDF_PAGES: Record<string, number> = {
+  '경력점':           27, // 부록ⅰ) 2. 경력기간 산정
+  '지역가산점':       28, // 부록ⅱ) 3-가. 지역가산점
+  '우대가산점':       28, // 부록ⅱ) 3-나. 우대가산점
+  '포상':             30, // 부록ⅳ) 4-가. 포상
+  '연구실적':         30, // 부록ⅳ) 4-다. 연구실적
+  '학위':             1,
+  '직무연수':         30, // 부록ⅳ) 4-라. 직무연수실적
+  '교과전담':         31, // 부록ⅴ) 4-마. 교과전담교사
+  '담임교사':         1,
+  '부장교사':         32, // 부록ⅵ) 4-타. 시지역 부장교사 근무실적
+  '특수통합학급 담임': 1,
+  '복식학급 담임':    31, // 부록ⅴ) 4-바. 복식학급 담당교사 지도실적
+};
 
 export function ScoreTab() {
   const result = useScoreStore((state) => state.result);
   const inputs = useScoreStore((state) => state.inputs);
   const updateInput = useScoreStore((state) => state.updateInput);
   const recalculate = useScoreStore((state) => state.recalculate);
+  const [pdfItem, setPdfItem] = useState<string | null>(null);
+
+  const openPdf = (label: string) => setPdfItem(label);
+  const closePdf = () => setPdfItem(null);
 
   if (!result) return null;
 
@@ -138,7 +161,8 @@ export function ScoreTab() {
           <TableRow className="bg-zinc-50">
             <TableHead className="rounded-tl-lg font-semibold text-zinc-700">항목</TableHead>
             <TableHead className="text-right font-semibold text-zinc-700">점수</TableHead>
-            <TableHead className="rounded-tr-lg font-semibold text-zinc-500">세부내용</TableHead>
+            <TableHead className="font-semibold text-zinc-500">세부내용</TableHead>
+            <TableHead className="rounded-tr-lg w-20 whitespace-nowrap text-center font-semibold text-zinc-500">계산 근거</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -147,6 +171,7 @@ export function ScoreTab() {
             score={result.careerScore}
             color="zinc"
             detail={`현임교(${result.currentSchool || '미확인'}) ${result.careerMonths}개월`}
+            onPdf={() => openPdf('경력점')}
           />
           <ScoreRow
             label="지역가산점"
@@ -157,6 +182,7 @@ export function ScoreTab() {
                 ? `${inputs.schoolZone} × ${result.regionalBonusMonths}개월`
                 : '해당 없음'
             }
+            onPdf={() => openPdf('지역가산점')}
           />
           <ScoreRow
             label="우대가산점"
@@ -167,6 +193,7 @@ export function ScoreTab() {
                 ? `월 0.025 × ${result.preferentialBonusMonths}개월`
                 : '해당 없음'
             }
+            onPdf={() => openPdf('우대가산점')}
           />
           <ScoreRow
             label="포상"
@@ -178,6 +205,7 @@ export function ScoreTab() {
                 .map((d) => `${d.year}년 ${d.award.grade}(${d.score})`)
                 .join(', ') || '해당 없음'
             }
+            onPdf={() => openPdf('포상')}
           />
           <ScoreRow
             label="연구실적"
@@ -189,18 +217,21 @@ export function ScoreTab() {
                 .map((d) => d.reason)
                 .join(', ') || '해당 없음'
             }
+            onPdf={() => openPdf('연구실적')}
           />
           <ScoreRow
             label="학위"
             score={result.degreeScore}
             color="secondary"
             detail={result.degreeType || '해당 없음'}
+            onPdf={() => openPdf('학위')}
           />
           <ScoreRow
             label="직무연수"
             score={result.trainingScore}
             color="secondary"
             detail={`${result.trainingByYear.filter((y) => y.qualifies).length}개 학년도 × 0.5점`}
+            onPdf={() => openPdf('직무연수')}
           />
           <ScoreRow
             label="교과전담"
@@ -211,6 +242,7 @@ export function ScoreTab() {
                 ? `${result.subjectClassMonths}개월 × 0.03`
                 : '해당 없음'
             }
+            onPdf={() => openPdf('교과전담')}
           />
           <ScoreRow
             label="담임교사"
@@ -221,6 +253,7 @@ export function ScoreTab() {
                 ? `${result.homeroomMonths}개월 × 0.02`
                 : '해당 없음'
             }
+            onPdf={() => openPdf('담임교사')}
           />
           <ScoreRow
             label="부장교사"
@@ -231,11 +264,12 @@ export function ScoreTab() {
                 ? `${result.headTeacherMonths}개월 × ${inputs.headTeacherSchoolZone === 'urban' ? '0.03' : '0.02'}`
                 : '해당 없음'
             }
+            onPdf={() => openPdf('부장교사')}
           />
           {result.conflictResolution && (
             <TableRow>
               <TableCell
-                colSpan={3}
+                colSpan={4}
                 className="bg-amber-50 px-3 py-1 text-xs text-amber-700"
               >
                 ※ {result.conflictResolution}
@@ -251,6 +285,7 @@ export function ScoreTab() {
                 ? `${result.specialEdMonths}개월 × 0.01`
                 : '해당 없음'
             }
+            onPdf={() => openPdf('특수통합학급 담임')}
           />
           <ScoreRow
             label="복식학급 담임"
@@ -261,6 +296,7 @@ export function ScoreTab() {
                 ? `${result.multigradeMonths}개월 × 0.03`
                 : '해당 없음'
             }
+            onPdf={() => openPdf('복식학급 담임')}
           />
         </TableBody>
         <TableFooter>
@@ -269,10 +305,11 @@ export function ScoreTab() {
             <TableCell className="text-right text-xl text-primary">
               {fmt(result.grandTotal)}
             </TableCell>
-            <TableCell className="rounded-br-lg text-xs font-normal text-zinc-500">
+            <TableCell className="text-xs font-normal text-zinc-500">
               경력({fmt(result.totalCareer)}) + 가산({fmt(result.totalBonus)}) +
               실적({fmt(result.totalPerformance)})
             </TableCell>
+            <TableCell className="rounded-br-lg" />
           </TableRow>
         </TableFooter>
       </Table>
@@ -303,6 +340,13 @@ export function ScoreTab() {
           ))}
         </div>
       </div>
+
+      <PdfViewerSheet
+        open={pdfItem !== null}
+        onClose={closePdf}
+        title={pdfItem ?? ''}
+        page={pdfItem ? PDF_PAGES[pdfItem] : undefined}
+      />
     </div>
   );
 }
