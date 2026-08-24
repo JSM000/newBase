@@ -10,6 +10,7 @@ import {
   TransferType,
 } from '@/lib/transfer-eligibility';
 import { cn } from '@/utils/cn';
+import { AppHeader } from '@/components/app-header';
 import { EligibilityTab } from './eligibility-tab';
 import { ScoreTab } from './score-tab';
 import { CareerTab } from './career-tab';
@@ -52,30 +53,27 @@ export function ResultSection() {
 
   return (
     <div className="flex min-h-screen flex-col">
-      <header className="flex items-center justify-between bg-primary px-6 py-4 text-white shadow">
-        <div>
-          <h1 className="text-xl font-bold">관외전보 점수 계산기</h1>
-          <p className="text-sm text-primary-100">
-            {parsed?.schoolName && `${parsed.schoolName} · `}
-            {parsed?.teacherName && `${parsed.teacherName} 교사`}
-          </p>
-        </div>
-        <div className="flex items-center gap-4">
-          <Link href="/" className="text-sm text-primary-100 underline hover:text-white">
-            지역 변경
-          </Link>
-          <button
-            onClick={() => {
-              setStep('upload');
-              setParsed(null);
-              setResult(null);
-            }}
-            className="text-sm text-primary-100 underline hover:text-white"
-          >
-            다시 업로드
-          </button>
-        </div>
-      </header>
+      <AppHeader
+        title="관외전보 점수 계산기"
+        subtitle={parsed?.schoolName}
+        actions={
+          <>
+            <Link href="/" className="text-sm text-primary-100 underline hover:text-white">
+              지역 변경
+            </Link>
+            <button
+              onClick={() => {
+                setStep('upload');
+                setParsed(null);
+                setResult(null);
+              }}
+              className="text-sm text-primary-100 underline hover:text-white"
+            >
+              다시 업로드
+            </button>
+          </>
+        }
+      />
 
       <main className="mx-auto w-full max-w-5xl flex-1 space-y-4 p-4">
         {parsed?.parseErrors && parsed.parseErrors.length > 0 && (

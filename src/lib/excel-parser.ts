@@ -361,12 +361,13 @@ export function parseExcelBuffer(buffer: Buffer): ParsedFile {
     }
   } catch (e) { errors.push(`학위 파싱 오류: ${e}`); }
 
-  const schoolEntry = [...career].reverse().find(c => c.school.match(/(?:초등학교|유치원)$/));
+  const schoolEntry = career
+    .filter(c => c.school.match(/(?:초등학교|유치원)$/))
+    .sort((a, b) => b.startDate.localeCompare(a.startDate))[0];
   const schoolName = schoolEntry?.school ?? '';
 
   return {
     schoolName,
-    teacherName: '',
     career,
     awards,
     research,

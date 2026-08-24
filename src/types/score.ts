@@ -61,7 +61,6 @@ export interface SupplementaryEntry {
 
 export interface ParsedFile {
   schoolName: string;
-  teacherName: string;
   career: CareerEntry[];
   awards: AwardEntry[];
   research: ResearchEntry[];
