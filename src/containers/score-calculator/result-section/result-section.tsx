@@ -1,6 +1,5 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { useScoreStore, TabType } from '@/store/use-score-store';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
@@ -41,13 +40,6 @@ export function ResultSection() {
   const eligibility = result
     ? calculateTransferEligibility(result, eligibilityInputs)
     : null;
-
-  const tabsListRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const activeEl = tabsListRef.current?.querySelector<HTMLElement>('[data-state="active"]');
-    activeEl?.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
-  }, [activeTab]);
 
   const tabs: { value: TabType; label: string }[] = [
     { value: 'eligibility',   label: '전보 판단' },
@@ -154,25 +146,17 @@ export function ResultSection() {
           onValueChange={(v) => setActiveTab(v as TabType)}
           className="overflow-hidden rounded-xl bg-white shadow-custom"
         >
-          <div className="relative border-b">
-            <TabsList
-              ref={tabsListRef}
-              className="flex h-auto overflow-x-auto rounded-none bg-transparent p-0"
-            >
-              {tabs.map(({ value, label }) => (
-                <TabsTrigger
-                  key={value}
-                  value={value}
-                  className="whitespace-nowrap rounded-none bg-transparent px-4 py-3 text-sm font-medium text-zinc-500 data-[state=active]:border-b-2 data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:shadow-none"
-                >
-                  {label}
-                </TabsTrigger>
-              ))}
-            </TabsList>
-            {/* 가로 스크롤 가능함을 알리는 좌우 페이드 */}
-            <div className="pointer-events-none absolute inset-y-0 left-0 w-6 bg-gradient-to-r from-white to-transparent" />
-            <div className="pointer-events-none absolute inset-y-0 right-0 w-6 bg-gradient-to-l from-white to-transparent" />
-          </div>
+          <TabsList className="flex h-auto flex-wrap rounded-none border-b bg-transparent p-0">
+            {tabs.map(({ value, label }) => (
+              <TabsTrigger
+                key={value}
+                value={value}
+                className="whitespace-nowrap rounded-none bg-transparent px-4 py-3 text-sm font-medium text-zinc-500 data-[state=active]:border-b-2 data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:text-primary data-[state=active]:shadow-none"
+              >
+                {label}
+              </TabsTrigger>
+            ))}
+          </TabsList>
 
           <div className="p-4">
             <TabsContent value="eligibility"><EligibilityTab /></TabsContent>
