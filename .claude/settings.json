@@ -12,7 +12,104 @@
       "Bash(bun install)",
       "Bash(bun add *)",
       "Bash(npm ci *)",
-      "Bash(npm ci)"
-    ]
+      "Bash(npm ci)",
+      "Read(.env)",
+      "Read(.env.*)",
+      "Read(**/.env)",
+      "Read(**/.env.*)",
+      "Read(~/.ssh/**)",
+      "Read(~/.aws/**)",
+      "Bash(security *)",
+      "Read(~/.zshrc)"
+    ],
+
+    "ask": [
+      "Bash(git push *)"
+    ],
+
+    "disableBypassPermissionsMode": "disable"
+  },
+
+  "sandbox": {
+    "enabled": true,
+    "failIfUnavailable": true,
+    "allowUnsandboxedCommands": false,
+
+    "filesystem": {
+      "denyRead": [
+        "~/.zshrc",
+        "~/.zprofile",
+        "~/.zshenv",
+        "~/.ssh/**",
+        "~/.aws/**",
+        "~/.azure/**",
+        "~/.config/gcloud/**",
+        "~/.npmrc",
+        "~/.yarnrc",
+        "~/.yarnrc.yml",
+        "~/.pnpmrc",
+        "~/.netrc",
+        "~/.git-credentials",
+        "~/.config/gh/**",
+        "~/.docker/config.json",
+        "~/.kube/**",
+        "~/.env",
+        "~/.env.*",
+        "~/**/.env",
+        "~/**/.env.*",
+        "~/secrets/**",
+        "~/Secrets/**",
+        "~/credentials/**",
+        "~/Credentials/**"
+      ]
+    },
+
+    "credentials": {
+      "files": [
+        {
+          "path": ".env",
+          "mode": "deny"
+        },
+        {
+          "path": ".env.*",
+          "mode": "deny"
+        },
+        {
+          "path": "~/.ssh",
+          "mode": "deny"
+        },
+        {
+          "path": "~/.aws",
+          "mode": "deny"
+        }
+      ],
+
+      "envVars": [
+        {
+          "name": "OPENAI_API_KEY",
+          "mode": "deny"
+        },
+        {
+          "name": "SCHOOLINFO_API_KEY",
+          "mode": "deny"
+        },
+        {
+          "name": "KAKAOMAP_API_KEY",
+          "mode": "deny"
+        },
+        {
+          "name": "GITHUB_TOKEN",
+          "mode": "deny"
+        },
+        {
+          "name": "GH_TOKEN",
+          "mode": "deny"
+        },
+        {
+          "name": "NPM_TOKEN",
+          "mode": "deny"
+        }
+      ]
+    }
   }
 }
