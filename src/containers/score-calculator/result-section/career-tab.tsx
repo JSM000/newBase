@@ -25,8 +25,8 @@ export function CareerTab() {
             <TableRow>
               <TableHead className="w-8 text-center text-xs">#</TableHead>
               <TableHead>기간</TableHead>
-              <TableHead>임용구분</TableHead>
-              <TableHead>학교</TableHead>
+              <TableHead className="whitespace-nowrap">임용구분</TableHead>
+              <TableHead className="whitespace-nowrap">학교</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -36,8 +36,8 @@ export function CareerTab() {
                 <TableCell className="whitespace-nowrap">
                   {c.startDate} ~ {c.endDate ?? '현재'}
                 </TableCell>
-                <TableCell>{c.appointmentType}</TableCell>
-                <TableCell>{c.school}</TableCell>
+                <TableCell className="whitespace-nowrap">{c.appointmentType}</TableCell>
+                <TableCell className="whitespace-nowrap">{c.school}</TableCell>
               </TableRow>
             ))}
           </TableBody>
