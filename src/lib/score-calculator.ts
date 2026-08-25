@@ -5,6 +5,7 @@ import {
   AwardScoreDetail,
   ResearchScoreDetail,
   TrainingYearDetail,
+  SpecialRoleType,
   REFERENCE_DATE,
   FIVE_YEAR_START,
   AWARD_NEIS_CUTOFF,
@@ -92,6 +93,33 @@ function getResearchDiscount(count: number): number {
   if (count === 3) return 0.5;
   return 0.3;
 }
+
+const SPORTS_RANK_SCORE: Record<'gold' | 'silver' | 'bronze', number> = {
+  gold: 1.0,
+  silver: 0.75,
+  bronze: 0.5,
+};
+
+// 사~하, 카 (특수직군 실적점) — 보건교사·영양교사·사서교사·전문상담교사 등 직군·배치조건이
+// 인사기록카드만으로 확인되지 않아 월점수를 직접 선택해 입력받는다.
+const SPECIAL_ROLE_MAP: Record<SpecialRoleType, { rate: number; label: string }> = {
+  none: { rate: 0, label: '해당 없음' },
+  itinerant_health_special: { rate: 0.01, label: '순회교사(보건·특수) 순회·재택담당 지도실적' },
+  admin_itinerant_before2024: { rate: 0.03, label: '교육행정기관 특수순회·전문상담순회교사 (~2024.2.29)' },
+  admin_itinerant_after2024: { rate: 0.04, label: '교육행정기관 특수순회·전문상담순회교사 (2024.3.1~)' },
+  admin_health_nutrition: { rate: 0.02, label: '교육행정기관 보건·영양교사 (2025.3.1~)' },
+  meal_joint_mgmt: { rate: 0.02, label: '학교급식 공동관리 실적' },
+  meal_joint_cook: { rate: 0.01, label: '학교급식 공동조리 실적' },
+  meal_36plus: { rate: 0.01, label: '36학급 이상 급식학교' },
+  meal_45plus: { rate: 0.02, label: '45학급 이상 급식학교' },
+  meal_combined_under20: { rate: 0.01, label: '초중통합학교 20학급 미만 (급식)' },
+  meal_combined_over20: { rate: 0.02, label: '초중통합학교 20학급 이상 (급식)' },
+  health_25to37: { rate: 0.01, label: '25~37학급 이하교 (학교보건)' },
+  health_38plus: { rate: 0.02, label: '38학급 이상 또는 1,000명 이상교 (학교보건)' },
+  health_combined_under20: { rate: 0.01, label: '초중통합학교 20학급 미만 (학교보건)' },
+  health_combined_over20: { rate: 0.02, label: '초중통합학교 20학급 이상 (학교보건)' },
+  unfavorable_region_librarian: { rate: 0.03, label: '비선호지역(제천·영동·단양) 사서교사' },
+};
 
 export function calculateScore(parsed: ParsedFile, inputs: UserInputs): CalculationResult {
 
@@ -363,12 +391,59 @@ export function calculateScore(parsed: ParsedFile, inputs: UserInputs): Calculat
   }
   const multigradeScore = parseFloat((multigradeMonths * 0.03).toFixed(4));
 
+  // 자. 체육 선수 지도 실적: 1년 최상위 1개, 경력기간 내 최대 5개
+  const sportsDetails: CalculationResult['sportsDetails'] = [];
+  const usedSportsYears = new Set<number>();
+  let usedSportsCount = 0;
+  for (const s of [...inputs.sportsAwards].sort((a, b) =>
+    a.year - b.year || SPORTS_RANK_SCORE[b.rank] - SPORTS_RANK_SCORE[a.rank]
+  )) {
+    const score = SPORTS_RANK_SCORE[s.rank];
+    const used = !usedSportsYears.has(s.year) && usedSportsCount < 5;
+    sportsDetails.push({
+      year: s.year,
+      rank: s.rank,
+      score,
+      used,
+      reason: used
+        ? `${s.year}년 최상위 적용`
+        : usedSportsYears.has(s.year) ? `${s.year}년 이미 최상위 실적 적용됨` : '체육선수지도 최대 5개 초과',
+    });
+    if (used) { usedSportsYears.add(s.year); usedSportsCount++; }
+  }
+  const sportsScore = parseFloat(sportsDetails.filter(d => d.used).reduce((s, d) => s + d.score, 0).toFixed(4));
+
+  // 파. 유치원 수업지원교사·방과후 정교사 근무실적 (유치원 교사만 해당, 월 0.01)
+  const KINDER_SUPPORT_START = new Date('2019-03-01');
+  let kindergartenSupportMonths = 0;
+  if (inputs.teacherType === 'kindergarten') {
+    const supportEntries = parsed.career.filter(c =>
+      /수업지원교사|방과후.*(정교사|담당)/.test(`${c.rank}${c.department}`)
+    );
+    for (const c of supportEntries) {
+      const start = parseDate(c.startDate);
+      const end = c.endDate ? parseDate(c.endDate) : REFERENCE_DATE;
+      if (!start || !end) continue;
+      const adjStart = start < KINDER_SUPPORT_START ? KINDER_SUPPORT_START : start;
+      const adjStart2 = adjStart < FIVE_YEAR_START ? FIVE_YEAR_START : adjStart;
+      const adjEnd = end > PERF_NEIS_CUTOFF ? PERF_NEIS_CUTOFF : end;
+      kindergartenSupportMonths += countMonths(adjStart2, adjEnd);
+    }
+  }
+  const kindergartenSupportScore = parseFloat((kindergartenSupportMonths * 0.01).toFixed(4));
+
+  // 사·아·차·카·하. 특수직군(보건·영양·사서·전문상담교사 등) 실적점 — 수동 입력
+  const specialRoleInfo = SPECIAL_ROLE_MAP[inputs.specialRoleType];
+  const specialRoleScore = parseFloat((specialRoleInfo.rate * inputs.specialRoleMonths).toFixed(4));
+  const specialRoleLabel = specialRoleInfo.label;
+
   const totalCareer = careerScore;
   const totalBonus = parseFloat((regionalBonusScore + preferentialBonusScore).toFixed(4));
   const totalPerformance = parseFloat((
     awardScore + researchScore + degreeScore + trainingScore +
     subjectClassScore + headTeacherScore + homeroomScore +
-    specialEdScore + multigradeScore
+    specialEdScore + multigradeScore +
+    sportsScore + kindergartenSupportScore + specialRoleScore
   ).toFixed(4));
   const grandTotal = parseFloat((totalCareer + totalBonus + totalPerformance).toFixed(4));
 
@@ -402,6 +477,12 @@ export function calculateScore(parsed: ParsedFile, inputs: UserInputs): Calculat
     specialEdScore,
     multigradeMonths,
     multigradeScore,
+    sportsDetails,
+    sportsScore,
+    kindergartenSupportMonths,
+    kindergartenSupportScore,
+    specialRoleScore,
+    specialRoleLabel,
     totalCareer,
     totalBonus,
     totalPerformance,

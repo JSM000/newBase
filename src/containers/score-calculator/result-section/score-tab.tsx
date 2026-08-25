@@ -24,7 +24,32 @@ import { Button } from '@/components/ui/button';
 import { ScoreRow } from '@/components/score-row';
 import { PdfViewerSheet } from '@/components/pdf-viewer-sheet';
 import { fmt } from '@/utils/formatter';
-import { SchoolZoneType, PreferentialBonusType } from '@/types/score';
+import { SchoolZoneType, PreferentialBonusType, SpecialRoleType, SportsRank } from '@/types/score';
+
+const SPECIAL_ROLE_OPTIONS: { value: SpecialRoleType; label: string }[] = [
+  { value: 'none', label: '해당 없음' },
+  { value: 'itinerant_health_special', label: '순회교사(보건·특수) 순회·재택담당 지도 (월 0.01)' },
+  { value: 'admin_itinerant_before2024', label: '교육행정기관 특수순회·전문상담순회 ~2024.2.29 (월 0.03)' },
+  { value: 'admin_itinerant_after2024', label: '교육행정기관 특수순회·전문상담순회 2024.3.1~ (월 0.04)' },
+  { value: 'admin_health_nutrition', label: '교육행정기관 보건·영양교사 2025.3.1~ (월 0.02)' },
+  { value: 'meal_joint_mgmt', label: '학교급식 공동관리 실적 (월 0.02)' },
+  { value: 'meal_joint_cook', label: '학교급식 공동조리 실적 (월 0.01)' },
+  { value: 'meal_36plus', label: '36학급 이상 급식학교 (월 0.01)' },
+  { value: 'meal_45plus', label: '45학급 이상 급식학교 (월 0.02)' },
+  { value: 'meal_combined_under20', label: '초중통합학교 20학급 미만 급식 (월 0.01)' },
+  { value: 'meal_combined_over20', label: '초중통합학교 20학급 이상 급식 (월 0.02)' },
+  { value: 'health_25to37', label: '학교보건 25~37학급 이하교 (월 0.01)' },
+  { value: 'health_38plus', label: '학교보건 38학급 이상·1,000명 이상교 (월 0.02)' },
+  { value: 'health_combined_under20', label: '학교보건 초중통합학교 20학급 미만 (월 0.01)' },
+  { value: 'health_combined_over20', label: '학교보건 초중통합학교 20학급 이상 (월 0.02)' },
+  { value: 'unfavorable_region_librarian', label: '비선호지역(제천·영동·단양) 사서교사 (월 0.03)' },
+];
+
+const SPORTS_RANK_OPTIONS: { value: SportsRank; label: string }[] = [
+  { value: 'gold', label: '1위(금) — 1.0점' },
+  { value: 'silver', label: '2위(은) — 0.75점' },
+  { value: 'bronze', label: '3위(동) — 0.5점' },
+];
 
 // 공문(인사계획.pdf) 페이지 번호 — "초등교육공무원 인사관리기준 적용 시 유의사항"(부록 i~vii) 기준
 // 학위·담임교사·특수통합학급 담임은 이 공문에 월점수 기재가 없어 확인 전까지 1로 둠
@@ -41,6 +66,9 @@ const PDF_PAGES: Record<string, number> = {
   '부장교사':         32, // 부록ⅵ) 4-타. 시지역 부장교사 근무실적
   '특수통합학급 담임': 1,
   '복식학급 담임':    31, // 부록ⅴ) 4-바. 복식학급 담당교사 지도실적
+  '체육선수지도':     32, // 부록ⅵ) 4-자. 체육 선수 지도 실적
+  '유치원 수업지원·방과후': 33, // 부록ⅶ) 4-파. 유치원 수업지원교사 및 방과후 정교사 근무실적
+  '특수직군 실적점':  32, // 부록ⅵ~ⅶ) 4-사·아·차·카·하
 };
 
 export function ScoreTab() {
@@ -49,9 +77,18 @@ export function ScoreTab() {
   const updateInput = useScoreStore((state) => state.updateInput);
   const recalculate = useScoreStore((state) => state.recalculate);
   const [pdfItem, setPdfItem] = useState<string | null>(null);
+  const [newSportsYear, setNewSportsYear] = useState<number>(new Date().getFullYear());
+  const [newSportsRank, setNewSportsRank] = useState<SportsRank>('gold');
 
   const openPdf = (label: string) => setPdfItem(label);
   const closePdf = () => setPdfItem(null);
+
+  const addSportsAward = () => {
+    updateInput('sportsAwards', [...inputs.sportsAwards, { year: newSportsYear, rank: newSportsRank }]);
+  };
+  const removeSportsAward = (idx: number) => {
+    updateInput('sportsAwards', inputs.sportsAwards.filter((_, i) => i !== idx));
+  };
 
   if (!result) return null;
 
@@ -151,6 +188,90 @@ export function ScoreTab() {
           className="mt-3 bg-primary hover:bg-primary-600"
           size="sm"
         >
+          재계산
+        </Button>
+      </div>
+
+      {/* 체육선수지도·특수직군 실적점 입력 */}
+      <div className="rounded-xl border border-primary-200 bg-primary-50 p-4">
+        <h3 className="mb-3 font-semibold text-primary-700">실적점 직접 입력</h3>
+
+        <div className="space-y-2">
+          <Label className="text-zinc-600">체육 선수 지도 실적 (1년 최상위 1개, 최대 5개)</Label>
+          <div className="flex flex-wrap items-end gap-2">
+            <Input
+              type="number"
+              className="w-24"
+              value={newSportsYear}
+              onChange={(e) => setNewSportsYear(parseInt(e.target.value) || 0)}
+            />
+            <Select value={newSportsRank} onValueChange={(v) => setNewSportsRank(v as SportsRank)}>
+              <SelectTrigger className="w-40">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {SPORTS_RANK_OPTIONS.map((o) => (
+                  <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Button type="button" size="sm" variant="outline" onClick={addSportsAward}>
+              추가
+            </Button>
+          </div>
+          {inputs.sportsAwards.length > 0 && (
+            <ul className="space-y-1 text-sm text-zinc-600">
+              {inputs.sportsAwards.map((s, idx) => (
+                <li key={idx} className="flex items-center justify-between rounded-lg bg-white px-3 py-1.5">
+                  <span>{s.year}년 · {SPORTS_RANK_OPTIONS.find((o) => o.value === s.rank)?.label}</span>
+                  <button
+                    type="button"
+                    className="text-xs text-zinc-400 hover:text-red-500"
+                    onClick={() => removeSportsAward(idx)}
+                  >
+                    삭제
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+
+        <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <div className="space-y-1 sm:col-span-2">
+            <Label className="text-zinc-600">
+              특수직군 실적점 구분 (보건·영양·사서·전문상담교사 등 — 학급수 등 배치조건은 본인 확인 필요)
+            </Label>
+            <Select
+              value={inputs.specialRoleType}
+              onValueChange={(v) => updateInput('specialRoleType', v as SpecialRoleType)}
+            >
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {SPECIAL_ROLE_OPTIONS.map((o) => (
+                  <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          {inputs.specialRoleType !== 'none' && (
+            <div className="space-y-1">
+              <Label className="text-zinc-600">인정 개월 수</Label>
+              <Input
+                type="number"
+                min={0}
+                max={60}
+                value={inputs.specialRoleMonths}
+                onChange={(e) => updateInput('specialRoleMonths', parseInt(e.target.value) || 0)}
+              />
+            </div>
+          )}
+        </div>
+
+        <Button onClick={recalculate} className="mt-3 bg-primary hover:bg-primary-600" size="sm">
           재계산
         </Button>
       </div>
@@ -297,6 +418,42 @@ export function ScoreTab() {
                 : '해당 없음'
             }
             onPdf={() => openPdf('복식학급 담임')}
+          />
+          <ScoreRow
+            label="체육선수지도"
+            score={result.sportsScore}
+            color="secondary"
+            detail={
+              result.sportsDetails
+                .filter((d) => d.used)
+                .map((d) => `${d.year}년 ${d.rank === 'gold' ? '금' : d.rank === 'silver' ? '은' : '동'}(${d.score})`)
+                .join(', ') || '해당 없음'
+            }
+            onPdf={() => openPdf('체육선수지도')}
+          />
+          {inputs.teacherType === 'kindergarten' && (
+            <ScoreRow
+              label="유치원 수업지원·방과후"
+              score={result.kindergartenSupportScore}
+              color="secondary"
+              detail={
+                result.kindergartenSupportScore > 0
+                  ? `${result.kindergartenSupportMonths}개월 × 0.01`
+                  : '해당 없음'
+              }
+              onPdf={() => openPdf('유치원 수업지원·방과후')}
+            />
+          )}
+          <ScoreRow
+            label="특수직군 실적점"
+            score={result.specialRoleScore}
+            color="secondary"
+            detail={
+              result.specialRoleScore > 0
+                ? `${result.specialRoleLabel} × ${inputs.specialRoleMonths}개월`
+                : '해당 없음'
+            }
+            onPdf={() => openPdf('특수직군 실적점')}
           />
         </TableBody>
         <TableFooter>

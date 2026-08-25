@@ -87,12 +87,42 @@ export type PreferentialBonusType =
   | 'three_children'   // 18세 이하 3자녀
   | 'second_child';    // 둘째 자녀 출산 (1회)
 
+export type SportsRank = 'gold' | 'silver' | 'bronze';
+
+export interface SportsAwardInput {
+  year: number;
+  rank: SportsRank;
+}
+
+// 보건교사·영양교사·사서교사·전문상담교사 등 특수직군 한정 실적점.
+// 학급수·배치 조건 등 인사기록카드에 없는 정보가 필요해 수동 입력으로 처리.
+export type SpecialRoleType =
+  | 'none'
+  | 'itinerant_health_special'      // 사. 순회교사(보건·특수) 월 0.01
+  | 'admin_itinerant_before2024'    // 차. 교육행정기관 특수순회·전문상담순회(~2024.2.29) 월 0.03
+  | 'admin_itinerant_after2024'     // 차. 교육행정기관 특수순회·전문상담순회(2024.3.1~) 월 0.04
+  | 'admin_health_nutrition'        // 차. 교육행정기관 보건·영양교사(2025.3.1~) 월 0.02
+  | 'meal_joint_mgmt'               // 아-가. 학교급식 공동관리 월 0.02
+  | 'meal_joint_cook'               // 아-나. 학교급식 공동조리 월 0.01
+  | 'meal_36plus'                   // 아-다. 36학급이상 급식학교 월 0.01
+  | 'meal_45plus'                   // 아-라. 45학급이상 급식학교 월 0.02
+  | 'meal_combined_under20'         // 아-마. 초중통합학교 20학급미만 월 0.01
+  | 'meal_combined_over20'          // 아-바. 초중통합학교 20학급이상 월 0.02
+  | 'health_25to37'                 // 하-가. 25~37학급 월 0.01
+  | 'health_38plus'                 // 하-나. 38학급이상·1000명이상 월 0.02
+  | 'health_combined_under20'       // 하-다. 초중통합학교 20학급미만 월 0.01
+  | 'health_combined_over20'        // 하-라. 초중통합학교 20학급이상 월 0.02
+  | 'unfavorable_region_librarian'; // 카. 비선호지역(제천·영동·단양) 사서교사 월 0.03
+
 export interface UserInputs {
   teacherType: 'elementary' | 'kindergarten';
   schoolZone: SchoolZoneType;
   preferentialBonus: PreferentialBonusType;
   preferentialBonusMonths: number;
   headTeacherSchoolZone: 'urban' | 'rural_large' | 'rural_small';
+  sportsAwards: SportsAwardInput[];
+  specialRoleType: SpecialRoleType;
+  specialRoleMonths: number;
 }
 
 export interface AwardScoreDetail {
@@ -162,6 +192,15 @@ export interface CalculationResult {
 
   multigradeMonths: number;
   multigradeScore: number;
+
+  sportsDetails: { year: number; rank: SportsRank; score: number; used: boolean; reason: string }[];
+  sportsScore: number;
+
+  kindergartenSupportMonths: number;
+  kindergartenSupportScore: number;
+
+  specialRoleScore: number;
+  specialRoleLabel: string;
 
   totalCareer: number;
   totalBonus: number;
