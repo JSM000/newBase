@@ -146,7 +146,7 @@ export function ResultSection() {
           onValueChange={(v) => setActiveTab(v as TabType)}
           className="overflow-hidden rounded-xl bg-white shadow-custom"
         >
-          <TabsList className="flex h-auto overflow-x-auto rounded-none border-b bg-transparent p-0">
+          <TabsList className="flex h-auto flex-wrap rounded-none border-b bg-transparent p-0">
             {tabs.map(({ value, label }) => (
               <TabsTrigger
                 key={value}
