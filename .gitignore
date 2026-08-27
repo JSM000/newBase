@@ -55,3 +55,6 @@ public/maps/bnd_all_00_2025_2Q/
 *.shx
 *.prj
 *.cpg
+
+# batch script raw API 응답 덤프
+/scripts/.debug/
