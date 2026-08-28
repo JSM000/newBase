@@ -1,5 +1,5 @@
-import { ScoreCalculatorContainer } from '@/containers/score-calculator/score-calculator-container';
+import { RegionSelectContainer } from '@/containers/score-calculator/region-select-container';
 
 export default function CalculatorPage() {
-  return <ScoreCalculatorContainer />;
+  return <RegionSelectContainer />;
 }

@@ -58,7 +58,7 @@ export function ResultSection() {
         subtitle={parsed?.schoolName}
         actions={
           <>
-            <Link href="/" className="text-sm text-primary-100 underline hover:text-white">
+            <Link href="/calculator" className="text-sm text-primary-100 underline hover:text-white">
               지역 변경
             </Link>
             <button

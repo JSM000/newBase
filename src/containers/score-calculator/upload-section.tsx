@@ -37,7 +37,7 @@ export function UploadSection() {
         title="관외전보 점수 계산기"
         subtitle="청주교육지원청 유치원·초등교사 | 기준일: 2026.2.28. | NEIS 인사기록카드 엑셀 파일"
         actions={
-          <Link href="/" className="text-sm text-primary-100 underline hover:text-white">
+          <Link href="/calculator" className="text-sm text-primary-100 underline hover:text-white">
             지역 변경
           </Link>
         }
