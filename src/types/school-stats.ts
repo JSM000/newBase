@@ -89,10 +89,6 @@ export interface School {
   transferOutStudentCount: number | null;
   transferStudentExcludedReason: string | null;
 
-  // --- 대상별 학교폭력 예방교육 실적(94) ---
-  bullyingPreventionInstructorCount: number | null;
-  bullyingPreventionExcludedReason: string | null;
-
   // --- 직원 현황(68) ---
   generalStaffCount: number | null; // 일반직
   eduSupportStaffCount: number | null; // 교육공무직

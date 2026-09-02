@@ -14,7 +14,7 @@
 //     (시트명 괄호 번호와 대응: 학교기본정보=0, 학교 현황=62, 직위별 교원 현황=22 ...)
 //   - 엔드포인트마다 필수 파라미터/지원 schulKndCode가 다름 — 문서 표기와 실제가 다른 경우도 있었음:
 //     · 학교기본정보(0): apiKey, apiType, schulKndCode, sggCode 필수 (sggCode는 문서엔 "선택"이었지만 실제 필수), pbanYr 없음
-//     · 그 외 전부(62,22,24,08,10,94,68,61,34,44,17,18,55): 위에 더해 pbanYr(공시연도, NUMBER 필수, 최근 3년만 제공)도 필수
+//     · 그 외 전부(62,22,24,08,10,68,61,34,44,17,18,55): 위에 더해 pbanYr(공시연도, NUMBER 필수, 최근 3년만 제공)도 필수
 //     · 24(표시과목별 교원 현황): depthNo(10:교과별/20:과목별)도 필수. 초등부(학교당 1행, 과목별 고정컬럼)와
 //       중/고(학교당 여러 행 — 과목마다 한 행씩, depthNo=20 과목별로 조회)는 구조가 완전히 달라서
 //       DATASETS에 apiType="24" 항목이 두 개(초등/중고) 있음 (DATASETS 내 주석 참고)
@@ -31,7 +31,7 @@
 //   - 환경위생관리 현황(42, 2-2-C "실내 환경 쾌적도")은 학교알리미 OpenAPI 포털에 목록이 없어 이 스크립트로
 //     수집 불가 — _refs/학교통계_지도_구현계획.md 4번 미해결 사항 참고
 //   - 일부 엔드포인트는 학교당 여러 행을 반환한다 — 기본 병합은 "overwrite"(마지막 값 유지):
-//     · 94(학교폭력예방교육실적): 학기별로 여러 행 → mergeStrategy: "sum"(숫자 필드 누적 합산)
+//     · 24(표시과목별 교원 현황, 중고): 과목별로 여러 행 → combine()으로 { 과목명: 교원수 } 객체 누적
 //     · 44(시설안전점검현황): 대장 6종(학교시설/물탱크/소방/전기/가스/승강기)별로 여러 행 →
 //       dataset.combine()으로 이상없음여부/이상개수/최신점검일 3개로 종합 (probe-dataset.mjs로 실측 확인)
 
@@ -529,35 +529,6 @@ const DATASETS = [
     },
   },
   {
-    apiType: "94",
-    name: "대상별 학교폭력 예방교육 실적",
-    requiresPbanYr: true,
-    // "구분"(학기 등)별로 학교당 여러 행이 나올 수 있어 숫자 필드는 합산한다.
-    mergeStrategy: "sum",
-    excludedReasonField: "bullyingPreventionExcludedReason",
-    fields: ["bullyingPreventionInstructorCount", "bullyingPreventionExcludedReason"],
-    fieldSource: {
-      bullyingPreventionInstructorCount: [
-        "SMAGE_MDAT_NMPR_FGR1", // 지도교사수-동아리·학생자치활동
-        "SMAGE_CNSL_NMPR_FGR1", // 지도교사수-또래활동
-        "ATMY_LEGAL_NMPR_FGR1", // 지도교사수-교육주간 활동
-        "ETC_NMPR_FGR1", // 지도교사수-기타 학교폭력 예방활동
-      ],
-      bullyingPreventionExcludedReason: "PBAN_EXCP_RSN", // 제외사유
-    },
-    // 2-2-A: 생활지도 업무량 — 예방활동 지도교사 연인원(동아리·또래활동·교육주간·기타 합)
-    normalize(record) {
-      const fieldKeys = [
-        "SMAGE_MDAT_NMPR_FGR1",
-        "SMAGE_CNSL_NMPR_FGR1",
-        "ATMY_LEGAL_NMPR_FGR1",
-        "ETC_NMPR_FGR1",
-      ];
-      const sum = fieldKeys.reduce((acc, key) => acc + (toNumberOrNull(record[key]) ?? 0), 0);
-      return { bullyingPreventionInstructorCount: sum };
-    },
-  },
-  {
     apiType: "68",
     name: "직원 현황",
     requiresPbanYr: true,
@@ -743,17 +714,6 @@ function mergeIntoSchool(map, schulCode, partial, dataset) {
     // 학교당 여러 행이 나오는 데이터셋이 자기만의 규칙으로 기존 값과 새 값을 합치는 경우
     // (예: 44 시설안전점검현황 — 대장 6종을 이상없음여부/이상개수/최신점검일로 종합)
     map.set(schulCode, { ...existing, ...dataset.combine(existing, partial) });
-  } else if (dataset?.mergeStrategy === "sum") {
-    // 한 학교에 여러 행이 잡히는 데이터셋(예: 학기별로 나뉜 실적)용 — 숫자 필드는 누적 합산.
-    const merged = { ...existing };
-    for (const [key, value] of Object.entries(partial)) {
-      if (typeof value === "number") {
-        merged[key] = (typeof existing[key] === "number" ? existing[key] : 0) + value;
-      } else {
-        merged[key] = value;
-      }
-    }
-    map.set(schulCode, merged);
   } else {
     map.set(schulCode, { ...existing, ...partial });
   }
@@ -800,7 +760,7 @@ async function main() {
             }
             // 서비스에서 "왜 이 데이터가 없는지" 보여줄 수 있도록 사유를 학교 객체에 직접 저장.
             // combine/sum 등 데이터셋별 병합 전략과 무관한 별도 필드라 mergeIntoSchool을 거치지 않고 바로 설정.
-            // 44/94처럼 학교당 여러 행이 나오는 데이터셋은 행마다 사유가 다를 수 있어 덮어쓰지 않고
+            // 44처럼 학교당 여러 행이 나오는 데이터셋은 행마다 사유가 다를 수 있어 덮어쓰지 않고
             // 서로 다른 사유를 전부 "/"로 이어붙여 보관 (facilitySafetyIssueLedgerNames와 같은 방식).
             if (dataset.excludedReasonField) {
               const school = schoolsByCode.get(schulCode) ?? { schulCode };

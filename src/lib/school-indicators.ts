@@ -342,11 +342,6 @@ export const DETAIL_GROUPS: DetailGroup[] = [
         excludedReasonField: 'transferStudentExcludedReason',
       },
       {
-        label: '학교폭력 예방교육 참여 실적',
-        render: (s) => n(s.bullyingPreventionInstructorCount, ' 회'),
-        excludedReasonField: 'bullyingPreventionExcludedReason',
-      },
-      {
         label: '행정 지원인력',
         render: (s) =>
           s.generalStaffCount === null && s.eduSupportStaffCount === null

@@ -127,6 +127,20 @@ export function StatisticsContainer() {
           </div>
         </>
       )}
+
+      <footer className="shrink-0 border-t border-zinc-200 bg-white px-4 py-1.5 text-center text-[11px] leading-tight text-zinc-400">
+        본 저작물은 &apos;한국교육학술정보원&apos;에서 작성하여 공공누리 제1유형으로 개방한 &apos;학교알리미 공시정보&apos;를 이용하였으며,
+        해당 저작물은{' '}
+        <a
+          href="https://www.schoolinfo.go.kr"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="underline hover:text-zinc-600"
+        >
+          학교알리미(schoolinfo.go.kr)
+        </a>
+        에서 무료로 다운받으실 수 있습니다.
+      </footer>
     </div>
   );
 }
