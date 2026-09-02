@@ -12,8 +12,12 @@ import type { School } from '@/types/school-stats';
 
 export type IndicatorCategory = 'score' | 'work';
 
-/** 구간별 색상 (낮음 -> 높음). 5단계. */
-export const BUCKET_COLORS = ['#2a9d8f', '#8ab17d', '#e9c46a', '#f4a261', '#e76f51'] as const;
+/**
+ * 구간별 색상 (낮음 -> 높음). 5단계.
+ * 카카오맵 파스텔톤 배경과 대비되도록 채도를 높였고, dataviz 스킬의 validate_palette.js로
+ * 인접 구간 간 색약 구분성(CVD ΔE)·명도밴드·채도하한 기준을 통과시킨 값.
+ */
+export const BUCKET_COLORS = ['#0891b2', '#22c55e', '#a16207', '#fb923c', '#b91c1c'] as const;
 export const NO_DATA_COLOR = '#c7ccd1';
 
 export interface Indicator {
