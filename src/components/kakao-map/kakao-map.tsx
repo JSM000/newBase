@@ -79,6 +79,8 @@ export function KakaoMap({
   const [level, setLevel] = useState(INITIAL_LEVEL);
   // 켜면 줌 레벨과 무관하게 클러스터 없이 모든 학교 개별 마커를 표시
   const [showAllMarkers, setShowAllMarkers] = useState(false);
+  // 시·군 행정구역 경계선 표시 여부
+  const [showBoundaries, setShowBoundaries] = useState(true);
   const viewTier: ViewTier = showAllMarkers ? 'individual' : tierOf(level);
 
   // 행정구역(시·군) 경계선 — 필터·지표와 무관한 정적 데이터
@@ -147,7 +149,7 @@ export function KakaoMap({
   useEffect(() => {
     const maps = mapsRef.current;
     const map = mapRef.current;
-    if (status !== 'ready' || !maps || !map || !boundaryData) return;
+    if (status !== 'ready' || !maps || !map || !boundaryData || !showBoundaries) return;
 
     // GeoJSON 링([lng, lat][]) → 카카오 LatLng 배열
     const toPath = (ring: number[][]) =>
@@ -179,7 +181,7 @@ export function KakaoMap({
       for (const polygon of polygons) polygon.setMap(null);
       boundaryPolygonsRef.current = [];
     };
-  }, [status, boundaryData]);
+  }, [status, boundaryData, showBoundaries]);
 
   // ── 마커/클러스터 렌더 (schools / indicator / selected / 시야 전환 시 재구성) ──
   useEffect(() => {
@@ -347,18 +349,32 @@ export function KakaoMap({
       <div ref={containerRef} className="h-full w-full" />
 
       {status === 'ready' && (
-        <button
-          type="button"
-          onClick={() => setShowAllMarkers((v) => !v)}
-          aria-pressed={showAllMarkers}
-          className={`absolute right-3 top-3 z-10 rounded-lg border px-3 py-1.5 text-xs font-medium shadow-custom backdrop-blur transition-colors ${
-            showAllMarkers
-              ? 'border-primary bg-primary text-white'
-              : 'border-zinc-200 bg-white/95 text-zinc-700 hover:bg-white'
-          }`}
-        >
-          {showAllMarkers ? '지역별로 묶어 보기' : '학교 개별 마커 보기'}
-        </button>
+        <div className="absolute right-3 top-3 z-10 flex flex-col items-end gap-2">
+          <button
+            type="button"
+            onClick={() => setShowAllMarkers((v) => !v)}
+            aria-pressed={showAllMarkers}
+            className={`rounded-lg border px-3 py-1.5 text-xs font-medium shadow-custom backdrop-blur transition-colors ${
+              showAllMarkers
+                ? 'border-primary bg-primary text-white'
+                : 'border-zinc-200 bg-white/95 text-zinc-700 hover:bg-white'
+            }`}
+          >
+            {showAllMarkers ? '지역별로 묶어 보기' : '학교 개별 마커 보기'}
+          </button>
+          <button
+            type="button"
+            onClick={() => setShowBoundaries((v) => !v)}
+            aria-pressed={showBoundaries}
+            className={`rounded-lg border px-3 py-1.5 text-xs font-medium shadow-custom backdrop-blur transition-colors ${
+              showBoundaries
+                ? 'border-primary bg-primary text-white'
+                : 'border-zinc-200 bg-white/95 text-zinc-700 hover:bg-white'
+            }`}
+          >
+            {showBoundaries ? '행정구역 경계 끄기' : '행정구역 경계 켜기'}
+          </button>
+        </div>
       )}
 
       {status === 'loading' && (
