@@ -6,6 +6,7 @@ import type { ClusterPosition } from '@/types/school-clusters';
 import {
   type Indicator,
   bucketColor,
+  bucketIndex,
   NO_DATA_COLOR,
 } from '@/lib/school-indicators';
 import { groupSchoolsBySigungu, groupSchoolsBySubRegion } from '@/lib/school-region';
@@ -63,6 +64,7 @@ export function KakaoMap({
   const markersRef = useRef<KakaoMarker[]>([]);
   const regionOverlaysRef = useRef<KakaoCustomOverlay[]>([]);
   const tooltipRef = useRef<KakaoCustomOverlay | null>(null);
+  const tooltipHideTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const [status, setStatus] = useState<'loading' | 'ready' | 'error'>(
     () => (KAKAO_APP_KEY ? 'loading' : 'error'),
@@ -73,7 +75,9 @@ export function KakaoMap({
       : 'Kakao 지도 API 키가 설정되지 않았습니다. 개발 서버를 NEXT_PUBLIC_KAKAOMAP_API_KEY=발급키 npm run dev 로 실행하세요.',
   );
   const [level, setLevel] = useState(INITIAL_LEVEL);
-  const viewTier = tierOf(level);
+  // 켜면 줌 레벨과 무관하게 클러스터 없이 모든 학교 개별 마커를 표시
+  const [showAllMarkers, setShowAllMarkers] = useState(false);
+  const viewTier: ViewTier = showAllMarkers ? 'individual' : tierOf(level);
 
   // 클러스터 뱃지 위치("밀집 위치", 필터 무관 사전 계산값) — 이름으로 바로 찾도록 Map으로 변환
   const { data: clusterData } = useSchoolClusters();
@@ -116,7 +120,8 @@ export function KakaoMap({
         tooltipRef.current = new maps.CustomOverlay({
           position: new maps.LatLng(CHUNGBUK_CENTER.lat, CHUNGBUK_CENTER.lng),
           content: '',
-          yAnchor: 1.4,
+          // 마커 아래쪽에 표시(핀은 앵커 지점에서 위로 뻗으므로 아래는 빈 공간) — 위로 올릴 때 깜박임 방지
+          yAnchor: -0.35,
           xAnchor: 0.5,
           zIndex: 999,
         });
@@ -170,8 +175,9 @@ export function KakaoMap({
       targetLevel: number,
     ): KakaoCustomOverlay {
       const avgValue = averageIndicatorValue(indicator, groupSchools);
+      const bucket = avgValue === null ? null : bucketIndex(indicator, avgValue);
       const color = avgValue === null ? NO_DATA_COLOR : bucketColor(indicator, avgValue);
-      const el = createRegionClusterElement(name, groupSchools.length, color);
+      const el = createRegionClusterElement(name, groupSchools.length, color, bucket);
 
       el.addEventListener('click', () => {
         moveToPosition(mapsNs, targetMap, position, targetLevel);
@@ -217,12 +223,13 @@ export function KakaoMap({
       const pos = new maps.LatLng(school.position.lat, school.position.lng);
 
       const value = indicator.accessor(school);
+      const bucket = value === null ? null : bucketIndex(indicator, value);
       const color = value === null ? NO_DATA_COLOR : bucketColor(indicator, value);
       const isSelected = school.schulCode === selectedSchoolCode;
 
       const marker = new maps.Marker({
         position: pos,
-        image: getMarkerImage(maps, color, isSelected),
+        image: getMarkerImage(maps, color, isSelected, bucket),
         title: school.schulNm,
         clickable: true,
       });
@@ -233,9 +240,14 @@ export function KakaoMap({
       });
       maps.event.addListener(marker, 'mouseover', () => {
         if (!tooltip) return;
+        if (tooltipHideTimerRef.current) {
+          clearTimeout(tooltipHideTimerRef.current);
+          tooltipHideTimerRef.current = null;
+        }
         tooltip.setPosition(pos);
+        // pointer-events:none — 툴팁이 마커와 겹쳐도 마우스를 가로채지 않아야 한다.
         tooltip.setContent(
-          `<div style="padding:6px 10px;background:#111827;color:#fff;border-radius:8px;font-size:12px;white-space:nowrap;box-shadow:0 2px 8px rgba(0,0,0,.25)">
+          `<div style="pointer-events:none;padding:6px 10px;background:#111827;color:#fff;border-radius:8px;font-size:12px;white-space:nowrap;box-shadow:0 2px 8px rgba(0,0,0,.25)">
              <b>${school.schulNm}</b>
              <span style="opacity:.75;margin-left:6px">${indicator.label} ${formatIndicatorValue(indicator, school)}</span>
            </div>`,
@@ -243,7 +255,12 @@ export function KakaoMap({
         tooltip.setMap(map);
       });
       maps.event.addListener(marker, 'mouseout', () => {
-        tooltip?.setMap(null);
+        // 살짝 늦게 숨겨서 마커 경계에서 mouseout/mouseover가 튈 때 깜박이지 않게 한다.
+        if (tooltipHideTimerRef.current) clearTimeout(tooltipHideTimerRef.current);
+        tooltipHideTimerRef.current = setTimeout(() => {
+          tooltip?.setMap(null);
+          tooltipHideTimerRef.current = null;
+        }, 100);
       });
 
       markers.push(marker);
@@ -275,9 +292,31 @@ export function KakaoMap({
     return () => ro.disconnect();
   }, [status]);
 
+  // ── 언마운트 시 툴팁 숨김 타이머 정리 ──
+  useEffect(() => {
+    return () => {
+      if (tooltipHideTimerRef.current) clearTimeout(tooltipHideTimerRef.current);
+    };
+  }, []);
+
   return (
     <div className="relative h-full w-full overflow-hidden rounded-xl bg-zinc-100">
       <div ref={containerRef} className="h-full w-full" />
+
+      {status === 'ready' && (
+        <button
+          type="button"
+          onClick={() => setShowAllMarkers((v) => !v)}
+          aria-pressed={showAllMarkers}
+          className={`absolute right-3 top-3 z-10 rounded-lg border px-3 py-1.5 text-xs font-medium shadow-custom backdrop-blur transition-colors ${
+            showAllMarkers
+              ? 'border-primary bg-primary text-white'
+              : 'border-zinc-200 bg-white/95 text-zinc-700 hover:bg-white'
+          }`}
+        >
+          {showAllMarkers ? '지역별로 묶어 보기' : '학교 개별 마커 보기'}
+        </button>
+      )}
 
       {status === 'loading' && (
         <div className="absolute inset-0 flex items-center justify-center bg-zinc-50/80">

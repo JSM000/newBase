@@ -14,11 +14,15 @@ export type IndicatorCategory = 'score' | 'work';
 
 /**
  * 구간별 색상 (낮음 -> 높음). 5단계.
- * 카카오맵 파스텔톤 배경과 대비되도록 채도를 높였고, dataviz 스킬의 validate_palette.js로
- * 인접 구간 간 색약 구분성(CVD ΔE)·명도밴드·채도하한 기준을 통과시킨 값.
+ * 파랑 -> 보라 -> 자주로 이어지는 3색 램프 (명도는 계속 낮아짐).
+ * 보라 한 계열만 쓰면 단계가 헷갈려서, 색상환에서 보라와 이어지는 파랑·자주를 양옆에 뒀다.
+ * 카카오맵은 전체가 따뜻한 파스텔톤(베이지·노란 도로·주황 POI)이라 파랑~자주 계열이 배경과
+ * 가장 잘 분리된다. 5단계를 색만으로 작은 마커에서 구분하긴 어려워 마커 크기도 함께 키운다
+ * (marker-image.ts BUCKET_SCALE). dataviz validate_palette.js: 명도 단조·색약 CVD 통과.
  */
-export const BUCKET_COLORS = ['#0891b2', '#22c55e', '#a16207', '#fb923c', '#b91c1c'] as const;
-export const NO_DATA_COLOR = '#c7ccd1';
+export const BUCKET_COLORS = ['#7ba8e4', '#7d63c6', '#93409a', '#973048', '#6b1f2c'] as const;
+/** 척도 밖(자료 없음). 베이지 지도 배경에서 사라지지 않게 차가운 회색. */
+export const NO_DATA_COLOR = '#a3a8ad';
 
 export interface Indicator {
   key: string;
