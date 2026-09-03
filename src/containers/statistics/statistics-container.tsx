@@ -11,7 +11,6 @@ import {
   DEFAULT_INDICATOR_KEY,
 } from '@/lib/school-indicators';
 import {
-  sigunguOf,
   sortSigungu,
   type SchoolLevelFilter,
 } from '@/lib/school-region';
@@ -38,7 +37,7 @@ export function StatisticsContainer() {
       sortSigungu([
         ...new Set(
           allSchools
-            .map((s) => sigunguOf(s))
+            .map((s) => s.sigunguName)
             .filter((v): v is string => v !== null),
         ),
       ]),
@@ -50,7 +49,7 @@ export function StatisticsContainer() {
     return allSchools.filter((s) => {
       if (!s.position) return false;
       if (level !== 'all' && s.schulKndCode !== level) return false;
-      if (sigungu !== 'all' && sigunguOf(s) !== sigungu) return false;
+      if (sigungu !== 'all' && s.sigunguName !== sigungu) return false;
       if (publicOnly && s.fondScCode !== '공립') return false;
       if (q && !s.schulNm.includes(q)) return false;
       return true;

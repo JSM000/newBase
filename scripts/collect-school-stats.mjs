@@ -707,6 +707,85 @@ const DATASETS = [
   },
 ];
 
+/**
+ * 여러 데이터셋 병합 이후에만 계산 가능한 파생 지표 — 학교 하나가 서로 다른 API(예: 학교현황62의
+ * studentCountTotal + 전출입10의 transferIn/OutStudentCount)에 걸쳐 있어야 계산되는 값이라
+ * DATASETS 루프 안(개별 데이터셋 normalize)에서는 못 만들고, 전체 병합이 끝난 뒤 한 번에 채운다.
+ *
+ * 공식은 여기 한 곳에만 있고, src/lib/school-indicators.ts의 해당 지표 accessor는 이 필드를
+ * 그대로 읽기만 하도록 되어 있다 — 프론트/클러스터 집계 스크립트 양쪽에 계산식을 복제하지 않기 위함.
+ * 이 계산식을 고치면 school-indicators.ts는 안 고쳐도 되지만(단순 필드 읽기라), 반대로 여기 없는
+ * 새 파생 지표를 추가하려면 여기 목록과 school-indicators.ts 양쪽에 다 추가해야 함.
+ */
+const DERIVED_FIELDS = [
+  {
+    key: "transferChurnRate",
+    sourceFields: ["transferInStudentCount", "transferOutStudentCount", "studentCountTotal"],
+    // (전입학생수 + 전출학생수) / 전체학생수 * 100
+    compute(s) {
+      const total = s.studentCountTotal;
+      if (total === null || total === 0) return null;
+      if (s.transferInStudentCount === null && s.transferOutStudentCount === null) return null;
+      const churn = (s.transferInStudentCount ?? 0) + (s.transferOutStudentCount ?? 0);
+      return (churn / total) * 100;
+    },
+  },
+  {
+    key: "supportStaffCount",
+    sourceFields: ["generalStaffCount", "eduSupportStaffCount"],
+    // 일반직 + 교육공무직
+    compute(s) {
+      if (s.generalStaffCount === null && s.eduSupportStaffCount === null) return null;
+      return (s.generalStaffCount ?? 0) + (s.eduSupportStaffCount ?? 0);
+    },
+  },
+  {
+    key: "scholarshipSupportRate",
+    sourceFields: ["scholarshipRecipientCount", "tuitionSupportRecipientCount", "studentCountTotal"],
+    // (장학금인원 + 학비지원인원) / 전체학생수 * 100
+    compute(s) {
+      const total = s.studentCountTotal;
+      if (total === null || total === 0) return null;
+      if (s.scholarshipRecipientCount === null && s.tuitionSupportRecipientCount === null) return null;
+      const cnt = (s.scholarshipRecipientCount ?? 0) + (s.tuitionSupportRecipientCount ?? 0);
+      return (cnt / total) * 100;
+    },
+  },
+  {
+    // 지도 행정구역 클러스터링(시·군, 구/읍/면/동)에 쓰는 소속명. 엄밀히는 학교기본정보(0) 하나만
+    // 있으면 계산 가능(병합을 안 기다려도 됨)하지만, "API 원본이 아니라 문자열을 해석해서 만든 값"
+    // 이라는 성격이 같아서 다른 DERIVED_FIELDS와 같이 관리한다.
+    // 이 필드가 있기 전엔 src/lib/school-region.ts(프론트)와 scripts/build-school-clusters.mjs(클러스터
+    // 집계 스크립트) 양쪽에 이 파싱 로직이 복제돼 있었음 — 이제 여기 한 곳에서만 계산하고, 그 두 곳은
+    // 이 필드를 읽기만 하도록 정리함(중복 로직 제거).
+    key: "sigunguName",
+    sourceFields: ["adrcdNm"],
+    // adrcdNm(예: "충청북도 청주시 흥덕구")에서 "시" 또는 "군"으로 끝나는 토큰. 청주시는 하위 구를
+    // 구분 안 하고 "청주시"로 통일.
+    compute(s) {
+      const src = s.adrcdNm ?? s.address ?? "";
+      const token = src.split(/\s+/).find((t) => /(시|군)$/.test(t) && t !== "충청북도");
+      return token ?? null;
+    },
+  },
+  {
+    key: "subRegionName",
+    sourceFields: ["adrcdNm", "address"],
+    // 시·군 "다음 단계"(구/읍/면/동). adrcdNm에 구가 있으면(청주시) 그게 항상 최신이라 최우선 사용,
+    // 없으면(그 외 시/군) address(지번주소)의 3번째 토큰(읍/면/동)을 대신 씀. address만 보면 안 되는
+    // 이유: 일부 학교(2014년 청주시-청원군 통합 이전 옛 지명 "청원군"이 안 고쳐진 11건 실측)는
+    // address에 구 토큰이 아예 없어서, 같은 구 소속인데도 다른 그룹으로 잘못 쪼개짐.
+    compute(s) {
+      const adrcdTokens = (s.adrcdNm ?? "").split(/\s+/).filter(Boolean);
+      const guFromAdrcd = adrcdTokens[2];
+      if (guFromAdrcd && /구$/.test(guFromAdrcd)) return guFromAdrcd;
+
+      const addressTokens = (s.address ?? "").split(/\s+/).filter(Boolean);
+      return addressTokens[2] ?? null;
+    },
+  },
+];
+
 function mergeIntoSchool(map, schulCode, partial, dataset) {
   if (!schulCode) return;
   const existing = map.get(schulCode) ?? { schulCode };
@@ -800,6 +879,13 @@ async function main() {
     schoolsByCode.delete(orphan.schulCode);
   }
 
+  // 파생 지표(DERIVED_FIELDS) 채우기 — 여러 데이터셋이 다 병합된 뒤에만 계산 가능
+  for (const school of schoolsByCode.values()) {
+    for (const field of DERIVED_FIELDS) {
+      school[field.key] = field.compute(school);
+    }
+  }
+
   const schools = [...schoolsByCode.values()].sort((a, b) => {
     if (a.schulKndCode !== b.schulKndCode) return (a.schulKndCode ?? "").localeCompare(b.schulKndCode ?? "");
     return (a.schulNm ?? "").localeCompare(b.schulNm ?? "", "ko");
@@ -821,6 +907,8 @@ async function main() {
         excludedReasonField: d.excludedReasonField ?? null,
         fieldSource: d.fieldSource ?? null,
       })),
+      // 여러 데이터셋이 병합된 뒤에 계산되는 파생 필드 — 어느 데이터셋의 fieldSource에도 안 걸려있어서 따로 명시
+      derivedFields: DERIVED_FIELDS.map((d) => ({ key: d.key, sourceFields: d.sourceFields })),
       sidoCode: SIDO_CODE,
       sidoName: "충청북도",
       sggCodes: CHUNGBUK_SGG_CODES.map((s) => s.code),

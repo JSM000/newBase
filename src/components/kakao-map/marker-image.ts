@@ -63,3 +63,44 @@ export function getMarkerImage(
   return image;
 }
 
+/**
+ * 행정구역(시·군) 단위 클러스터 마커용 DOM 엘리먼트.
+ * CustomOverlay에 HTMLElement로 넘겨서 클릭 리스너를 직접 붙일 수 있게 한다.
+ */
+export function createRegionClusterElement(name: string, count: number, color: string): HTMLDivElement {
+  const el = document.createElement('div');
+  el.style.cssText = `
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    cursor: pointer;
+    user-select: none;
+  `;
+  el.innerHTML = `
+    <div style="
+      width: 46px;
+      height: 46px;
+      border-radius: 9999px;
+      background: ${color};
+      border: 3px solid #ffffff;
+      box-shadow: 0 2px 8px rgba(0,0,0,.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 15px;
+      font-weight: 700;
+      color: #ffffff;
+      text-shadow: 0 1px 2px rgba(0,0,0,.35);
+    ">${count}</div>
+    <div style="
+      margin-top: 2px;
+      padding: 1px 6px;
+      background: rgba(17,24,39,.85);
+      color: #fff;
+      font-size: 11px;
+      border-radius: 6px;
+      white-space: nowrap;
+    ">${name}</div>
+  `;
+  return el;
+}
