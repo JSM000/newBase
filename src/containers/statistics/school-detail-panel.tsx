@@ -3,7 +3,7 @@
 import { X } from 'lucide-react';
 import type { School } from '@/types/school-stats';
 import { DETAIL_GROUPS } from '@/lib/school-indicators';
-import { SCHOOL_LEVEL_OPTIONS } from '@/lib/school-region';
+import { schulKndLabel } from '@/lib/school-region';
 
 interface SchoolDetailPanelProps {
   school: School | null;
@@ -19,11 +19,6 @@ function isNewSchool(ymd: string | null): boolean {
   if (!ymd || ymd.length !== 8) return false;
   const year = Number(ymd.slice(0, 4));
   return Number.isFinite(year) && new Date().getFullYear() - year <= 5;
-}
-
-/** schulKndCode(02/03/04) -> 학교급 이름. schulKndNm을 따로 저장하지 않고 여기서 유도 (완전 중복이라 제거). */
-function schulKndLabel(code: School['schulKndCode']): string {
-  return SCHOOL_LEVEL_OPTIONS.find((o) => o.value === code)?.label ?? code;
 }
 
 export function SchoolDetailPanel({ school, onClose }: SchoolDetailPanelProps) {
