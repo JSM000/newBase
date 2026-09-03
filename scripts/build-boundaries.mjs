@@ -5,7 +5,9 @@
 //   1. 전국 시군구에서 충북(code prefix '33')만 추출
 //   2. 청주시 4개 구(상당/서원/흥덕/청원)는 union 으로 '청주시' 하나로 병합
 //      → 지도 클러스터링이 청주시를 단일 단위로 다루므로 내부 구 경계는 지운다
-//   3. 좌표 단순화(tolerance ≈ 60m) + 소수점 5자리(약 1m) 반올림으로 용량 축소
+//   3. union 이 남긴 sliver 구멍(내부 링)을 전부 제거 — 충북 11개 시·군에는
+//      실제 enclave 가 없으므로 각 폴리곤의 외곽 링만 남긴다
+//   4. 좌표 단순화(tolerance ≈ 60m) + 소수점 5자리(약 1m) 반올림으로 용량 축소
 //
 // 원본: https://github.com/southkorea/southkorea-maps (kostat 2018, 공공데이터)
 //
@@ -72,7 +74,17 @@ for (const [name, group] of byName) {
     merged = turf.union(turf.featureCollection([merged, group[i]]));
   }
 
-  // 3. 단순화 + 좌표 반올림
+  // 3. union 이 남긴 내부 링(sliver 구멍) 제거 — 외곽 링만 남긴다
+  const dropHoles = (geom) => {
+    if (geom.type === "Polygon") {
+      geom.coordinates = [geom.coordinates[0]];
+    } else {
+      geom.coordinates = geom.coordinates.map((poly) => [poly[0]]);
+    }
+  };
+  dropHoles(merged.geometry);
+
+  // 4. 단순화 + 좌표 반올림
   const simplified = turf.simplify(merged, {
     tolerance: SIMPLIFY_TOLERANCE,
     highQuality: true,
