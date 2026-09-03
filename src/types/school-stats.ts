@@ -1,32 +1,13 @@
 /**
- * public/data/chungbuk-schools.json 스키마.
- * 수집 스크립트: scripts/collect-school-stats.mjs
+ * public/data/chungbuk-schools-render.json 스키마 (프론트가 실제로 fetch하는 최적화 파일).
+ * 원본(chungbuk-schools.json)에서 프론트가 안 쓰는 필드/source 메타를 제거해 이 모양으로 만든다.
+ * 수집 스크립트: scripts/collect-school-stats.mjs (원본) → scripts/build-schools-dataset.mjs (최적화)
  * 계획 문서: _refs/학교통계_지도_구현계획.md
  */
 
 export interface SchoolPosition {
   lat: number;
   lng: number;
-}
-
-/** 학교알리미 시트(엔드포인트) 하나에 대한 메타. 원본 API 필드명 매핑을 그대로 실어둠. */
-export interface SchoolStatsDataset {
-  apiType: string;
-  name: string;
-  fields: string[];
-  /** 이 데이터셋 필드가 null일 때 사유를 담고 있는 필드명 (공시제외 등) */
-  excludedReasonField: string | null;
-  /** 저장 필드명 -> 원본 API 필드명 (여러 필드를 합친 경우 배열) */
-  fieldSource: Record<string, string | string[]> | null;
-}
-
-export interface SchoolStatsSource {
-  api: string;
-  datasets: SchoolStatsDataset[];
-  sidoCode: string;
-  sidoName: string;
-  sggCodes: string[];
-  schulKndCodes: string[];
 }
 
 /** 학교급 코드: 02 초등 / 03 중등 / 04 고등 (유치원은 학교알리미 schulKndCode에 없음) */
@@ -37,23 +18,13 @@ export interface School {
   schulCode: string;
   schulNm: string;
   schulKndCode: SchulKndCode;
-  schulKndNm: string;
   fondScCode: string | null; // "공립" / "사립" 등
-  sidoOfficeNm: string | null;
   eduSupportOfficeNm: string | null; // 예: "충청북도청주교육지원청"
   adrcdNm: string | null; // 예: "충청북도 청주시 흥덕구"
-  lctnScCode: string | null; // 소재지구분코드
   address: string | null;
-  detailAddress: string | null;
   roadAddress: string | null;
-  zipCode: string | null;
   foundedYmd: string | null; // YYYYMMDD
   position: SchoolPosition | null;
-  tel: string | null;
-  homepage: string | null;
-  isBranchSchool: boolean;
-  isClosed: boolean;
-  isSuspended: boolean;
 
   // --- 학교 현황(62) ---
   homeroomClassCount: number | null; // 학급수계 = 담임 자리 수
@@ -88,10 +59,6 @@ export interface School {
   transferInStudentCount: number | null;
   transferOutStudentCount: number | null;
   transferStudentExcludedReason: string | null;
-
-  // --- 대상별 학교폭력 예방교육 실적(94) ---
-  bullyingPreventionInstructorCount: number | null;
-  bullyingPreventionExcludedReason: string | null;
 
   // --- 직원 현황(68) ---
   generalStaffCount: number | null; // 일반직
@@ -129,11 +96,20 @@ export interface School {
   scholarshipRecipientCount: number | null;
   tuitionSupportRecipientCount: number | null;
   scholarshipExcludedReason: string | null;
+
+  // --- 파생 지표 (여러 데이터셋 병합 후 collect-school-stats.mjs의 DERIVED_FIELDS가 계산) ---
+  transferChurnRate: number | null; // (전입+전출) / 전체학생수 * 100
+  supportStaffCount: number | null; // 일반직 + 교육공무직
+  scholarshipSupportRate: number | null; // (장학금+학비지원) / 전체학생수 * 100
+
+  // --- 파생 필드: 지도 행정구역 클러스터링용 소속명 (adrcdNm/address 파싱 결과, collect-school-stats.mjs가 계산) ---
+  sigunguName: string | null; // 시·군 (예: "청주시", "단양군")
+  subRegionName: string | null; // 구/읍/면/동 (예: "흥덕구", "가덕면")
 }
 
 export interface ChungbukSchoolsData {
   generatedAt: string;
-  source: SchoolStatsSource;
+  sourceGeneratedAt: string;
   count: number;
   schools: School[];
 }

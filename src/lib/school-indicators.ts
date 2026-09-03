@@ -12,8 +12,12 @@ import type { School } from '@/types/school-stats';
 
 export type IndicatorCategory = 'score' | 'work';
 
-/** 구간별 색상 (낮음 -> 높음). 5단계. */
-export const BUCKET_COLORS = ['#2a9d8f', '#8ab17d', '#e9c46a', '#f4a261', '#e76f51'] as const;
+/**
+ * 구간별 색상 (낮음 -> 높음). 5단계.
+ * 카카오맵 파스텔톤 배경과 대비되도록 채도를 높였고, dataviz 스킬의 validate_palette.js로
+ * 인접 구간 간 색약 구분성(CVD ΔE)·명도밴드·채도하한 기준을 통과시킨 값.
+ */
+export const BUCKET_COLORS = ['#0891b2', '#22c55e', '#a16207', '#fb923c', '#b91c1c'] as const;
 export const NO_DATA_COLOR = '#c7ccd1';
 
 export interface Indicator {
@@ -149,16 +153,11 @@ export const INDICATORS: Indicator[] = [
     description: '통합교육 관련 업무량 참고.',
   },
   {
+    // 계산식(전입+전출 / 전체학생수 * 100)은 collect-school-stats.mjs의 DERIVED_FIELDS에서
+    // 이미 계산해서 필드로 저장해둠 — 여기선 단순히 그 필드를 읽기만 함(중복 계산 방지).
     key: 'transferChurnRate',
     label: '전입출 학생 비율',
-    accessor: (s) => {
-      const total = num(s.studentCountTotal);
-      const churn =
-        (num(s.transferInStudentCount) ?? 0) + (num(s.transferOutStudentCount) ?? 0);
-      if (total === null || total === 0) return null;
-      if (s.transferInStudentCount === null && s.transferOutStudentCount === null) return null;
-      return (churn / total) * 100;
-    },
+    accessor: (s) => num(s.transferChurnRate),
     unit: '%',
     category: 'work',
     excludedReasonField: 'transferStudentExcludedReason',
@@ -167,12 +166,10 @@ export const INDICATORS: Indicator[] = [
     format: (v) => v.toFixed(1),
   },
   {
+    // 계산식(일반직 + 교육공무직)은 collect-school-stats.mjs의 DERIVED_FIELDS에서 이미 계산해둠.
     key: 'supportStaffCount',
     label: '행정 지원인력 (일반직+공무직)',
-    accessor: (s) => {
-      if (s.generalStaffCount === null && s.eduSupportStaffCount === null) return null;
-      return (num(s.generalStaffCount) ?? 0) + (num(s.eduSupportStaffCount) ?? 0);
-    },
+    accessor: (s) => num(s.supportStaffCount),
     unit: '명',
     category: 'work',
     excludedReasonField: 'staffExcludedReason',
@@ -181,17 +178,10 @@ export const INDICATORS: Indicator[] = [
     description: '일반직 + 교육공무직 인원. 많을수록 교사가 행정업무를 덜 떠안을 가능성.',
   },
   {
+    // 계산식(장학금+학비지원 / 전체학생수 * 100)은 collect-school-stats.mjs의 DERIVED_FIELDS에서 이미 계산해둠.
     key: 'scholarshipSupportRate',
     label: '장학·학비지원 학생 비율',
-    accessor: (s) => {
-      const total = num(s.studentCountTotal);
-      if (total === null || total === 0) return null;
-      if (s.scholarshipRecipientCount === null && s.tuitionSupportRecipientCount === null)
-        return null;
-      const cnt =
-        (num(s.scholarshipRecipientCount) ?? 0) + (num(s.tuitionSupportRecipientCount) ?? 0);
-      return (cnt / total) * 100;
-    },
+    accessor: (s) => num(s.scholarshipSupportRate),
     unit: '%',
     category: 'work',
     estimated: true,
@@ -340,11 +330,6 @@ export const DETAIL_GROUPS: DetailGroup[] = [
             ? '—'
             : `전입 ${s.transferInStudentCount ?? 0} · 전출 ${s.transferOutStudentCount ?? 0}`,
         excludedReasonField: 'transferStudentExcludedReason',
-      },
-      {
-        label: '학교폭력 예방교육 참여 실적',
-        render: (s) => n(s.bullyingPreventionInstructorCount, ' 회'),
-        excludedReasonField: 'bullyingPreventionExcludedReason',
       },
       {
         label: '행정 지원인력',

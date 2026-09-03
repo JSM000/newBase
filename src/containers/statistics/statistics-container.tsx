@@ -11,7 +11,6 @@ import {
   DEFAULT_INDICATOR_KEY,
 } from '@/lib/school-indicators';
 import {
-  sigunguOf,
   sortSigungu,
   type SchoolLevelFilter,
 } from '@/lib/school-region';
@@ -38,7 +37,7 @@ export function StatisticsContainer() {
       sortSigungu([
         ...new Set(
           allSchools
-            .map((s) => sigunguOf(s))
+            .map((s) => s.sigunguName)
             .filter((v): v is string => v !== null),
         ),
       ]),
@@ -50,7 +49,7 @@ export function StatisticsContainer() {
     return allSchools.filter((s) => {
       if (!s.position) return false;
       if (level !== 'all' && s.schulKndCode !== level) return false;
-      if (sigungu !== 'all' && sigunguOf(s) !== sigungu) return false;
+      if (sigungu !== 'all' && s.sigunguName !== sigungu) return false;
       if (publicOnly && s.fondScCode !== '공립') return false;
       if (q && !s.schulNm.includes(q)) return false;
       return true;
@@ -127,6 +126,20 @@ export function StatisticsContainer() {
           </div>
         </>
       )}
+
+      <footer className="shrink-0 border-t border-zinc-200 bg-white px-4 py-1.5 text-center text-[11px] leading-tight text-zinc-400">
+        본 저작물은 &apos;한국교육학술정보원&apos;에서 작성하여 공공누리 제1유형으로 개방한 &apos;학교알리미 공시정보&apos;를 이용하였으며,
+        해당 저작물은{' '}
+        <a
+          href="https://www.schoolinfo.go.kr"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="underline hover:text-zinc-600"
+        >
+          학교알리미(schoolinfo.go.kr)
+        </a>
+        에서 무료로 다운받으실 수 있습니다.
+      </footer>
     </div>
   );
 }

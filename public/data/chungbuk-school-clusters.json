@@ -1,0 +1,1049 @@
+{
+  "generatedAt": "2026-09-03T16:07:51.556Z",
+  "sourceGeneratedAt": "2026-09-03T16:07:51.523Z",
+  "radiusKm": {
+    "sigungu": 5,
+    "subRegion": 2
+  },
+  "sigunguClusters": [
+    {
+      "name": "청주시",
+      "bestCenter": {
+        "lat": 36.63098,
+        "lng": 127.474825
+      }
+    },
+    {
+      "name": "단양군",
+      "bestCenter": {
+        "lat": 37.096273,
+        "lng": 128.398752
+      }
+    },
+    {
+      "name": "충주시",
+      "bestCenter": {
+        "lat": 36.971432,
+        "lng": 127.929617
+      }
+    },
+    {
+      "name": "음성군",
+      "bestCenter": {
+        "lat": 36.928119,
+        "lng": 127.703057
+      }
+    },
+    {
+      "name": "괴산군",
+      "bestCenter": {
+        "lat": 36.862219,
+        "lng": 127.855141
+      }
+    },
+    {
+      "name": "보은군",
+      "bestCenter": {
+        "lat": 36.47847,
+        "lng": 127.723957
+      }
+    },
+    {
+      "name": "영동군",
+      "bestCenter": {
+        "lat": 36.165236,
+        "lng": 127.769923
+      }
+    },
+    {
+      "name": "진천군",
+      "bestCenter": {
+        "lat": 36.856471,
+        "lng": 127.443648
+      }
+    },
+    {
+      "name": "옥천군",
+      "bestCenter": {
+        "lat": 36.29335,
+        "lng": 127.57799
+      }
+    },
+    {
+      "name": "제천시",
+      "bestCenter": {
+        "lat": 37.141226,
+        "lng": 128.212731
+      }
+    },
+    {
+      "name": "증평군",
+      "bestCenter": {
+        "lat": 36.783632,
+        "lng": 127.591356
+      }
+    }
+  ],
+  "subRegionClusters": [
+    {
+      "name": "흥덕구",
+      "sigungu": "청주시",
+      "bestCenter": {
+        "lat": 36.625979,
+        "lng": 127.436063
+      }
+    },
+    {
+      "name": "가곡면",
+      "sigungu": "단양군",
+      "bestCenter": {
+        "lat": 37.027008,
+        "lng": 128.385175
+      }
+    },
+    {
+      "name": "상당구",
+      "sigungu": "청주시",
+      "bestCenter": {
+        "lat": 36.620938,
+        "lng": 127.50876
+      }
+    },
+    {
+      "name": "매포읍",
+      "sigungu": "단양군",
+      "bestCenter": {
+        "lat": 37.07296,
+        "lng": 128.282553
+      }
+    },
+    {
+      "name": "중앙탑면",
+      "sigungu": "충주시",
+      "bestCenter": {
+        "lat": 37.015608,
+        "lng": 127.831511
+      }
+    },
+    {
+      "name": "청원구",
+      "sigungu": "청주시",
+      "bestCenter": {
+        "lat": 36.663287,
+        "lng": 127.487223
+      }
+    },
+    {
+      "name": "서원구",
+      "sigungu": "청주시",
+      "bestCenter": {
+        "lat": 36.617374,
+        "lng": 127.478962
+      }
+    },
+    {
+      "name": "감곡면",
+      "sigungu": "음성군",
+      "bestCenter": {
+        "lat": 37.116981,
+        "lng": 127.641859
+      }
+    },
+    {
+      "name": "감물면",
+      "sigungu": "괴산군",
+      "bestCenter": {
+        "lat": 36.837079,
+        "lng": 127.872169
+      }
+    },
+    {
+      "name": "앙성면",
+      "sigungu": "충주시",
+      "bestCenter": {
+        "lat": 37.11021,
+        "lng": 127.754423
+      }
+    },
+    {
+      "name": "마로면",
+      "sigungu": "보은군",
+      "bestCenter": {
+        "lat": 36.435999,
+        "lng": 127.821362
+      }
+    },
+    {
+      "name": "괴산읍",
+      "sigungu": "괴산군",
+      "bestCenter": {
+        "lat": 36.80471,
+        "lng": 127.784167
+      }
+    },
+    {
+      "name": "용산면",
+      "sigungu": "영동군",
+      "bestCenter": {
+        "lat": 36.264009,
+        "lng": 127.828072
+      }
+    },
+    {
+      "name": "초평면",
+      "sigungu": "진천군",
+      "bestCenter": {
+        "lat": 36.780895,
+        "lng": 127.535111
+      }
+    },
+    {
+      "name": "연수동",
+      "sigungu": "충주시",
+      "bestCenter": {
+        "lat": 36.984541,
+        "lng": 127.937782
+      }
+    },
+    {
+      "name": "옥천읍",
+      "sigungu": "옥천군",
+      "bestCenter": {
+        "lat": 36.304317,
+        "lng": 127.573093
+      }
+    },
+    {
+      "name": "군서면",
+      "sigungu": "옥천군",
+      "bestCenter": {
+        "lat": 36.278385,
+        "lng": 127.527213
+      }
+    },
+    {
+      "name": "금가면",
+      "sigungu": "충주시",
+      "bestCenter": {
+        "lat": 37.044267,
+        "lng": 127.922489
+      }
+    },
+    {
+      "name": "이월면",
+      "sigungu": "진천군",
+      "bestCenter": {
+        "lat": 36.934542,
+        "lng": 127.429886
+      }
+    },
+    {
+      "name": "금성면",
+      "sigungu": "제천시",
+      "bestCenter": {
+        "lat": 37.067274,
+        "lng": 128.1655
+      }
+    },
+    {
+      "name": "음성읍",
+      "sigungu": "음성군",
+      "bestCenter": {
+        "lat": 36.933582,
+        "lng": 127.692103
+      }
+    },
+    {
+      "name": "남천동",
+      "sigungu": "제천시",
+      "bestCenter": {
+        "lat": 37.13641,
+        "lng": 128.217207
+      }
+    },
+    {
+      "name": "문화동",
+      "sigungu": "충주시",
+      "bestCenter": {
+        "lat": 36.961883,
+        "lng": 127.923757
+      }
+    },
+    {
+      "name": "신백동",
+      "sigungu": "제천시",
+      "bestCenter": {
+        "lat": 37.13203,
+        "lng": 128.227944
+      }
+    },
+    {
+      "name": "노은면",
+      "sigungu": "충주시",
+      "bestCenter": {
+        "lat": 37.048545,
+        "lng": 127.755355
+      }
+    },
+    {
+      "name": "삼성면",
+      "sigungu": "음성군",
+      "bestCenter": {
+        "lat": 37.022518,
+        "lng": 127.498278
+      }
+    },
+    {
+      "name": "단양읍",
+      "sigungu": "단양군",
+      "bestCenter": {
+        "lat": 36.979006,
+        "lng": 128.365031
+      }
+    },
+    {
+      "name": "단월동",
+      "sigungu": "충주시",
+      "bestCenter": {
+        "lat": 36.948075,
+        "lng": 127.899835
+      }
+    },
+    {
+      "name": "단성면",
+      "sigungu": "단양군",
+      "bestCenter": {
+        "lat": 36.927107,
+        "lng": 128.338065
+      }
+    },
+    {
+      "name": "용두동",
+      "sigungu": "충주시",
+      "bestCenter": {
+        "lat": 36.963324,
+        "lng": 127.879151
+      }
+    },
+    {
+      "name": "이류면",
+      "sigungu": "충주시",
+      "bestCenter": {
+        "lat": 36.908326,
+        "lng": 127.870248
+      }
+    },
+    {
+      "name": "적성면",
+      "sigungu": "단양군",
+      "bestCenter": {
+        "lat": 37.033176,
+        "lng": 128.262697
+      }
+    },
+    {
+      "name": "대강면",
+      "sigungu": "단양군",
+      "bestCenter": {
+        "lat": 36.922301,
+        "lng": 128.358558
+      }
+    },
+    {
+      "name": "동량면",
+      "sigungu": "충주시",
+      "bestCenter": {
+        "lat": 37.034907,
+        "lng": 127.929668
+      }
+    },
+    {
+      "name": "이원면",
+      "sigungu": "옥천군",
+      "bestCenter": {
+        "lat": 36.247959,
+        "lng": 127.61856
+      }
+    },
+    {
+      "name": "대소원면",
+      "sigungu": "충주시",
+      "bestCenter": {
+        "lat": 36.98384,
+        "lng": 127.826722
+      }
+    },
+    {
+      "name": "소이면",
+      "sigungu": "음성군",
+      "bestCenter": {
+        "lat": 36.919547,
+        "lng": 127.7533
+      }
+    },
+    {
+      "name": "도안면",
+      "sigungu": "증평군",
+      "bestCenter": {
+        "lat": 36.817081,
+        "lng": 127.611094
+      }
+    },
+    {
+      "name": "보은읍",
+      "sigungu": "보은군",
+      "bestCenter": {
+        "lat": 36.488484,
+        "lng": 127.719909
+      }
+    },
+    {
+      "name": "신니면",
+      "sigungu": "충주시",
+      "bestCenter": {
+        "lat": 36.9991,
+        "lng": 127.73762
+      }
+    },
+    {
+      "name": "천남동",
+      "sigungu": "제천시",
+      "bestCenter": {
+        "lat": 37.133835,
+        "lng": 128.193992
+      }
+    },
+    {
+      "name": "맹동면",
+      "sigungu": "음성군",
+      "bestCenter": {
+        "lat": 36.91244,
+        "lng": 127.543394
+      }
+    },
+    {
+      "name": "동이면",
+      "sigungu": "옥천군",
+      "bestCenter": {
+        "lat": 36.286119,
+        "lng": 127.619168
+      }
+    },
+    {
+      "name": "흑석동",
+      "sigungu": "제천시",
+      "bestCenter": {
+        "lat": 37.134417,
+        "lng": 128.244971
+      }
+    },
+    {
+      "name": "광혜원면",
+      "sigungu": "진천군",
+      "bestCenter": {
+        "lat": 36.99272,
+        "lng": 127.436847
+      }
+    },
+    {
+      "name": "매곡면",
+      "sigungu": "영동군",
+      "bestCenter": {
+        "lat": 36.192473,
+        "lng": 127.932238
+      }
+    },
+    {
+      "name": "명지동",
+      "sigungu": "제천시",
+      "bestCenter": {
+        "lat": 37.118856,
+        "lng": 128.205481
+      }
+    },
+    {
+      "name": "불정면",
+      "sigungu": "괴산군",
+      "bestCenter": {
+        "lat": 36.872215,
+        "lng": 127.852232
+      }
+    },
+    {
+      "name": "목행동",
+      "sigungu": "충주시",
+      "bestCenter": {
+        "lat": 37.007781,
+        "lng": 127.918904
+      }
+    },
+    {
+      "name": "문광면",
+      "sigungu": "괴산군",
+      "bestCenter": {
+        "lat": 36.78977,
+        "lng": 127.783361
+      }
+    },
+    {
+      "name": "청천면",
+      "sigungu": "괴산군",
+      "bestCenter": {
+        "lat": 36.666951,
+        "lng": 127.868243
+      }
+    },
+    {
+      "name": "문백면",
+      "sigungu": "진천군",
+      "bestCenter": {
+        "lat": 36.786255,
+        "lng": 127.433204
+      }
+    },
+    {
+      "name": "양강면",
+      "sigungu": "영동군",
+      "bestCenter": {
+        "lat": 36.127981,
+        "lng": 127.727205
+      }
+    },
+    {
+      "name": "백곡면",
+      "sigungu": "진천군",
+      "bestCenter": {
+        "lat": 36.885862,
+        "lng": 127.359873
+      }
+    },
+    {
+      "name": "청안면",
+      "sigungu": "괴산군",
+      "bestCenter": {
+        "lat": 36.772782,
+        "lng": 127.640363
+      }
+    },
+    {
+      "name": "백운면",
+      "sigungu": "제천시",
+      "bestCenter": {
+        "lat": 37.141713,
+        "lng": 128.018528
+      }
+    },
+    {
+      "name": "영춘면",
+      "sigungu": "단양군",
+      "bestCenter": {
+        "lat": 37.093601,
+        "lng": 128.417804
+      }
+    },
+    {
+      "name": "사리면",
+      "sigungu": "괴산군",
+      "bestCenter": {
+        "lat": 36.818079,
+        "lng": 127.649925
+      }
+    },
+    {
+      "name": "봉양읍",
+      "sigungu": "제천시",
+      "bestCenter": {
+        "lat": 37.135347,
+        "lng": 128.117484
+      }
+    },
+    {
+      "name": "산외면",
+      "sigungu": "보은군",
+      "bestCenter": {
+        "lat": 36.552656,
+        "lng": 127.731661
+      }
+    },
+    {
+      "name": "산척면",
+      "sigungu": "충주시",
+      "bestCenter": {
+        "lat": 37.076686,
+        "lng": 127.956816
+      }
+    },
+    {
+      "name": "증평읍",
+      "sigungu": "증평군",
+      "bestCenter": {
+        "lat": 36.783213,
+        "lng": 127.58629
+      }
+    },
+    {
+      "name": "상촌면",
+      "sigungu": "영동군",
+      "bestCenter": {
+        "lat": 36.147596,
+        "lng": 127.911377
+      }
+    },
+    {
+      "name": "생극면",
+      "sigungu": "음성군",
+      "bestCenter": {
+        "lat": 37.035172,
+        "lng": 127.605565
+      }
+    },
+    {
+      "name": "진천읍",
+      "sigungu": "진천군",
+      "bestCenter": {
+        "lat": 36.858277,
+        "lng": 127.445971
+      }
+    },
+    {
+      "name": "살미면",
+      "sigungu": "충주시",
+      "bestCenter": {
+        "lat": 36.904952,
+        "lng": 127.968386
+      }
+    },
+    {
+      "name": "소수면",
+      "sigungu": "괴산군",
+      "bestCenter": {
+        "lat": 36.854422,
+        "lng": 127.745253
+      }
+    },
+    {
+      "name": "소태면",
+      "sigungu": "충주시",
+      "bestCenter": {
+        "lat": 37.111054,
+        "lng": 127.846781
+      }
+    },
+    {
+      "name": "삼승면",
+      "sigungu": "보은군",
+      "bestCenter": {
+        "lat": 36.437937,
+        "lng": 127.734834
+      }
+    },
+    {
+      "name": "송학면",
+      "sigungu": "제천시",
+      "bestCenter": {
+        "lat": 37.186796,
+        "lng": 128.263705
+      }
+    },
+    {
+      "name": "수안보면",
+      "sigungu": "충주시",
+      "bestCenter": {
+        "lat": 36.844911,
+        "lng": 127.999428
+      }
+    },
+    {
+      "name": "속리산면",
+      "sigungu": "보은군",
+      "bestCenter": {
+        "lat": 36.535834,
+        "lng": 127.821336
+      }
+    },
+    {
+      "name": "수한면",
+      "sigungu": "보은군",
+      "bestCenter": {
+        "lat": 36.458504,
+        "lng": 127.701342
+      }
+    },
+    {
+      "name": "심천면",
+      "sigungu": "영동군",
+      "bestCenter": {
+        "lat": 36.224187,
+        "lng": 127.717852
+      }
+    },
+    {
+      "name": "금왕읍",
+      "sigungu": "음성군",
+      "bestCenter": {
+        "lat": 36.991273,
+        "lng": 127.596647
+      }
+    },
+    {
+      "name": "안내면",
+      "sigungu": "옥천군",
+      "bestCenter": {
+        "lat": 36.395156,
+        "lng": 127.660721
+      }
+    },
+    {
+      "name": "양산면",
+      "sigungu": "영동군",
+      "bestCenter": {
+        "lat": 36.125712,
+        "lng": 127.672221
+      }
+    },
+    {
+      "name": "어상천면",
+      "sigungu": "단양군",
+      "bestCenter": {
+        "lat": 37.10205,
+        "lng": 128.359761
+      }
+    },
+    {
+      "name": "엄정면",
+      "sigungu": "충주시",
+      "bestCenter": {
+        "lat": 37.08628,
+        "lng": 127.906869
+      }
+    },
+    {
+      "name": "연풍면",
+      "sigungu": "괴산군",
+      "bestCenter": {
+        "lat": 36.764823,
+        "lng": 127.998253
+      }
+    },
+    {
+      "name": "영동읍",
+      "sigungu": "영동군",
+      "bestCenter": {
+        "lat": 36.173018,
+        "lng": 127.77969
+      }
+    },
+    {
+      "name": "덕산읍",
+      "sigungu": "진천군",
+      "bestCenter": {
+        "lat": 36.903232,
+        "lng": 127.534539
+      }
+    },
+    {
+      "name": "하소동",
+      "sigungu": "제천시",
+      "bestCenter": {
+        "lat": 37.143418,
+        "lng": 128.197139
+      }
+    },
+    {
+      "name": "용화면",
+      "sigungu": "영동군",
+      "bestCenter": {
+        "lat": 36.023607,
+        "lng": 127.765895
+      }
+    },
+    {
+      "name": "원남면",
+      "sigungu": "음성군",
+      "bestCenter": {
+        "lat": 36.878824,
+        "lng": 127.653786
+      }
+    },
+    {
+      "name": "의림동",
+      "sigungu": "제천시",
+      "bestCenter": {
+        "lat": 37.141693,
+        "lng": 128.20741
+      }
+    },
+    {
+      "name": "장락동",
+      "sigungu": "제천시",
+      "bestCenter": {
+        "lat": 37.149631,
+        "lng": 128.222491
+      }
+    },
+    {
+      "name": "장연면",
+      "sigungu": "괴산군",
+      "bestCenter": {
+        "lat": 36.822483,
+        "lng": 127.953536
+      }
+    },
+    {
+      "name": "덕산면",
+      "sigungu": "제천시",
+      "bestCenter": {
+        "lat": 36.907979,
+        "lng": 128.169614
+      }
+    },
+    {
+      "name": "주덕읍",
+      "sigungu": "충주시",
+      "bestCenter": {
+        "lat": 36.973828,
+        "lng": 127.786438
+      }
+    },
+    {
+      "name": "군북면",
+      "sigungu": "옥천군",
+      "bestCenter": {
+        "lat": 36.334255,
+        "lng": 127.523579
+      }
+    },
+    {
+      "name": "청산면",
+      "sigungu": "옥천군",
+      "bestCenter": {
+        "lat": 36.348583,
+        "lng": 127.794713
+      }
+    },
+    {
+      "name": "청성면",
+      "sigungu": "옥천군",
+      "bestCenter": {
+        "lat": 36.328938,
+        "lng": 127.759375
+      }
+    },
+    {
+      "name": "청풍면",
+      "sigungu": "제천시",
+      "bestCenter": {
+        "lat": 36.996269,
+        "lng": 128.165166
+      }
+    },
+    {
+      "name": "추풍령면",
+      "sigungu": "영동군",
+      "bestCenter": {
+        "lat": 36.216722,
+        "lng": 127.999983
+      }
+    },
+    {
+      "name": "교현1동",
+      "sigungu": "충주시",
+      "bestCenter": {
+        "lat": 36.974598,
+        "lng": 127.936678
+      }
+    },
+    {
+      "name": "금릉동",
+      "sigungu": "충주시",
+      "bestCenter": {
+        "lat": 36.994695,
+        "lng": 127.930292
+      }
+    },
+    {
+      "name": "용산동",
+      "sigungu": "충주시",
+      "bestCenter": {
+        "lat": 36.96157,
+        "lng": 127.939983
+      }
+    },
+    {
+      "name": "호암동",
+      "sigungu": "충주시",
+      "bestCenter": {
+        "lat": 36.953512,
+        "lng": 127.934491
+      }
+    },
+    {
+      "name": "교현동",
+      "sigungu": "충주시",
+      "bestCenter": {
+        "lat": 36.976773,
+        "lng": 127.937975
+      }
+    },
+    {
+      "name": "칠금동",
+      "sigungu": "충주시",
+      "bestCenter": {
+        "lat": 36.983459,
+        "lng": 127.920589
+      }
+    },
+    {
+      "name": "칠성면",
+      "sigungu": "괴산군",
+      "bestCenter": {
+        "lat": 36.788929,
+        "lng": 127.873589
+      }
+    },
+    {
+      "name": "학산면",
+      "sigungu": "영동군",
+      "bestCenter": {
+        "lat": 36.097803,
+        "lng": 127.683511
+      }
+    },
+    {
+      "name": "한수면",
+      "sigungu": "제천시",
+      "bestCenter": {
+        "lat": 36.882897,
+        "lng": 128.080177
+      }
+    },
+    {
+      "name": "덕산면",
+      "sigungu": "진천군",
+      "bestCenter": {
+        "lat": 36.904526,
+        "lng": 127.514507
+      }
+    },
+    {
+      "name": "모산동",
+      "sigungu": "제천시",
+      "bestCenter": {
+        "lat": 37.164664,
+        "lng": 128.215899
+      }
+    },
+    {
+      "name": "화산동",
+      "sigungu": "제천시",
+      "bestCenter": {
+        "lat": 37.129907,
+        "lng": 128.213434
+      }
+    },
+    {
+      "name": "황간면",
+      "sigungu": "영동군",
+      "bestCenter": {
+        "lat": 36.233293,
+        "lng": 127.908597
+      }
+    },
+    {
+      "name": "회남면",
+      "sigungu": "보은군",
+      "bestCenter": {
+        "lat": 36.446191,
+        "lng": 127.57973
+      }
+    },
+    {
+      "name": "회인면",
+      "sigungu": "보은군",
+      "bestCenter": {
+        "lat": 36.492929,
+        "lng": 127.595616
+      }
+    },
+    {
+      "name": "청전동",
+      "sigungu": "제천시",
+      "bestCenter": {
+        "lat": 37.147956,
+        "lng": 128.212383
+      }
+    },
+    {
+      "name": "탄부면",
+      "sigungu": "보은군",
+      "bestCenter": {
+        "lat": 36.436552,
+        "lng": 127.805781
+      }
+    },
+    {
+      "name": "수산면",
+      "sigungu": "제천시",
+      "bestCenter": {
+        "lat": 36.93602,
+        "lng": 128.187603
+      }
+    },
+    {
+      "name": "서부동",
+      "sigungu": "제천시",
+      "bestCenter": {
+        "lat": 37.137817,
+        "lng": 128.204503
+      }
+    },
+    {
+      "name": "안림동",
+      "sigungu": "충주시",
+      "bestCenter": {
+        "lat": 36.97182,
+        "lng": 127.946818
+      }
+    },
+    {
+      "name": "교현2동",
+      "sigungu": "충주시",
+      "bestCenter": {
+        "lat": 36.979274,
+        "lng": 127.932479
+      }
+    },
+    {
+      "name": "봉방동",
+      "sigungu": "충주시",
+      "bestCenter": {
+        "lat": 36.979076,
+        "lng": 127.92065
+      }
+    },
+    {
+      "name": "신월동",
+      "sigungu": "제천시",
+      "bestCenter": {
+        "lat": 37.18306,
+        "lng": 128.198091
+      }
+    },
+    {
+      "name": "고명동",
+      "sigungu": "제천시",
+      "bestCenter": {
+        "lat": 37.119957,
+        "lng": 128.234001
+      }
+    },
+    {
+      "name": "동현동",
+      "sigungu": "제천시",
+      "bestCenter": {
+        "lat": 37.135226,
+        "lng": 128.220826
+      }
+    }
+  ]
+}
