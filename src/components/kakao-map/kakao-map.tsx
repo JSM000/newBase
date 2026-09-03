@@ -12,6 +12,7 @@ import {
 import { groupSchoolsBySigungu, groupSchoolsBySubRegion } from '@/lib/school-region';
 import { loadKakaoMaps, KAKAO_APP_KEY } from '@/lib/kakao-loader';
 import { useSchoolClusters } from '@/hooks/use-school-clusters';
+import { useChungbukBoundaries } from '@/hooks/use-chungbuk-boundaries';
 import { getMarkerImage, createRegionClusterElement } from './marker-image';
 
 interface KakaoMapProps {
@@ -63,6 +64,7 @@ export function KakaoMap({
   const mapsRef = useRef<KakaoMapsNamespace | null>(null);
   const markersRef = useRef<KakaoMarker[]>([]);
   const regionOverlaysRef = useRef<KakaoCustomOverlay[]>([]);
+  const boundaryPolygonsRef = useRef<KakaoPolygon[]>([]);
   const tooltipRef = useRef<KakaoCustomOverlay | null>(null);
   const tooltipHideTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -78,6 +80,9 @@ export function KakaoMap({
   // 켜면 줌 레벨과 무관하게 클러스터 없이 모든 학교 개별 마커를 표시
   const [showAllMarkers, setShowAllMarkers] = useState(false);
   const viewTier: ViewTier = showAllMarkers ? 'individual' : tierOf(level);
+
+  // 행정구역(시·군) 경계선 — 필터·지표와 무관한 정적 데이터
+  const { data: boundaryData } = useChungbukBoundaries();
 
   // 클러스터 뱃지 위치("밀집 위치", 필터 무관 사전 계산값) — 이름으로 바로 찾도록 Map으로 변환
   const { data: clusterData } = useSchoolClusters();
@@ -137,6 +142,44 @@ export function KakaoMap({
       cancelled = true;
     };
   }, []);
+
+  // ── 행정구역(시·군) 경계선 렌더 (지도 준비 + 데이터 도착 시 1회) ──
+  useEffect(() => {
+    const maps = mapsRef.current;
+    const map = mapRef.current;
+    if (status !== 'ready' || !maps || !map || !boundaryData) return;
+
+    // GeoJSON 링([lng, lat][]) → 카카오 LatLng 배열
+    const toPath = (ring: number[][]) =>
+      ring.map(([lng, lat]) => new maps.LatLng(lat, lng));
+
+    // MultiPolygon 은 하위 폴리곤마다, Polygon 은 그 자체로 폴리곤 1개 생성.
+    // path 를 링 배열([외곽, 구멍...])로 넘기면 도넛 모양도 처리된다.
+    const polygonRings: number[][][][] = boundaryData.features.flatMap((f) =>
+      f.geometry.type === 'Polygon' ? [f.geometry.coordinates] : f.geometry.coordinates,
+    );
+
+    const polygons = polygonRings.map(
+      (rings) =>
+        new maps.Polygon({
+          path: rings.map(toPath),
+          strokeWeight: 1.5,
+          strokeColor: '#3f3f46', // zinc-700
+          strokeOpacity: 0.7,
+          strokeStyle: 'solid',
+          fillColor: '#000000',
+          fillOpacity: 0, // 채움 없이 경계선만
+          zIndex: 1, // 마커·클러스터 뱃지 아래
+        }),
+    );
+    for (const polygon of polygons) polygon.setMap(map);
+    boundaryPolygonsRef.current = polygons;
+
+    return () => {
+      for (const polygon of polygons) polygon.setMap(null);
+      boundaryPolygonsRef.current = [];
+    };
+  }, [status, boundaryData]);
 
   // ── 마커/클러스터 렌더 (schools / indicator / selected / 시야 전환 시 재구성) ──
   useEffect(() => {
