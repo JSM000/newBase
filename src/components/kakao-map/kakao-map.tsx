@@ -1,12 +1,13 @@
 'use client';
 
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { forwardRef, useEffect, useImperativeHandle, useMemo, useRef, useState } from 'react';
 import type { School } from '@/types/school-stats';
 import type { ClusterPosition } from '@/types/school-clusters';
 import {
   type Indicator,
   bucketColor,
   bucketIndex,
+  formatIndicatorValue,
   NO_DATA_COLOR,
 } from '@/lib/school-indicators';
 import { groupSchoolsBySigungu, groupSchoolsBySubRegion } from '@/lib/school-region';
@@ -21,6 +22,12 @@ interface KakaoMapProps {
   onSelectSchool: (school: School) => void;
 }
 
+/** 부모(순위 목록 등)가 지도를 조작할 수 있는 명령형 API. */
+export interface KakaoMapHandle {
+  /** 해당 학교가 화면에 보이도록 중심 이동 + 필요하면 개별 마커가 보이는 줌 레벨까지 확대. */
+  focusSchool: (school: School) => void;
+}
+
 // 충청북도 대략 중심 (청주 ~ 충주 사이)
 const CHUNGBUK_CENTER = { lat: 36.72, lng: 127.75 };
 const INITIAL_LEVEL = 11;
@@ -29,18 +36,12 @@ const INITIAL_LEVEL = 11;
 type ViewTier = 'sigungu' | 'subRegion' | 'individual';
 const SIGUNGU_MIN_LEVEL = 9; // 이 이상: 11개 시·군 클러스터
 const SUB_REGION_MIN_LEVEL = 6; // 이 이상(SIGUNGU 미만): 구/읍/면/동 클러스터, 미만: 개별 학교 마커
+const FOCUS_LEVEL = 3; // 순위 목록 등에서 특정 학교로 이동할 때 가까이 확대하는 레벨
 
 function tierOf(level: number): ViewTier {
   if (level >= SIGUNGU_MIN_LEVEL) return 'sigungu';
   if (level >= SUB_REGION_MIN_LEVEL) return 'subRegion';
   return 'individual';
-}
-
-function formatIndicatorValue(indicator: Indicator, s: School): string {
-  const v = indicator.accessor(s);
-  if (v === null) return '자료 없음';
-  const shown = indicator.format ? indicator.format(v) : String(v);
-  return `${shown}${indicator.unit ? ` ${indicator.unit}` : ''}`;
 }
 
 /** 그룹 내 학교들의 지표 평균값 (null 제외). 하나도 없으면 null. */
@@ -52,12 +53,12 @@ function averageIndicatorValue(indicator: Indicator, schools: School[]): number 
   return values.reduce((sum, v) => sum + v, 0) / values.length;
 }
 
-export function KakaoMap({
+export const KakaoMap = forwardRef<KakaoMapHandle, KakaoMapProps>(function KakaoMap({
   schools,
   indicator,
   selectedSchoolCode,
   onSelectSchool,
-}: KakaoMapProps) {
+}, ref) {
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<KakaoMap | null>(null);
   const mapsRef = useRef<KakaoMapsNamespace | null>(null);
@@ -97,6 +98,19 @@ export function KakaoMap({
   useEffect(() => {
     onSelectRef.current = onSelectSchool;
   });
+
+  // 순위 목록 등 외부에서 특정 학교로 지도를 이동시킬 수 있는 명령형 API.
+  useImperativeHandle(ref, () => ({
+    focusSchool(school: School) {
+      const maps = mapsRef.current;
+      const map = mapRef.current;
+      if (!maps || !map || !school.position) return;
+      map.setCenter(new maps.LatLng(school.position.lat, school.position.lng));
+      // 현재 줌 상태와 무관하게 항상 FOCUS_LEVEL까지 가까이 확대 — 그냥 패닝만 하면
+      // "이동은 했는데 잘 안 보인다"는 느낌이 들어서, 순위에서 고른 학교는 항상 바짝 당겨줌.
+      map.setLevel(FOCUS_LEVEL);
+    },
+  }), []);
 
   // ── SDK 로드 + 지도 생성 (1회) ──
   useEffect(() => {
@@ -249,7 +263,7 @@ export function KakaoMap({
         tooltip.setContent(
           `<div style="pointer-events:none;padding:6px 10px;background:#111827;color:#fff;border-radius:8px;font-size:12px;white-space:nowrap;box-shadow:0 2px 8px rgba(0,0,0,.25)">
              <b>${school.schulNm}</b>
-             <span style="opacity:.75;margin-left:6px">${indicator.label} ${formatIndicatorValue(indicator, school)}</span>
+             <span style="opacity:.75;margin-left:6px">${indicator.label} ${formatIndicatorValue(indicator, indicator.accessor(school))}</span>
            </div>`,
         );
         tooltip.setMap(map);
@@ -337,4 +351,6 @@ export function KakaoMap({
       )}
     </div>
   );
-}
+});
+
+KakaoMap.displayName = 'KakaoMap';

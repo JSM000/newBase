@@ -87,3 +87,23 @@ export const SCHOOL_LEVEL_OPTIONS = [
 ] as const;
 
 export type SchoolLevelFilter = (typeof SCHOOL_LEVEL_OPTIONS)[number]['value'];
+
+/**
+ * 설립구분(fondScCode) 필터 옵션. 실측 결과 충북 524개 학교에 3종류가 다 있음
+ * (공립 477 · 국립 6 · 사립 41 — 국립은 한국교원대부설 계열로 추정). 전에는 "공립만" 체크박스
+ * 하나였는데, 껐을 때 "전체"인지 "사립만"인지 불명확하고 국립은 아예 고를 방법이 없어서
+ * 셋 다 명시적으로 고를 수 있는 드롭다운으로 바꿈.
+ */
+export const OWNERSHIP_OPTIONS = [
+  { value: 'all', label: '전체' },
+  { value: '공립', label: '공립' },
+  { value: '사립', label: '사립' },
+  { value: '국립', label: '국립' },
+] as const;
+
+export type OwnershipFilter = (typeof OWNERSHIP_OPTIONS)[number]['value'];
+
+/** schulKndCode(02/03/04) -> 학교급 이름. schulKndNm을 따로 저장하지 않아서(완전 중복) 여기서 유도. */
+export function schulKndLabel(code: School['schulKndCode']): string {
+  return SCHOOL_LEVEL_OPTIONS.find((o) => o.value === code)?.label ?? code;
+}

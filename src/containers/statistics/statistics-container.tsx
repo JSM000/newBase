@@ -1,9 +1,9 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
 import { AppHeader } from '@/components/app-header';
-import { KakaoMap } from '@/components/kakao-map/kakao-map';
+import { KakaoMap, type KakaoMapHandle } from '@/components/kakao-map/kakao-map';
 import { useChungbukSchools } from '@/hooks/use-chungbuk-schools';
 import type { School } from '@/types/school-stats';
 import {
@@ -13,20 +13,30 @@ import {
 import {
   sortSigungu,
   type SchoolLevelFilter,
+  type OwnershipFilter,
 } from '@/lib/school-region';
 import { SchoolFilterBar } from './school-filter-bar';
 import { IndicatorLegend } from './indicator-legend';
 import { SchoolDetailPanel } from './school-detail-panel';
+import { SchoolRankingPanel, type RankSortDirection } from './school-ranking-panel';
+
+/** 오른쪽 사이드바는 한 번에 하나만 — 상세/순위 목록이 같은 자리를 공유(계획 3-3). */
+type PanelMode = 'none' | 'ranking' | 'detail';
 
 export function StatisticsContainer() {
   const { data, isLoading, isError, error } = useChungbukSchools();
+  const mapHandleRef = useRef<KakaoMapHandle>(null);
 
   const [level, setLevel] = useState<SchoolLevelFilter>('all');
   const [sigungu, setSigungu] = useState<string>('all');
   const [search, setSearch] = useState('');
-  const [publicOnly, setPublicOnly] = useState(true);
+  const [ownership, setOwnership] = useState<OwnershipFilter>('공립');
   const [indicatorKey, setIndicatorKey] = useState<string>(DEFAULT_INDICATOR_KEY);
   const [selected, setSelected] = useState<School | null>(null);
+  const [panelMode, setPanelMode] = useState<PanelMode>('none');
+  // 상세 패널을 닫았을 때 돌아갈 자리 — 순위 목록을 보다가 상세로 들어간 거면 'ranking'으로 복귀
+  const [returnMode, setReturnMode] = useState<PanelMode>('none');
+  const [sortDirection, setSortDirection] = useState<RankSortDirection>('desc');
 
   const indicator = INDICATOR_BY_KEY[indicatorKey] ?? INDICATOR_BY_KEY[DEFAULT_INDICATOR_KEY];
 
@@ -50,16 +60,43 @@ export function StatisticsContainer() {
       if (!s.position) return false;
       if (level !== 'all' && s.schulKndCode !== level) return false;
       if (sigungu !== 'all' && s.sigunguName !== sigungu) return false;
-      if (publicOnly && s.fondScCode !== '공립') return false;
+      if (ownership !== 'all' && s.fondScCode !== ownership) return false;
       if (q && !s.schulNm.includes(q)) return false;
       return true;
     });
-  }, [allSchools, level, sigungu, publicOnly, search]);
+  }, [allSchools, level, sigungu, ownership, search]);
 
   const noDataCount = useMemo(
     () => filtered.filter((s) => indicator.accessor(s) === null).length,
     [filtered, indicator],
   );
+
+  // 순위 목록 — filtered(현재 필터) 중 값이 있는 학교만 정렬. 동점이면 학교명 가나다순.
+  const ranked = useMemo(() => {
+    const withValue = filtered
+      .map((s) => ({ school: s, value: indicator.accessor(s) }))
+      .filter((x): x is { school: School; value: number } => x.value !== null);
+    withValue.sort((a, b) => {
+      if (a.value !== b.value) {
+        return sortDirection === 'desc' ? b.value - a.value : a.value - b.value;
+      }
+      return a.school.schulNm.localeCompare(b.school.schulNm, 'ko');
+    });
+    return withValue;
+  }, [filtered, indicator, sortDirection]);
+
+  function handleSelectSchool(school: School) {
+    setSelected(school);
+    // 순위 목록을 보던 중이면 그걸 기억해뒀다가, 상세 패널을 닫을 때 그 화면(스크롤 위치 포함)으로 복귀
+    setReturnMode(panelMode === 'ranking' ? 'ranking' : 'none');
+    setPanelMode('detail');
+  }
+
+  /** 순위 목록에서 학교를 고르면, 상세 패널로 전환 + 지도도 그 학교로 이동(클러스터에 묶여 있어도). */
+  function handleSelectFromRanking(school: School) {
+    handleSelectSchool(school);
+    mapHandleRef.current?.focusSchool(school);
+  }
 
   return (
     <div className="flex h-screen flex-col bg-zinc-50">
@@ -103,26 +140,42 @@ export function StatisticsContainer() {
             sigunguOptions={sigunguOptions}
             search={search}
             onSearchChange={setSearch}
-            publicOnly={publicOnly}
-            onPublicOnlyChange={setPublicOnly}
+            ownership={ownership}
+            onOwnershipChange={setOwnership}
             indicatorKey={indicatorKey}
             onIndicatorKeyChange={setIndicatorKey}
             resultCount={filtered.length}
+            onShowRanking={() => setPanelMode('ranking')}
           />
 
           <div className="relative min-h-0 flex-1 p-3">
             <KakaoMap
+              ref={mapHandleRef}
               schools={filtered}
               indicator={indicator}
-              selectedSchoolCode={selected?.schulCode ?? null}
-              onSelectSchool={setSelected}
+              selectedSchoolCode={panelMode === 'detail' ? (selected?.schulCode ?? null) : null}
+              onSelectSchool={handleSelectSchool}
             />
 
             <div className="pointer-events-none absolute bottom-6 left-6 z-10">
               <IndicatorLegend indicator={indicator} noDataCount={noDataCount} />
             </div>
 
-            <SchoolDetailPanel school={selected} onClose={() => setSelected(null)} />
+            <SchoolDetailPanel
+              school={panelMode === 'detail' ? selected : null}
+              onClose={() => setPanelMode(returnMode)}
+            />
+
+            <SchoolRankingPanel
+              isOpen={panelMode === 'ranking'}
+              ranked={ranked}
+              noDataCount={noDataCount}
+              indicator={indicator}
+              sortDirection={sortDirection}
+              onSortDirectionChange={setSortDirection}
+              onSelectSchool={handleSelectFromRanking}
+              onClose={() => setPanelMode('none')}
+            />
           </div>
         </>
       )}

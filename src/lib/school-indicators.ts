@@ -225,6 +225,13 @@ export function bucketLabels(indicator: Indicator): string[] {
   return [`< ${a}`, `${a} ~ ${b}`, `${b} ~ ${c}`, `${c} ~ ${d}`, `${d} 이상`];
 }
 
+/** 값 -> "포맷된 값 + 단위" 문자열 (예: "342 명"). null이면 "자료 없음". 지표 툴팁/순위 목록 등에서 공용으로 씀. */
+export function formatIndicatorValue(indicator: Indicator, value: number | null): string {
+  if (value === null) return '자료 없음';
+  const shown = indicator.format ? indicator.format(value) : String(value);
+  return `${shown}${indicator.unit ? ` ${indicator.unit}` : ''}`;
+}
+
 // ─────────────── 상세 패널 필드 그룹 ───────────────
 
 export interface DetailField {
