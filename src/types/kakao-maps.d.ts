@@ -35,6 +35,11 @@ interface KakaoCustomOverlay {
   setContent(content: string | HTMLElement): void;
 }
 
+interface KakaoPolygon {
+  setMap(map: KakaoMap | null): void;
+  setOptions(options: Record<string, unknown>): void;
+}
+
 interface KakaoMarkerClusterer {
   addMarkers(markers: KakaoMarker[]): void;
   removeMarkers(markers: KakaoMarker[]): void;
@@ -73,6 +78,16 @@ interface KakaoMapsNamespace {
     zIndex?: number;
     clickable?: boolean;
   }) => KakaoCustomOverlay;
+  Polygon: new (options: {
+    path: KakaoLatLng[] | KakaoLatLng[][];
+    strokeWeight?: number;
+    strokeColor?: string;
+    strokeOpacity?: number;
+    strokeStyle?: string;
+    fillColor?: string;
+    fillOpacity?: number;
+    zIndex?: number;
+  }) => KakaoPolygon;
   MarkerClusterer: new (options: {
     map: KakaoMap;
     averageCenter?: boolean;
