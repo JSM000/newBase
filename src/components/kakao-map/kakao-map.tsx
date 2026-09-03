@@ -6,6 +6,7 @@ import type { ClusterPosition } from '@/types/school-clusters';
 import {
   type Indicator,
   bucketColor,
+  bucketIndex,
   NO_DATA_COLOR,
 } from '@/lib/school-indicators';
 import { groupSchoolsBySigungu, groupSchoolsBySubRegion } from '@/lib/school-region';
@@ -63,6 +64,7 @@ export function KakaoMap({
   const markersRef = useRef<KakaoMarker[]>([]);
   const regionOverlaysRef = useRef<KakaoCustomOverlay[]>([]);
   const tooltipRef = useRef<KakaoCustomOverlay | null>(null);
+  const tooltipHideTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const [status, setStatus] = useState<'loading' | 'ready' | 'error'>(
     () => (KAKAO_APP_KEY ? 'loading' : 'error'),
@@ -116,7 +118,8 @@ export function KakaoMap({
         tooltipRef.current = new maps.CustomOverlay({
           position: new maps.LatLng(CHUNGBUK_CENTER.lat, CHUNGBUK_CENTER.lng),
           content: '',
-          yAnchor: 1.4,
+          // 마커 아래쪽에 표시(핀은 앵커 지점에서 위로 뻗으므로 아래는 빈 공간) — 위로 올릴 때 깜박임 방지
+          yAnchor: -0.35,
           xAnchor: 0.5,
           zIndex: 999,
         });
@@ -170,8 +173,9 @@ export function KakaoMap({
       targetLevel: number,
     ): KakaoCustomOverlay {
       const avgValue = averageIndicatorValue(indicator, groupSchools);
+      const bucket = avgValue === null ? null : bucketIndex(indicator, avgValue);
       const color = avgValue === null ? NO_DATA_COLOR : bucketColor(indicator, avgValue);
-      const el = createRegionClusterElement(name, groupSchools.length, color);
+      const el = createRegionClusterElement(name, groupSchools.length, color, bucket);
 
       el.addEventListener('click', () => {
         moveToPosition(mapsNs, targetMap, position, targetLevel);
@@ -217,12 +221,13 @@ export function KakaoMap({
       const pos = new maps.LatLng(school.position.lat, school.position.lng);
 
       const value = indicator.accessor(school);
+      const bucket = value === null ? null : bucketIndex(indicator, value);
       const color = value === null ? NO_DATA_COLOR : bucketColor(indicator, value);
       const isSelected = school.schulCode === selectedSchoolCode;
 
       const marker = new maps.Marker({
         position: pos,
-        image: getMarkerImage(maps, color, isSelected),
+        image: getMarkerImage(maps, color, isSelected, bucket),
         title: school.schulNm,
         clickable: true,
       });
@@ -233,9 +238,14 @@ export function KakaoMap({
       });
       maps.event.addListener(marker, 'mouseover', () => {
         if (!tooltip) return;
+        if (tooltipHideTimerRef.current) {
+          clearTimeout(tooltipHideTimerRef.current);
+          tooltipHideTimerRef.current = null;
+        }
         tooltip.setPosition(pos);
+        // pointer-events:none — 툴팁이 마커와 겹쳐도 마우스를 가로채지 않아야 한다.
         tooltip.setContent(
-          `<div style="padding:6px 10px;background:#111827;color:#fff;border-radius:8px;font-size:12px;white-space:nowrap;box-shadow:0 2px 8px rgba(0,0,0,.25)">
+          `<div style="pointer-events:none;padding:6px 10px;background:#111827;color:#fff;border-radius:8px;font-size:12px;white-space:nowrap;box-shadow:0 2px 8px rgba(0,0,0,.25)">
              <b>${school.schulNm}</b>
              <span style="opacity:.75;margin-left:6px">${indicator.label} ${formatIndicatorValue(indicator, school)}</span>
            </div>`,
@@ -243,7 +253,12 @@ export function KakaoMap({
         tooltip.setMap(map);
       });
       maps.event.addListener(marker, 'mouseout', () => {
-        tooltip?.setMap(null);
+        // 살짝 늦게 숨겨서 마커 경계에서 mouseout/mouseover가 튈 때 깜박이지 않게 한다.
+        if (tooltipHideTimerRef.current) clearTimeout(tooltipHideTimerRef.current);
+        tooltipHideTimerRef.current = setTimeout(() => {
+          tooltip?.setMap(null);
+          tooltipHideTimerRef.current = null;
+        }, 100);
       });
 
       markers.push(marker);
@@ -274,6 +289,13 @@ export function KakaoMap({
     ro.observe(containerRef.current);
     return () => ro.disconnect();
   }, [status]);
+
+  // ── 언마운트 시 툴팁 숨김 타이머 정리 ──
+  useEffect(() => {
+    return () => {
+      if (tooltipHideTimerRef.current) clearTimeout(tooltipHideTimerRef.current);
+    };
+  }, []);
 
   return (
     <div className="relative h-full w-full overflow-hidden rounded-xl bg-zinc-100">
