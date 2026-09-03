@@ -75,7 +75,9 @@ export function KakaoMap({
       : 'Kakao 지도 API 키가 설정되지 않았습니다. 개발 서버를 NEXT_PUBLIC_KAKAOMAP_API_KEY=발급키 npm run dev 로 실행하세요.',
   );
   const [level, setLevel] = useState(INITIAL_LEVEL);
-  const viewTier = tierOf(level);
+  // 켜면 줌 레벨과 무관하게 클러스터 없이 모든 학교 개별 마커를 표시
+  const [showAllMarkers, setShowAllMarkers] = useState(false);
+  const viewTier: ViewTier = showAllMarkers ? 'individual' : tierOf(level);
 
   // 클러스터 뱃지 위치("밀집 위치", 필터 무관 사전 계산값) — 이름으로 바로 찾도록 Map으로 변환
   const { data: clusterData } = useSchoolClusters();
@@ -300,6 +302,21 @@ export function KakaoMap({
   return (
     <div className="relative h-full w-full overflow-hidden rounded-xl bg-zinc-100">
       <div ref={containerRef} className="h-full w-full" />
+
+      {status === 'ready' && (
+        <button
+          type="button"
+          onClick={() => setShowAllMarkers((v) => !v)}
+          aria-pressed={showAllMarkers}
+          className={`absolute right-3 top-3 z-10 rounded-lg border px-3 py-1.5 text-xs font-medium shadow-custom backdrop-blur transition-colors ${
+            showAllMarkers
+              ? 'border-primary bg-primary text-white'
+              : 'border-zinc-200 bg-white/95 text-zinc-700 hover:bg-white'
+          }`}
+        >
+          {showAllMarkers ? '지역별로 묶어 보기' : '학교 개별 마커 보기'}
+        </button>
+      )}
 
       {status === 'loading' && (
         <div className="absolute inset-0 flex items-center justify-center bg-zinc-50/80">
