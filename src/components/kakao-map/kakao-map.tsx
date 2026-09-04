@@ -39,6 +39,9 @@ const SIGUNGU_MIN_LEVEL = 9; // 이 이상: 11개 시·군 클러스터
 const SUB_REGION_MIN_LEVEL = 6; // 이 이상(SIGUNGU 미만): 구/읍/면/동 클러스터, 미만: 개별 학교 마커
 const FOCUS_LEVEL = 3; // 순위 목록 등에서 특정 학교로 이동할 때 가까이 확대하는 레벨
 
+// 행정구역 채움 투명도 — 지도 라벨·마커가 비쳐 보이도록 낮게.
+const BOUNDARY_FILL_OPACITY = 0.18;
+
 function tierOf(level: number): ViewTier {
   if (level >= SIGUNGU_MIN_LEVEL) return 'sigungu';
   if (level >= SUB_REGION_MIN_LEVEL) return 'subRegion';
@@ -65,7 +68,7 @@ export const KakaoMap = forwardRef<KakaoMapHandle, KakaoMapProps>(function Kakao
   const mapsRef = useRef<KakaoMapsNamespace | null>(null);
   const markersRef = useRef<KakaoMarker[]>([]);
   const regionOverlaysRef = useRef<KakaoCustomOverlay[]>([]);
-  const boundaryPolygonsRef = useRef<KakaoPolygon[]>([]);
+  const boundaryPolygonsRef = useRef<{ name: string; polygons: KakaoPolygon[] }[]>([]);
   const tooltipRef = useRef<KakaoCustomOverlay | null>(null);
   const tooltipHideTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -81,7 +84,7 @@ export const KakaoMap = forwardRef<KakaoMapHandle, KakaoMapProps>(function Kakao
   // 켜면 줌 레벨과 무관하게 클러스터 없이 모든 학교 개별 마커를 표시
   const [showAllMarkers, setShowAllMarkers] = useState(false);
   // 시·군 행정구역 경계선 표시 여부
-  const [showBoundaries, setShowBoundaries] = useState(true);
+  const [showBoundaries, setShowBoundaries] = useState(false);
   const viewTier: ViewTier = showAllMarkers ? 'individual' : tierOf(level);
 
   // 행정구역(시·군) 경계선 — 필터·지표와 무관한 정적 데이터
@@ -99,6 +102,18 @@ export const KakaoMap = forwardRef<KakaoMapHandle, KakaoMapProps>(function Kakao
     for (const c of clusterData?.subRegionClusters ?? []) map.set(`${c.sigungu}|${c.name}`, c.bestCenter);
     return map;
   }, [clusterData]);
+
+  // 시·군별 채움색 = 그 시·군 클러스터 뱃지 색(평균 지표 → 구간색). 경계 채움에 재사용.
+  // 데이터 있는 학교가 하나도 없는 시·군은 넣지 않음(경계선만 남긴다).
+  const sigunguFillColors = useMemo(() => {
+    const m = new Map<string, string>();
+    for (const group of groupSchoolsBySigungu(schools)) {
+      const avg = averageIndicatorValue(indicator, group.schools);
+      if (avg === null) continue;
+      m.set(group.name, bucketColor(indicator, avg));
+    }
+    return m;
+  }, [schools, indicator]);
 
   // 콜백을 ref로 잡아 마커 재구성 effect의 의존성에서 제외
   const onSelectRef = useRef(onSelectSchool);
@@ -169,33 +184,52 @@ export const KakaoMap = forwardRef<KakaoMapHandle, KakaoMapProps>(function Kakao
     const toPath = (ring: number[][]) =>
       ring.map(([lng, lat]) => new maps.LatLng(lat, lng));
 
-    // MultiPolygon 은 하위 폴리곤마다, Polygon 은 그 자체로 폴리곤 1개 생성.
+    // 시·군 1개 = 폴리곤 1개 이상(MultiPolygon 은 하위 폴리곤마다). 이름을 유지해
+    // 채움색을 아래 effect 에서 시·군 단위로 갱신한다.
     // path 를 링 배열([외곽, 구멍...])로 넘기면 도넛 모양도 처리된다.
-    const polygonRings: number[][][][] = boundaryData.features.flatMap((f) =>
-      f.geometry.type === 'Polygon' ? [f.geometry.coordinates] : f.geometry.coordinates,
-    );
-
-    const polygons = polygonRings.map(
-      (rings) =>
-        new maps.Polygon({
-          path: rings.map(toPath),
-          strokeWeight: 1.5,
-          strokeColor: '#3f3f46', // zinc-700
-          strokeOpacity: 0.7,
-          strokeStyle: 'solid',
-          fillColor: '#000000',
-          fillOpacity: 0, // 채움 없이 경계선만
-          zIndex: 1, // 마커·클러스터 뱃지 아래
-        }),
-    );
-    for (const polygon of polygons) polygon.setMap(map);
-    boundaryPolygonsRef.current = polygons;
+    const groups = boundaryData.features.map((f) => {
+      const polys: number[][][][] =
+        f.geometry.type === 'Polygon' ? [f.geometry.coordinates] : f.geometry.coordinates;
+      const polygons = polys.map(
+        (rings) =>
+          new maps.Polygon({
+            path: rings.map(toPath),
+            strokeWeight: 5,
+            strokeColor: '#27272a', // zinc-800
+            strokeOpacity: 0.9,
+            strokeStyle: 'solid',
+            fillColor: '#000000',
+            fillOpacity: 0, // 채움은 아래 동기화 effect 가 담당
+            zIndex: 1, // 마커·클러스터 뱃지 아래
+          }),
+      );
+      for (const polygon of polygons) polygon.setMap(map);
+      return { name: f.properties.name, polygons };
+    });
+    boundaryPolygonsRef.current = groups;
 
     return () => {
-      for (const polygon of polygons) polygon.setMap(null);
+      for (const group of groups) for (const polygon of group.polygons) polygon.setMap(null);
       boundaryPolygonsRef.current = [];
     };
   }, [status, boundaryData, showBoundaries]);
+
+  // ── 경계 채움색을 시·군 클러스터 색과 동기화 (지표·필터·줌 변경 시) ──
+  // effect 는 선언 순서대로 실행되므로 위 렌더 effect 다음에 돌아 최초 채움도 처리된다.
+  // 시·군 클러스터 tier 에서만 채움. 확대해서 구·읍·면·동/개별 마커로 넘어가면
+  // 채움을 지우고 경계선만 남긴다.
+  useEffect(() => {
+    const showFill = viewTier === 'sigungu';
+    for (const group of boundaryPolygonsRef.current) {
+      const fill = showFill ? sigunguFillColors.get(group.name) : undefined;
+      for (const polygon of group.polygons) {
+        polygon.setOptions({
+          fillColor: fill ?? '#000000',
+          fillOpacity: fill ? BOUNDARY_FILL_OPACITY : 0,
+        });
+      }
+    }
+  }, [sigunguFillColors, showBoundaries, status, boundaryData, viewTier]);
 
   // ── 마커/클러스터 렌더 (schools / indicator / selected / 시야 전환 시 재구성) ──
   useEffect(() => {
