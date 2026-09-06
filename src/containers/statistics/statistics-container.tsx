@@ -1,10 +1,17 @@
 'use client';
 
-import { useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
 import { AppHeader } from '@/components/app-header';
 import { KakaoMap, type KakaoMapHandle } from '@/components/kakao-map/kakao-map';
 import { useChungbukSchools } from '@/hooks/use-chungbuk-schools';
+import {
+  useSchoolSocial,
+  useRateSchool,
+  useRecordView,
+} from '@/hooks/use-school-social';
+import { isSupabaseConfigured } from '@/lib/supabase';
+import { getMyRatings } from '@/lib/school-social-client';
 import type { School } from '@/types/school-stats';
 import {
   INDICATOR_BY_KEY,
@@ -18,13 +25,20 @@ import {
 import { SchoolFilterBar } from './school-filter-bar';
 import { IndicatorLegend } from './indicator-legend';
 import { SchoolDetailPanel } from './school-detail-panel';
-import { SchoolRankingPanel, type RankSortDirection } from './school-ranking-panel';
+import {
+  SchoolRankingPanel,
+  type RankSortDirection,
+  type RankMetric,
+} from './school-ranking-panel';
 
 /** 오른쪽 사이드바는 한 번에 하나만 — 상세/순위 목록이 같은 자리를 공유(계획 3-3). */
 type PanelMode = 'none' | 'ranking' | 'detail';
 
 export function StatisticsContainer() {
   const { data, isLoading, isError, error } = useChungbukSchools();
+  const { data: social } = useSchoolSocial();
+  const rateSchool = useRateSchool();
+  const recordView = useRecordView();
   const mapHandleRef = useRef<KakaoMapHandle>(null);
 
   const [level, setLevel] = useState<SchoolLevelFilter>('all');
@@ -37,6 +51,19 @@ export function StatisticsContainer() {
   // 상세 패널을 닫았을 때 돌아갈 자리 — 순위 목록을 보다가 상세로 들어간 거면 'ranking'으로 복귀
   const [returnMode, setReturnMode] = useState<PanelMode>('none');
   const [sortDirection, setSortDirection] = useState<RankSortDirection>('desc');
+  const [rankMetric, setRankMetric] = useState<RankMetric>('indicator');
+  // 이 브라우저가 남긴 별점 (localStorage) — 위젯의 "내 평가" 표시용.
+  // lazy 초기화: SSR에선 {}, 클라이언트 첫 렌더에서 localStorage를 읽는다
+  // (별점 표시는 학교 선택 후에만 렌더되므로 hydration 불일치 없음).
+  const [myRatings, setMyRatings] =
+    useState<Record<string, number>>(getMyRatings);
+
+  // 상세 패널이 열리면 조회수 +1 (같은 세션에 이미 본 학교면 hook 내부에서 무시)
+  useEffect(() => {
+    if (panelMode === 'detail' && selected) {
+      recordView(selected.schulCode);
+    }
+  }, [panelMode, selected, recordView]);
 
   const indicator = INDICATOR_BY_KEY[indicatorKey] ?? INDICATOR_BY_KEY[DEFAULT_INDICATOR_KEY];
 
@@ -72,9 +99,18 @@ export function StatisticsContainer() {
   );
 
   // 순위 목록 — filtered(현재 필터) 중 값이 있는 학교만 정렬. 동점이면 학교명 가나다순.
+  // 정렬 기준(rankMetric): 지도 지표 / 별점 평균 / 조회수.
   const ranked = useMemo(() => {
+    const valueOf = (s: School): number | null => {
+      if (rankMetric === 'rating') {
+        const e = social?.[s.schulCode];
+        return e && e.count > 0 ? e.avg : null;
+      }
+      if (rankMetric === 'views') return social?.[s.schulCode]?.views ?? 0;
+      return indicator.accessor(s);
+    };
     const withValue = filtered
-      .map((s) => ({ school: s, value: indicator.accessor(s) }))
+      .map((s) => ({ school: s, value: valueOf(s) }))
       .filter((x): x is { school: School; value: number } => x.value !== null);
     withValue.sort((a, b) => {
       if (a.value !== b.value) {
@@ -83,7 +119,12 @@ export function StatisticsContainer() {
       return a.school.schulNm.localeCompare(b.school.schulNm, 'ko');
     });
     return withValue;
-  }, [filtered, indicator, sortDirection]);
+  }, [filtered, indicator, sortDirection, rankMetric, social]);
+
+  function handleRate(school: School, rating: number) {
+    setMyRatings((m) => ({ ...m, [school.schulCode]: rating }));
+    rateSchool.mutate({ schoolCode: school.schulCode, rating });
+  }
 
   function handleSelectSchool(school: School) {
     setSelected(school);
@@ -164,13 +205,21 @@ export function StatisticsContainer() {
             <SchoolDetailPanel
               school={panelMode === 'detail' ? selected : null}
               onClose={() => setPanelMode(returnMode)}
+              socialEnabled={isSupabaseConfigured}
+              social={selected ? social?.[selected.schulCode] : undefined}
+              myRating={selected ? myRatings[selected.schulCode] ?? null : null}
+              onRate={(rating) => selected && handleRate(selected, rating)}
             />
 
             <SchoolRankingPanel
               isOpen={panelMode === 'ranking'}
               ranked={ranked}
-              noDataCount={noDataCount}
+              noDataCount={filtered.length - ranked.length}
               indicator={indicator}
+              rankMetric={rankMetric}
+              onRankMetricChange={setRankMetric}
+              socialEnabled={isSupabaseConfigured}
+              social={social}
               sortDirection={sortDirection}
               onSortDirectionChange={setSortDirection}
               onSelectSchool={handleSelectFromRanking}
