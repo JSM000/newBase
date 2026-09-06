@@ -198,7 +198,7 @@ export function StatisticsContainer() {
               onSelectSchool={handleSelectSchool}
             />
 
-            <div className="pointer-events-none absolute bottom-6 left-6 z-10">
+            <div className="pointer-events-none absolute bottom-3 left-3 z-10 sm:bottom-6 sm:left-6">
               <IndicatorLegend indicator={indicator} noDataCount={noDataCount} />
             </div>
 
