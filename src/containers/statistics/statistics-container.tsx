@@ -16,6 +16,9 @@ import type { School } from '@/types/school-stats';
 import {
   INDICATOR_BY_KEY,
   DEFAULT_INDICATOR_KEY,
+  SOCIAL_INDICATOR_DEFS,
+  RATING_INDICATOR_KEY,
+  type Indicator,
 } from '@/lib/school-indicators';
 import {
   sortSigungu,
@@ -28,7 +31,6 @@ import { SchoolDetailPanel } from './school-detail-panel';
 import {
   SchoolRankingPanel,
   type RankSortDirection,
-  type RankMetric,
 } from './school-ranking-panel';
 
 /** 오른쪽 사이드바는 한 번에 하나만 — 상세/순위 목록이 같은 자리를 공유(계획 3-3). */
@@ -51,7 +53,6 @@ export function StatisticsContainer() {
   // 상세 패널을 닫았을 때 돌아갈 자리 — 순위 목록을 보다가 상세로 들어간 거면 'ranking'으로 복귀
   const [returnMode, setReturnMode] = useState<PanelMode>('none');
   const [sortDirection, setSortDirection] = useState<RankSortDirection>('desc');
-  const [rankMetric, setRankMetric] = useState<RankMetric>('indicator');
   // 이 브라우저가 남긴 별점 (localStorage) — 위젯의 "내 평가" 표시용.
   // lazy 초기화: SSR에선 {}, 클라이언트 첫 렌더에서 localStorage를 읽는다
   // (별점 표시는 학교 선택 후에만 렌더되므로 hydration 불일치 없음).
@@ -65,7 +66,22 @@ export function StatisticsContainer() {
     }
   }, [panelMode, selected, recordView]);
 
-  const indicator = INDICATOR_BY_KEY[indicatorKey] ?? INDICATOR_BY_KEY[DEFAULT_INDICATOR_KEY];
+  // 표시·순위 기준. 별점/조회수는 School이 아니라 소셜 맵에서 값을 읽으므로,
+  // accessor를 현재 social 데이터에 바인딩해 Indicator를 완성한다(지도 색칠·순위·범례 공용).
+  const indicator = useMemo<Indicator>(() => {
+    const def = SOCIAL_INDICATOR_DEFS[indicatorKey];
+    if (def) {
+      const accessor =
+        def.key === RATING_INDICATOR_KEY
+          ? (s: School) => {
+              const e = social?.[s.schulCode];
+              return e && e.count > 0 ? e.avg : null;
+            }
+          : (s: School) => social?.[s.schulCode]?.views ?? 0;
+      return { ...def, accessor };
+    }
+    return INDICATOR_BY_KEY[indicatorKey] ?? INDICATOR_BY_KEY[DEFAULT_INDICATOR_KEY];
+  }, [indicatorKey, social]);
 
   const allSchools = useMemo(() => data?.schools ?? [], [data]);
 
@@ -98,19 +114,11 @@ export function StatisticsContainer() {
     [filtered, indicator],
   );
 
-  // 순위 목록 — filtered(현재 필터) 중 값이 있는 학교만 정렬. 동점이면 학교명 가나다순.
-  // 정렬 기준(rankMetric): 지도 지표 / 별점 평균 / 조회수.
+  // 순위 목록 — filtered(현재 필터) 중 값이 있는 학교만 "표시·순위 기준"으로 정렬.
+  // 동점이면 학교명 가나다순. (별점/조회수 기준도 indicator.accessor에 이미 반영됨)
   const ranked = useMemo(() => {
-    const valueOf = (s: School): number | null => {
-      if (rankMetric === 'rating') {
-        const e = social?.[s.schulCode];
-        return e && e.count > 0 ? e.avg : null;
-      }
-      if (rankMetric === 'views') return social?.[s.schulCode]?.views ?? 0;
-      return indicator.accessor(s);
-    };
     const withValue = filtered
-      .map((s) => ({ school: s, value: valueOf(s) }))
+      .map((s) => ({ school: s, value: indicator.accessor(s) }))
       .filter((x): x is { school: School; value: number } => x.value !== null);
     withValue.sort((a, b) => {
       if (a.value !== b.value) {
@@ -119,7 +127,7 @@ export function StatisticsContainer() {
       return a.school.schulNm.localeCompare(b.school.schulNm, 'ko');
     });
     return withValue;
-  }, [filtered, indicator, sortDirection, rankMetric, social]);
+  }, [filtered, indicator, sortDirection]);
 
   function handleRate(school: School, rating: number) {
     setMyRatings((m) => ({ ...m, [school.schulCode]: rating }));
@@ -185,6 +193,7 @@ export function StatisticsContainer() {
             onOwnershipChange={setOwnership}
             indicatorKey={indicatorKey}
             onIndicatorKeyChange={setIndicatorKey}
+            socialEnabled={isSupabaseConfigured}
             resultCount={filtered.length}
             onShowRanking={() => setPanelMode('ranking')}
           />
@@ -216,9 +225,6 @@ export function StatisticsContainer() {
               ranked={ranked}
               noDataCount={filtered.length - ranked.length}
               indicator={indicator}
-              rankMetric={rankMetric}
-              onRankMetricChange={setRankMetric}
-              socialEnabled={isSupabaseConfigured}
               social={social}
               sortDirection={sortDirection}
               onSortDirectionChange={setSortDirection}

@@ -6,7 +6,7 @@ import {
   type SchoolLevelFilter,
   type OwnershipFilter,
 } from '@/lib/school-region';
-import { INDICATORS } from '@/lib/school-indicators';
+import { INDICATORS, SOCIAL_INDICATOR_LIST } from '@/lib/school-indicators';
 
 interface SchoolFilterBarProps {
   level: SchoolLevelFilter;
@@ -20,6 +20,8 @@ interface SchoolFilterBarProps {
   onOwnershipChange: (v: OwnershipFilter) => void;
   indicatorKey: string;
   onIndicatorKeyChange: (v: string) => void;
+  /** 별점·조회수 기능 활성 여부 (Supabase env 설정 시) — 표시·순위 기준에 커뮤니티 항목 추가 */
+  socialEnabled?: boolean;
   resultCount: number;
   onShowRanking: () => void;
 }
@@ -52,6 +54,7 @@ export function SchoolFilterBar({
   onOwnershipChange,
   indicatorKey,
   onIndicatorKeyChange,
+  socialEnabled = false,
   resultCount,
   onShowRanking,
 }: SchoolFilterBarProps) {
@@ -130,6 +133,15 @@ export function SchoolFilterBar({
               </option>
             ))}
           </optgroup>
+          {socialEnabled && (
+            <optgroup label="커뮤니티">
+              {SOCIAL_INDICATOR_LIST.map((i) => (
+                <option key={i.key} value={i.key}>
+                  {i.label}
+                </option>
+              ))}
+            </optgroup>
+          )}
         </select>
       </FilterField>
 
