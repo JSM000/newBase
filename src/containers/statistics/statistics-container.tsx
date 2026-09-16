@@ -5,6 +5,8 @@ import Link from 'next/link';
 import { AppHeader } from '@/components/app-header';
 import { KakaoMap, type KakaoMapHandle } from '@/components/kakao-map/kakao-map';
 import { useChungbukSchools } from '@/hooks/use-chungbuk-schools';
+import { useSchoolZoneLinks, useSchoolZonePoints, useSchoolZones } from '@/hooks/use-school-zones';
+import { buildSchoolZonePointIndex, matchSchoolZonePoint } from '@/lib/school-zone-match';
 import {
   useSchoolSocial,
   useRateSchool,
@@ -13,6 +15,7 @@ import {
 import { isSupabaseConfigured } from '@/lib/supabase';
 import { getMyRatings } from '@/lib/school-social-client';
 import type { School } from '@/types/school-stats';
+import type { ZoneMatchStatus } from './school-detail-panel';
 import {
   INDICATOR_BY_KEY,
   DEFAULT_INDICATOR_KEY,
@@ -186,6 +189,34 @@ export function StatisticsContainer() {
     rateSchool.mutate({ schoolCode: school.schulCode, rating });
   }
 
+  // ── 학구도: 선택된(상세 패널 열린) 학교의 학구를 지도에 색칠 (계획: _refs/학구도_지도_구현계획.md) ──
+  // 학구도 원본은 학교알리미(schulCode)와 다른 학교ID 체계라 이름+학교급(+좌표)으로 매칭한다.
+  const zonePointsQuery = useSchoolZonePoints();
+  const zoneLinksQuery = useSchoolZoneLinks();
+  const zonePointIndex = useMemo(
+    () => buildSchoolZonePointIndex(zonePointsQuery.data ?? []),
+    [zonePointsQuery.data],
+  );
+  const focusedSchool = panelMode === 'detail' ? selected : null;
+  const matchedZonePoint = useMemo(
+    () =>
+      focusedSchool
+        ? matchSchoolZonePoint(focusedSchool, zonePointsQuery.data ?? [], zonePointIndex)
+        : null,
+    [focusedSchool, zonePointsQuery.data, zonePointIndex],
+  );
+  const zoneLink = matchedZonePoint ? (zoneLinksQuery.data?.[matchedZonePoint.schoolId] ?? null) : null;
+  // 매칭된 학교급의 학구 폴리곤 파일만 그때그때 불러온다(lazy) — 초/중/고 전체를 한 번에 안 받음.
+  const zoneCollectionQuery = useSchoolZones(matchedZonePoint?.level ?? null);
+
+  const zoneStatus: ZoneMatchStatus = !focusedSchool
+    ? 'idle'
+    : zonePointsQuery.isLoading || zoneLinksQuery.isLoading
+      ? 'loading'
+      : matchedZonePoint
+        ? 'matched'
+        : 'unmatched';
+
   function handleSelectSchool(school: School) {
     // 길찾기 패널이 열려 있고 그 결과에 있는 학교면 — 상세로 넘어가지 않고 경로만 선택
     if (
@@ -273,6 +304,8 @@ export function StatisticsContainer() {
               }
               onSelectSchool={handleSelectSchool}
               routeOverlay={routeOverlay}
+              zoneFeatures={zoneCollectionQuery.data?.features ?? []}
+              zoneLink={zoneLink}
             />
 
             <div className="pointer-events-none absolute bottom-3 left-3 z-10 sm:bottom-6 sm:left-6">
@@ -282,6 +315,8 @@ export function StatisticsContainer() {
             <SchoolDetailPanel
               school={panelMode === 'detail' ? selected : null}
               onClose={() => setPanelMode(returnMode)}
+              zoneStatus={zoneStatus}
+              zoneLink={zoneLink}
               socialEnabled={isSupabaseConfigured}
               social={selected ? social?.[selected.schulCode] : undefined}
               myRating={selected ? myRatings[selected.schulCode] ?? null : null}
