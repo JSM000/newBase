@@ -1,0 +1,17 @@
+name: Privacy check
+
+# 인사기록카드가 지나가는 점수 계산기 코드에 서버 전송 로직이 섞여 들어오지 않았는지
+# PR마다 확인한다. 근거: CLAUDE.md "개인정보 보호 원칙",
+# scripts/check-no-network-in-score-calc.mjs.
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  check-privacy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: node scripts/check-no-network-in-score-calc.mjs

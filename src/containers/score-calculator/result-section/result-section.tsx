@@ -32,9 +32,7 @@ export function ResultSection() {
   const result = useScoreStore((state) => state.result);
   const activeTab = useScoreStore((state) => state.activeTab);
   const setActiveTab = useScoreStore((state) => state.setActiveTab);
-  const setStep = useScoreStore((state) => state.setStep);
-  const setParsed = useScoreStore((state) => state.setParsed);
-  const setResult = useScoreStore((state) => state.setResult);
+  const reset = useScoreStore((state) => state.reset);
   const eligibilityInputs = useScoreStore((state) => state.eligibilityInputs);
 
   const eligibility = result
@@ -63,13 +61,15 @@ export function ResultSection() {
             </Link>
             <button
               onClick={() => {
-                setStep('upload');
-                setParsed(null);
-                setResult(null);
+                // 이 브라우저 메모리에 남아있던 인사기록카드 내용·계산 결과·입력값을 전부 지운다
+                // (서버엔 애초에 저장 안 됨 — CLAUDE.md "개인정보 보호 원칙" 참고).
+                if (window.confirm('업로드한 파일 내용과 계산 결과를 지우고 처음부터 다시 시작할까요?')) {
+                  reset();
+                }
               }}
               className="text-sm text-primary-100 underline hover:text-white"
             >
-              다시 업로드
+              정보 지우고 다시 업로드
             </button>
           </>
         }
