@@ -2,12 +2,18 @@
 
 import { X } from 'lucide-react';
 import type { School } from '@/types/school-stats';
+import type { SchoolZoneLink } from '@/types/school-zones';
 import { DETAIL_GROUPS } from '@/lib/school-indicators';
 import { schulKndLabel } from '@/lib/school-region';
+
+/** 'idle' = 상세 패널이 안 열림, 'unmatched' = 학구도 쪽 이름 매칭 실패(섹션 자체를 숨김) */
+export type ZoneMatchStatus = 'idle' | 'loading' | 'matched' | 'unmatched';
 
 interface SchoolDetailPanelProps {
   school: School | null;
   onClose: () => void;
+  zoneStatus: ZoneMatchStatus;
+  zoneLink: SchoolZoneLink | null;
 }
 
 function formatFounded(ymd: string | null): string | null {
@@ -21,7 +27,71 @@ function isNewSchool(ymd: string | null): boolean {
   return Number.isFinite(year) && new Date().getFullYear() - year <= 5;
 }
 
-export function SchoolDetailPanel({ school, onClose }: SchoolDetailPanelProps) {
+/** 학구(통학구역) 안내 섹션 — 지도 위 색칠(전용=진한 색/실선, 공동=옅은 색/점선)과 스타일을 맞춘다. */
+function ZoneSection({
+  school,
+  zoneStatus,
+  zoneLink,
+}: {
+  school: School;
+  zoneStatus: ZoneMatchStatus;
+  zoneLink: SchoolZoneLink | null;
+}) {
+  if (zoneStatus === 'unmatched' || zoneStatus === 'idle') return null;
+
+  if (zoneStatus === 'loading') {
+    return <p className="text-xs text-zinc-400">학구 정보 불러오는 중…</p>;
+  }
+
+  const dedicated = zoneLink?.dedicated ?? [];
+  const shared = zoneLink?.shared ?? [];
+
+  if (dedicated.length === 0 && shared.length === 0) {
+    return (
+      <section>
+        <h3 className="mb-1.5 text-xs font-semibold uppercase tracking-wide text-zinc-500">학구(통학구역)</h3>
+        <p className="text-xs text-zinc-400">
+          {school.schulKndCode === '04'
+            ? '비평준화 지역 — 별도로 지정된 학구가 없습니다.'
+            : '등록된 학구 정보가 없습니다.'}
+        </p>
+      </section>
+    );
+  }
+
+  return (
+    <section>
+      <h3 className="mb-1.5 text-xs font-semibold uppercase tracking-wide text-zinc-500">학구(통학구역)</h3>
+      <div className="flex flex-col gap-1.5">
+        {dedicated.map((zone) => (
+          <span
+            key={zone.zoneId}
+            className="inline-flex w-fit items-center gap-1.5 rounded-md border border-blue-300 bg-blue-50 px-2 py-1 text-xs text-blue-700"
+          >
+            <span className="h-2 w-2 shrink-0 rounded-sm bg-blue-500" />
+            {zone.zoneName}
+          </span>
+        ))}
+        {shared.length > 0 && (
+          <p className="text-[11px] text-zinc-400">
+            아래 공동구역은 다른 학교와 함께 배정되는 지역입니다 (지도에 점선으로 표시).
+          </p>
+        )}
+        {shared.map((zone) => (
+          <span
+            key={zone.zoneId}
+            className="inline-flex w-fit items-center gap-1.5 rounded-md border border-dashed border-amber-300 bg-amber-50 px-2 py-1 text-xs text-amber-700"
+          >
+            <span className="h-2 w-2 shrink-0 rounded-sm border border-dashed border-amber-500" />
+            {zone.zoneName}
+          </span>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+export function SchoolDetailPanel({ school, onClose, zoneStatus, zoneLink }: SchoolDetailPanelProps) {
   if (!school) return null;
 
   const founded = formatFounded(school.foundedYmd);
@@ -65,6 +135,8 @@ export function SchoolDetailPanel({ school, onClose }: SchoolDetailPanelProps) {
             {founded ? ` · ${founded}` : ''}
           </p>
         )}
+
+        <ZoneSection school={school} zoneStatus={zoneStatus} zoneLink={zoneLink} />
 
         {DETAIL_GROUPS.map((group) => (
           <section key={group.title}>

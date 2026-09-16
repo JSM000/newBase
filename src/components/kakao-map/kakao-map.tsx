@@ -3,6 +3,7 @@
 import { forwardRef, useEffect, useImperativeHandle, useMemo, useRef, useState } from 'react';
 import type { School } from '@/types/school-stats';
 import type { ClusterPosition } from '@/types/school-clusters';
+import type { SchoolZoneFeature, SchoolZoneLink } from '@/types/school-zones';
 import {
   type Indicator,
   bucketColor,
@@ -21,6 +22,10 @@ interface KakaoMapProps {
   indicator: Indicator;
   selectedSchoolCode: string | null;
   onSelectSchool: (school: School) => void;
+  /** 상세 패널이 연 학교급의 학구 폴리곤 전체(lazy load, 계획: _refs/학구도_지도_구현계획.md) */
+  zoneFeatures: SchoolZoneFeature[];
+  /** 그 중 지금 선택된 학교에 연결된 학구ID 목록 (전용/공동) — null 이면 아무것도 안 그림 */
+  zoneLink: SchoolZoneLink | null;
 }
 
 /** 부모(순위 목록 등)가 지도를 조작할 수 있는 명령형 API. */
@@ -62,6 +67,8 @@ export const KakaoMap = forwardRef<KakaoMapHandle, KakaoMapProps>(function Kakao
   indicator,
   selectedSchoolCode,
   onSelectSchool,
+  zoneFeatures,
+  zoneLink,
 }, ref) {
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<KakaoMap | null>(null);
@@ -69,6 +76,7 @@ export const KakaoMap = forwardRef<KakaoMapHandle, KakaoMapProps>(function Kakao
   const markersRef = useRef<KakaoMarker[]>([]);
   const regionOverlaysRef = useRef<KakaoCustomOverlay[]>([]);
   const boundaryPolygonsRef = useRef<{ name: string; polygons: KakaoPolygon[] }[]>([]);
+  const zonePolygonsRef = useRef<KakaoPolygon[]>([]);
   const tooltipRef = useRef<KakaoCustomOverlay | null>(null);
   const tooltipHideTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -230,6 +238,70 @@ export const KakaoMap = forwardRef<KakaoMapHandle, KakaoMapProps>(function Kakao
       }
     }
   }, [sigunguFillColors, showBoundaries, status, boundaryData, viewTier]);
+
+  // ── 선택된 학교의 학구 폴리곤 렌더 (학교 클릭 → 학구 색칠, 계획: _refs/학구도_지도_구현계획.md) ──
+  // 전용 구역 = 진한 파랑 실선, 공동구역 = 옅은 주황 점선(다른 학교와 공유되는 지역임을 구분).
+  // 공동구역이 전용 구역과 지리적으로 겹치므로 zIndex를 위에 둬서 점선 테두리가 보이게 한다.
+  useEffect(() => {
+    const maps = mapsRef.current;
+    const map = mapRef.current;
+    if (status !== 'ready' || !maps || !map) return;
+
+    for (const polygon of zonePolygonsRef.current) polygon.setMap(null);
+    zonePolygonsRef.current = [];
+    if (!zoneLink) return;
+
+    const featureById = new Map(zoneFeatures.map((f) => [f.properties.zoneId, f]));
+    const toPath = (ring: number[][]) => ring.map(([lng, lat]) => new maps.LatLng(lat, lng));
+
+    function drawZone(
+      zoneId: string,
+      style: { fillColor: string; fillOpacity: number; strokeColor: string; strokeStyle: string; zIndex: number },
+    ) {
+      const feature = featureById.get(zoneId);
+      if (!feature) return; // 아직 해당 학교급 GeoJSON 로딩 중이면 이번 렌더는 건너뜀(다음 갱신에서 그림)
+      const polys =
+        feature.geometry.type === 'Polygon' ? [feature.geometry.coordinates] : feature.geometry.coordinates;
+      for (const rings of polys) {
+        const polygon = new maps!.Polygon({
+          path: rings.map(toPath),
+          strokeWeight: 2,
+          strokeColor: style.strokeColor,
+          strokeOpacity: 0.9,
+          strokeStyle: style.strokeStyle,
+          fillColor: style.fillColor,
+          fillOpacity: style.fillOpacity,
+          zIndex: style.zIndex,
+        });
+        polygon.setMap(map);
+        zonePolygonsRef.current.push(polygon);
+      }
+    }
+
+    for (const zone of zoneLink.dedicated) {
+      drawZone(zone.zoneId, {
+        fillColor: '#2563eb', // blue-600
+        fillOpacity: 0.28,
+        strokeColor: '#1d4ed8',
+        strokeStyle: 'solid',
+        zIndex: 2,
+      });
+    }
+    for (const zone of zoneLink.shared) {
+      drawZone(zone.zoneId, {
+        fillColor: '#f59e0b', // amber-500
+        fillOpacity: 0.14,
+        strokeColor: '#b45309',
+        strokeStyle: 'shortdash',
+        zIndex: 3,
+      });
+    }
+
+    return () => {
+      for (const polygon of zonePolygonsRef.current) polygon.setMap(null);
+      zonePolygonsRef.current = [];
+    };
+  }, [status, zoneFeatures, zoneLink]);
 
   // ── 마커/클러스터 렌더 (schools / indicator / selected / 시야 전환 시 재구성) ──
   useEffect(() => {
