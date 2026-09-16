@@ -85,7 +85,6 @@ export const KakaoMap = forwardRef<KakaoMapHandle, KakaoMapProps>(function Kakao
   const mapsRef = useRef<KakaoMapsNamespace | null>(null);
   const markersRef = useRef<KakaoMarker[]>([]);
   const regionOverlaysRef = useRef<KakaoCustomOverlay[]>([]);
-  const boundaryPolygonsRef = useRef<KakaoPolygon[]>([]);
   const routeOriginRef = useRef<KakaoCustomOverlay | null>(null);
   const routeLineRef = useRef<KakaoPolyline | null>(null);
   const boundaryPolygonsRef = useRef<{ name: string; polygons: KakaoPolygon[] }[]>([]);
