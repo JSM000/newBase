@@ -292,9 +292,13 @@ function parseSupplementary(data: Row[], sectionStart: number, sectionEnd: numbe
   return entries;
 }
 
-export function parseExcelBuffer(buffer: Buffer): ParsedFile {
+/**
+ * 브라우저에서 바로 읽은 바이트(ArrayBuffer)를 파싱한다 — 서버로 보내지 않음.
+ * NEIS 인사기록카드에 개인정보가 있어 파일이 기기 밖으로 나가지 않게 하려는 의도적 설계.
+ */
+export function parseExcelBuffer(bytes: ArrayBuffer): ParsedFile {
   const errors: string[] = [];
-  const wb = XLSX.read(buffer, { type: 'buffer' });
+  const wb = XLSX.read(new Uint8Array(bytes), { type: 'array' });
   const ws = wb.Sheets[wb.SheetNames[0]];
   const data = XLSX.utils.sheet_to_json(ws, { header: 1, defval: '' }) as Row[];
 
@@ -376,4 +380,10 @@ export function parseExcelBuffer(buffer: Buffer): ParsedFile {
     supplementary,
     parseErrors: errors,
   };
+}
+
+/** 업로드 input/드롭에서 받은 File을 읽어서 그대로 파싱 — 네트워크 호출 없음. */
+export async function parseExcelFile(file: File): Promise<ParsedFile> {
+  const data = await file.arrayBuffer();
+  return parseExcelBuffer(data);
 }

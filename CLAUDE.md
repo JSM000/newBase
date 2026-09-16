@@ -20,7 +20,7 @@
 |---|---|
 | 점수 계산 로직 | `src/lib/score-calculator.ts` |
 | 전보 대상 여부 판단 | `src/lib/transfer-eligibility.ts` |
-| 엑셀 파싱 | `src/lib/excel-parser.ts`, `src/apis/excel/excel.ts` |
+| 엑셀 파싱 | `src/lib/excel-parser.ts` (브라우저에서만 실행 — 아래 "개인정보 보호 원칙" 참고) |
 | 타입 정의 | `src/types/score.ts` |
 | 전역 상태 | `src/store/use-score-store.ts` |
 | 메인 컨테이너 | `src/containers/score-calculator/` |
@@ -36,6 +36,17 @@
 - 실적점: 포상, 연구시범학교, 학위, 연구실적, 직무연수, 교과전담, 담임, 부장교사, 특수통합학급 담임, 복식학급 담임, 체육선수지도, 유치원 수업지원·방과후(유치원만), 특수직군(보건·영양·사서·전문상담교사 등, 수동 입력) 등
 
 기준일: **2026.2.28** / 평정기간: 2021.3.1 ~ 2026.2.28
+
+## 개인정보 보호 원칙 (불변조건)
+
+NEIS 인사기록카드엔 개인정보가 있다. **업로드한 파일과 그 내용(경력·포상·연구실적 등)은 어떤 형태로도 서버로 전송하지 않는다** — `parseExcelFile`(`src/lib/excel-parser.ts`)이 브라우저 안에서 `File.arrayBuffer()`로 바로 파싱하고, 점수 계산(`calculateScore`)도 클라이언트 Zustand 스토어(`use-score-store.ts`)에서 돈다.
+
+**이 불변조건을 지키는 장치들**:
+- `next.config.ts`의 `/calculator/:path*` CSP(`connect-src 'self'` 등) — 코드에 실수로 전송 로직이 들어가도 브라우저가 차단
+- `scripts/check-no-network-in-score-calc.mjs` (`npm run check:privacy`) — 점수 계산 관련 파일에서 `fetch`/`axios`/Supabase 등 금지 패턴을 정적으로 스캔, `.github/workflows/privacy-check.yml`로 PR마다 자동 실행
+- `xlsx` 의존성은 npm 레지스트리 최신판(0.18.5, 프로토타입 오염 CVE 미패치)이 아니라 SheetJS 공식 CDN 타르볼(`https://cdn.sheetjs.com/xlsx-0.20.3/...`)로 고정 — 업로드된 파일을 파싱하는 라이브러리라 취약점 영향이 직접적
+
+**앞으로 이 원칙을 깨는 기능(결과 서버 저장, 공유 링크, 팀 조회 등)을 추가할 땐 반드시 사용자에게 명시적으로 고지하고 opt-in으로 설계할 것.** 조용히 기본 동작으로 넣지 말 것.
 
 ## 참고 자료 (_refs/)
 

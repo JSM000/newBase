@@ -100,10 +100,11 @@ function ZoneSection({
   );
 }
 
-export function SchoolDetailPanel({ school, onClose, zoneStatus, zoneLink }: SchoolDetailPanelProps) {
 export function SchoolDetailPanel({
   school,
   onClose,
+  zoneStatus,
+  zoneLink,
   socialEnabled = false,
   social,
   myRating = null,
