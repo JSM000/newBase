@@ -1,10 +1,12 @@
 'use client';
 
-import { X } from 'lucide-react';
+import { Eye, X } from 'lucide-react';
 import type { School } from '@/types/school-stats';
 import type { SchoolZoneLink } from '@/types/school-zones';
 import { DETAIL_GROUPS } from '@/lib/school-indicators';
 import { schulKndLabel } from '@/lib/school-region';
+import type { SocialEntry } from '@/hooks/use-school-social';
+import { SchoolRating } from './school-rating';
 
 /** 'idle' = 상세 패널이 안 열림, 'unmatched' = 학구도 쪽 이름 매칭 실패(섹션 자체를 숨김) */
 export type ZoneMatchStatus = 'idle' | 'loading' | 'matched' | 'unmatched';
@@ -14,6 +16,13 @@ interface SchoolDetailPanelProps {
   onClose: () => void;
   zoneStatus: ZoneMatchStatus;
   zoneLink: SchoolZoneLink | null;
+  /** 별점·조회수 기능 활성 여부 (Supabase env 설정 시) */
+  socialEnabled?: boolean;
+  /** 이 학교의 별점 집계 + 조회수 */
+  social?: SocialEntry;
+  /** 이 브라우저가 남긴 별점 */
+  myRating?: number | null;
+  onRate?: (rating: number) => void;
 }
 
 function formatFounded(ymd: string | null): string | null {
@@ -92,9 +101,18 @@ function ZoneSection({
 }
 
 export function SchoolDetailPanel({ school, onClose, zoneStatus, zoneLink }: SchoolDetailPanelProps) {
+export function SchoolDetailPanel({
+  school,
+  onClose,
+  socialEnabled = false,
+  social,
+  myRating = null,
+  onRate,
+}: SchoolDetailPanelProps) {
   if (!school) return null;
 
   const founded = formatFounded(school.foundedYmd);
+  const views = social?.views ?? 0;
 
   return (
     <aside className="absolute inset-y-0 right-0 z-20 flex w-full max-w-sm flex-col border-l border-zinc-200 bg-white shadow-2xl">
@@ -118,6 +136,11 @@ export function SchoolDetailPanel({ school, onClose, zoneStatus, zoneLink }: Sch
               {school.eduSupportOfficeNm.replace('충청북도', '')}
             </p>
           )}
+          {socialEnabled && (
+            <p className="mt-1 flex items-center gap-1 text-xs text-zinc-400">
+              <Eye className="h-3.5 w-3.5" />조회 {views.toLocaleString()}
+            </p>
+          )}
         </div>
         <button
           onClick={onClose}
@@ -137,6 +160,14 @@ export function SchoolDetailPanel({ school, onClose, zoneStatus, zoneLink }: Sch
         )}
 
         <ZoneSection school={school} zoneStatus={zoneStatus} zoneLink={zoneLink} />
+        {socialEnabled && onRate && (
+          <SchoolRating
+            avg={social?.avg ?? null}
+            count={social?.count ?? 0}
+            myRating={myRating}
+            onRate={onRate}
+          />
+        )}
 
         {DETAIL_GROUPS.map((group) => (
           <section key={group.title}>
