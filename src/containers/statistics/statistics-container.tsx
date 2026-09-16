@@ -25,6 +25,8 @@ import {
   type SchoolLevelFilter,
   type OwnershipFilter,
 } from '@/lib/school-region';
+import { compareByCommute } from '@/lib/route-origin';
+import type { RouteRankingResponse } from '@/types/commute';
 import { SchoolFilterBar } from './school-filter-bar';
 import { IndicatorLegend } from './indicator-legend';
 import { SchoolDetailPanel } from './school-detail-panel';
@@ -32,9 +34,10 @@ import {
   SchoolRankingPanel,
   type RankSortDirection,
 } from './school-ranking-panel';
+import { CommutePanel } from './commute-panel';
 
-/** 오른쪽 사이드바는 한 번에 하나만 — 상세/순위 목록이 같은 자리를 공유(계획 3-3). */
-type PanelMode = 'none' | 'ranking' | 'detail';
+/** 오른쪽 사이드바는 한 번에 하나만 — 상세/순위/길찾기가 같은 자리를 공유(계획 3-3). */
+type PanelMode = 'none' | 'ranking' | 'detail' | 'commute';
 
 export function StatisticsContainer() {
   const { data, isLoading, isError, error } = useChungbukSchools();
@@ -53,6 +56,41 @@ export function StatisticsContainer() {
   // 상세 패널을 닫았을 때 돌아갈 자리 — 순위 목록을 보다가 상세로 들어간 거면 'ranking'으로 복귀
   const [returnMode, setReturnMode] = useState<PanelMode>('none');
   const [sortDirection, setSortDirection] = useState<RankSortDirection>('desc');
+
+  // ── 길찾기 패널 상태 ── (패널이 useRouteRanking mutation을 직접 들고, 결과·선택만 여기로 올림)
+  // 경로 폴리라인은 순위 응답에 포함돼 있어 별도 조회가 없다.
+  const [commuteResult, setCommuteResult] = useState<RouteRankingResponse | null>(
+    null,
+  );
+  const [commuteSelected, setCommuteSelected] = useState<string | null>(null);
+
+  // "나머지도 계산" 응답을 이전 결과에 병합 (출발지가 같을 때만).
+  function mergeCommuteResult(res: RouteRankingResponse | null) {
+    setCommuteSelected(null);
+    setCommuteResult((prev) => {
+      if (
+        !res ||
+        !prev ||
+        prev.origin.lat !== res.origin.lat ||
+        prev.origin.lng !== res.origin.lng
+      ) {
+        return res;
+      }
+      const merged = res.results.map((r) => {
+        if (r.durationSec !== null) return r;
+        const old = prev.results.find((p) => p.schulCode === r.schulCode);
+        return old && old.durationSec !== null ? old : r;
+      });
+      merged.sort(compareByCommute);
+      return {
+        ...res,
+        results: merged,
+        measuredCount: merged.filter((r) => r.durationSec !== null).length,
+        remainingCount: merged.filter((r) => r.durationSec === null).length,
+      };
+    });
+  }
+
   // 이 브라우저가 남긴 별점 (localStorage) — 위젯의 "내 평가" 표시용.
   // lazy 초기화: SSR에선 {}, 클라이언트 첫 렌더에서 localStorage를 읽는다
   // (별점 표시는 학교 선택 후에만 렌더되므로 hydration 불일치 없음).
@@ -84,6 +122,20 @@ export function StatisticsContainer() {
   }, [indicatorKey, social]);
 
   const allSchools = useMemo(() => data?.schools ?? [], [data]);
+
+  // 지도에 넘길 길찾기 오버레이 — 매 렌더 새 객체가 되지 않도록 메모이즈
+  // (안 그러면 KakaoMap 의 오버레이 effect 가 매번 재실행됨). 경로는 선택된 학교의 결과에서 꺼냄.
+  const routeOverlay = useMemo(() => {
+    if (panelMode !== 'commute' || !commuteResult) return null;
+    const hit = commuteSelected
+      ? commuteResult.results.find((r) => r.schulCode === commuteSelected)
+      : null;
+    return {
+      origin: commuteResult.origin,
+      path: hit?.path ?? null,
+      schoolPoints: commuteResult.results.map((r) => r.position),
+    };
+  }, [panelMode, commuteResult, commuteSelected]);
 
   const sigunguOptions = useMemo(
     () =>
@@ -135,6 +187,14 @@ export function StatisticsContainer() {
   }
 
   function handleSelectSchool(school: School) {
+    // 길찾기 패널이 열려 있고 그 결과에 있는 학교면 — 상세로 넘어가지 않고 경로만 선택
+    if (
+      panelMode === 'commute' &&
+      commuteResult?.results.some((r) => r.schulCode === school.schulCode)
+    ) {
+      setCommuteSelected(school.schulCode);
+      return;
+    }
     setSelected(school);
     // 순위 목록을 보던 중이면 그걸 기억해뒀다가, 상세 패널을 닫을 때 그 화면(스크롤 위치 포함)으로 복귀
     setReturnMode(panelMode === 'ranking' ? 'ranking' : 'none');
@@ -196,6 +256,7 @@ export function StatisticsContainer() {
             socialEnabled={isSupabaseConfigured}
             resultCount={filtered.length}
             onShowRanking={() => setPanelMode('ranking')}
+            onShowCommute={() => setPanelMode('commute')}
           />
 
           <div className="relative min-h-0 flex-1 p-3">
@@ -203,8 +264,15 @@ export function StatisticsContainer() {
               ref={mapHandleRef}
               schools={filtered}
               indicator={indicator}
-              selectedSchoolCode={panelMode === 'detail' ? (selected?.schulCode ?? null) : null}
+              selectedSchoolCode={
+                panelMode === 'detail'
+                  ? (selected?.schulCode ?? null)
+                  : panelMode === 'commute'
+                    ? commuteSelected
+                    : null
+              }
               onSelectSchool={handleSelectSchool}
+              routeOverlay={routeOverlay}
             />
 
             <div className="pointer-events-none absolute bottom-3 left-3 z-10 sm:bottom-6 sm:left-6">
@@ -229,6 +297,18 @@ export function StatisticsContainer() {
               sortDirection={sortDirection}
               onSortDirectionChange={setSortDirection}
               onSelectSchool={handleSelectFromRanking}
+              onClose={() => setPanelMode('none')}
+            />
+
+            <CommutePanel
+              isOpen={panelMode === 'commute'}
+              level={level}
+              sigungu={sigungu}
+              ownership={ownership}
+              result={commuteResult}
+              selectedCode={commuteSelected}
+              onResult={mergeCommuteResult}
+              onSelectCode={setCommuteSelected}
               onClose={() => setPanelMode('none')}
             />
           </div>

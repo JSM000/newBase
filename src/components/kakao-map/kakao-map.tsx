@@ -21,6 +21,15 @@ interface KakaoMapProps {
   indicator: Indicator;
   selectedSchoolCode: string | null;
   onSelectSchool: (school: School) => void;
+  /**
+   * 길찾기 패널이 켜졌을 때 — 집(출발지) 마커 + 선택 학교까지의 경로 폴리라인.
+   * `path`가 있으면 경로에, 없으면 집 + `schoolPoints` 전체에 맞춰 화면을 이동한다.
+   */
+  routeOverlay?: {
+    origin: { lat: number; lng: number };
+    path: [number, number][] | null;
+    schoolPoints?: { lat: number; lng: number }[];
+  } | null;
 }
 
 /** 부모(순위 목록 등)가 지도를 조작할 수 있는 명령형 API. */
@@ -59,6 +68,7 @@ export const KakaoMap = forwardRef<KakaoMapHandle, KakaoMapProps>(function Kakao
   indicator,
   selectedSchoolCode,
   onSelectSchool,
+  routeOverlay = null,
 }, ref) {
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<KakaoMap | null>(null);
@@ -66,6 +76,8 @@ export const KakaoMap = forwardRef<KakaoMapHandle, KakaoMapProps>(function Kakao
   const markersRef = useRef<KakaoMarker[]>([]);
   const regionOverlaysRef = useRef<KakaoCustomOverlay[]>([]);
   const boundaryPolygonsRef = useRef<KakaoPolygon[]>([]);
+  const routeOriginRef = useRef<KakaoCustomOverlay | null>(null);
+  const routeLineRef = useRef<KakaoPolyline | null>(null);
   const tooltipRef = useRef<KakaoCustomOverlay | null>(null);
   const tooltipHideTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -327,6 +339,62 @@ export const KakaoMap = forwardRef<KakaoMapHandle, KakaoMapProps>(function Kakao
 
     markersRef.current = markers;
   }, [status, schools, indicator, selectedSchoolCode, viewTier, sigunguCenters, subRegionCenters]);
+
+  // ── 길찾기: 집(출발) 마커 + 선택 학교까지 경로 폴리라인 ──
+  useEffect(() => {
+    const maps = mapsRef.current;
+    const map = mapRef.current;
+    if (status !== 'ready' || !maps || !map) return;
+
+    routeOriginRef.current?.setMap(null);
+    routeOriginRef.current = null;
+    routeLineRef.current?.setMap(null);
+    routeLineRef.current = null;
+
+    if (!routeOverlay) return;
+
+    const originPos = new maps.LatLng(routeOverlay.origin.lat, routeOverlay.origin.lng);
+    const el = document.createElement('div');
+    el.textContent = '집';
+    el.style.cssText =
+      'display:flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:9999px;background:#0072a1;color:#fff;font-size:11px;font-weight:700;border:2px solid #fff;box-shadow:0 1px 5px rgba(0,0,0,.4)';
+    const originOverlay = new maps.CustomOverlay({
+      position: originPos,
+      content: el,
+      yAnchor: 0.5,
+      xAnchor: 0.5,
+      zIndex: 30,
+    });
+    originOverlay.setMap(map);
+    routeOriginRef.current = originOverlay;
+
+    const bounds = new maps.LatLngBounds();
+    bounds.extend(originPos);
+
+    if (routeOverlay.path && routeOverlay.path.length >= 2) {
+      const latlngs = routeOverlay.path.map(
+        ([lng, lat]) => new maps.LatLng(lat, lng),
+      );
+      const line = new maps.Polyline({
+        path: latlngs,
+        strokeWeight: 5,
+        strokeColor: '#bd2d2d',
+        strokeOpacity: 0.9,
+        strokeStyle: 'solid',
+        zIndex: 25,
+      });
+      line.setMap(map);
+      routeLineRef.current = line;
+      for (const ll of latlngs) bounds.extend(ll);
+    } else {
+      // 경로 미선택 — 집 + 대상 학교 전체가 보이게
+      for (const p of routeOverlay.schoolPoints ?? []) {
+        bounds.extend(new maps.LatLng(p.lat, p.lng));
+      }
+    }
+
+    if (!bounds.isEmpty()) map.setBounds(bounds);
+  }, [status, routeOverlay]);
 
   // ── 필터 변경 시 보이는 학교에 맞춰 화면 이동 (선택만 바뀔 땐 유지) ──
   useEffect(() => {

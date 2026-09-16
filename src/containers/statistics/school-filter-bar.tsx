@@ -24,6 +24,7 @@ interface SchoolFilterBarProps {
   socialEnabled?: boolean;
   resultCount: number;
   onShowRanking: () => void;
+  onShowCommute: () => void;
 }
 
 const selectClass =
@@ -57,6 +58,7 @@ export function SchoolFilterBar({
   socialEnabled = false,
   resultCount,
   onShowRanking,
+  onShowCommute,
 }: SchoolFilterBarProps) {
   const scoreIndicators = INDICATORS.filter((i) => i.category === 'score');
   const workIndicators = INDICATORS.filter((i) => i.category === 'work');
@@ -154,6 +156,14 @@ export function SchoolFilterBar({
         className="h-9 rounded-lg border border-primary px-3 text-sm font-medium text-primary transition-colors hover:bg-primary hover:text-white"
       >
         순위 보기
+      </button>
+
+      <button
+        type="button"
+        onClick={onShowCommute}
+        className="h-9 rounded-lg border border-secondary px-3 text-sm font-medium text-secondary transition-colors hover:bg-secondary hover:text-white"
+      >
+        출퇴근 시간 계산기
       </button>
 
       {/* 학교명 검색 — 다른 필터와 성격이 달라(자유 텍스트) 가장 오른쪽에 별도 배치 */}

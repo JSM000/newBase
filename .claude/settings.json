@@ -108,6 +108,26 @@
         {
           "name": "NPM_TOKEN",
           "mode": "deny"
+        },
+        {
+          "name": "NEXT_PUBLIC_KAKAOMAP_API_KEY",
+          "mode": "deny"
+        },
+        {
+          "name": "NEXT_PUBLIC_SUPABASE_URL",
+          "mode": "deny"
+        },
+        {
+          "name": "NEXT_PUBLIC_SUPABASE_KEY",
+          "mode": "deny"
+        },
+        {
+          "name": "KAKAO_REST_API_KEY",
+          "mode": "deny"
+        },
+        {
+          "name": "SUPABASE_SECRET_KEY",
+          "mode": "deny"
         }
       ]
     }
