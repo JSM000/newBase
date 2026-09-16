@@ -40,6 +40,11 @@ interface KakaoPolygon {
   setOptions(options: Record<string, unknown>): void;
 }
 
+interface KakaoPolyline {
+  setMap(map: KakaoMap | null): void;
+  setPath(path: KakaoLatLng[]): void;
+}
+
 interface KakaoMarkerClusterer {
   addMarkers(markers: KakaoMarker[]): void;
   removeMarkers(markers: KakaoMarker[]): void;
@@ -88,6 +93,14 @@ interface KakaoMapsNamespace {
     fillOpacity?: number;
     zIndex?: number;
   }) => KakaoPolygon;
+  Polyline: new (options: {
+    path: KakaoLatLng[];
+    strokeWeight?: number;
+    strokeColor?: string;
+    strokeOpacity?: number;
+    strokeStyle?: string;
+    zIndex?: number;
+  }) => KakaoPolyline;
   MarkerClusterer: new (options: {
     map: KakaoMap;
     averageCenter?: boolean;

@@ -8,14 +8,16 @@ import {
   X,
 } from 'lucide-react';
 import type { School } from '@/types/school-stats';
-import { type Indicator, formatIndicatorValue } from '@/lib/school-indicators';
+import {
+  type Indicator,
+  formatIndicatorValue,
+  RATING_INDICATOR_KEY,
+  VIEWS_INDICATOR_KEY,
+} from '@/lib/school-indicators';
 import { schulKndLabel } from '@/lib/school-region';
 import type { SocialMap } from '@/hooks/use-school-social';
 
 export type RankSortDirection = 'asc' | 'desc';
-
-/** 순위 정렬 기준 — 지도 지표(indicator) 또는 소셜 값(별점/조회수) */
-export type RankMetric = 'indicator' | 'rating' | 'views';
 
 interface RankedSchool {
   school: School;
@@ -27,9 +29,7 @@ interface SchoolRankingPanelProps {
   ranked: RankedSchool[];
   noDataCount: number;
   indicator: Indicator;
-  rankMetric: RankMetric;
-  onRankMetricChange: (v: RankMetric) => void;
-  socialEnabled: boolean;
+  /** 별점(rating) 순위일 때 참여자 수를 부기하기 위한 소셜 맵 */
   social?: SocialMap;
   sortDirection: RankSortDirection;
   onSortDirectionChange: (v: RankSortDirection) => void;
@@ -37,25 +37,22 @@ interface SchoolRankingPanelProps {
   onClose: () => void;
 }
 
-const METRIC_LABEL: Record<RankMetric, string> = {
-  indicator: '표시 지표',
-  rating: '이동 추천도 (별점)',
-  views: '조회수',
-};
-
 function formatRankValue(
-  rankMetric: RankMetric,
   indicator: Indicator,
   value: number,
   count: number,
 ): string {
-  if (rankMetric === 'rating') return `★ ${value.toFixed(1)} · ${count}명`;
-  if (rankMetric === 'views') return `조회 ${value.toLocaleString()}`;
+  if (indicator.key === RATING_INDICATOR_KEY) {
+    return `★ ${value.toFixed(1)} · ${count}명`;
+  }
+  if (indicator.key === VIEWS_INDICATOR_KEY) {
+    return `조회 ${value.toLocaleString()}`;
+  }
   return formatIndicatorValue(indicator, value);
 }
 
 /**
- * 오른쪽 사이드바 — 현재 필터 + "표시 지표" 기준으로 학교를 정렬한 목록.
+ * 오른쪽 사이드바 — 현재 필터 + "표시·순위 기준"(지도 지표 / 별점 / 조회수)으로 정렬한 목록.
  * 학교 상세 패널과 같은 자리를 공유(계획 3-3 "학교 순위 목록" 참고, panelMode로 전환).
  */
 export function SchoolRankingPanel({
@@ -63,9 +60,6 @@ export function SchoolRankingPanel({
   ranked,
   noDataCount,
   indicator,
-  rankMetric,
-  onRankMetricChange,
-  socialEnabled,
   social,
   sortDirection,
   onSortDirectionChange,
@@ -99,10 +93,7 @@ export function SchoolRankingPanel({
         <div>
           <h2 className="text-lg font-bold text-zinc-800">학교 순위</h2>
           <p className="mt-0.5 text-xs text-zinc-500">
-            {rankMetric === 'indicator'
-              ? indicator.label
-              : METRIC_LABEL[rankMetric]}{' '}
-            기준 · {ranked.length}개 학교
+            {indicator.label} 기준 · {ranked.length}개 학교
           </p>
         </div>
         <button
@@ -113,23 +104,6 @@ export function SchoolRankingPanel({
           <X className="h-5 w-5" />
         </button>
       </header>
-
-      {socialEnabled && (
-        <div className="border-b border-zinc-100 px-4 py-2.5">
-          <span className="mb-1 block text-[11px] font-medium uppercase tracking-wide text-zinc-400">
-            정렬 기준
-          </span>
-          <select
-            value={rankMetric}
-            onChange={(e) => onRankMetricChange(e.target.value as RankMetric)}
-            className="h-8 w-full rounded-md border border-zinc-200 bg-white px-2 text-sm text-zinc-700 focus:border-primary focus:outline-none"
-          >
-            <option value="indicator">{indicator.label}</option>
-            <option value="rating">이동 추천도 (별점)</option>
-            <option value="views">조회수</option>
-          </select>
-        </div>
-      )}
 
       <div className="border-b border-zinc-100 px-4 py-2.5">
         <div className="relative">
@@ -209,7 +183,6 @@ export function SchoolRankingPanel({
                     </span>
                     <span className="shrink-0 text-sm font-semibold text-zinc-700">
                       {formatRankValue(
-                        rankMetric,
                         indicator,
                         value,
                         social?.[school.schulCode]?.count ?? 0,

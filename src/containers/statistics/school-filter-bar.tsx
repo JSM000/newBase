@@ -6,7 +6,7 @@ import {
   type SchoolLevelFilter,
   type OwnershipFilter,
 } from '@/lib/school-region';
-import { INDICATORS } from '@/lib/school-indicators';
+import { INDICATORS, SOCIAL_INDICATOR_LIST } from '@/lib/school-indicators';
 
 interface SchoolFilterBarProps {
   level: SchoolLevelFilter;
@@ -20,8 +20,11 @@ interface SchoolFilterBarProps {
   onOwnershipChange: (v: OwnershipFilter) => void;
   indicatorKey: string;
   onIndicatorKeyChange: (v: string) => void;
+  /** 별점·조회수 기능 활성 여부 (Supabase env 설정 시) — 표시·순위 기준에 커뮤니티 항목 추가 */
+  socialEnabled?: boolean;
   resultCount: number;
   onShowRanking: () => void;
+  onShowCommute: () => void;
 }
 
 const selectClass =
@@ -52,8 +55,10 @@ export function SchoolFilterBar({
   onOwnershipChange,
   indicatorKey,
   onIndicatorKeyChange,
+  socialEnabled = false,
   resultCount,
   onShowRanking,
+  onShowCommute,
 }: SchoolFilterBarProps) {
   const scoreIndicators = INDICATORS.filter((i) => i.category === 'score');
   const workIndicators = INDICATORS.filter((i) => i.category === 'work');
@@ -130,6 +135,15 @@ export function SchoolFilterBar({
               </option>
             ))}
           </optgroup>
+          {socialEnabled && (
+            <optgroup label="커뮤니티">
+              {SOCIAL_INDICATOR_LIST.map((i) => (
+                <option key={i.key} value={i.key}>
+                  {i.label}
+                </option>
+              ))}
+            </optgroup>
+          )}
         </select>
       </FilterField>
 
@@ -142,6 +156,14 @@ export function SchoolFilterBar({
         className="h-9 rounded-lg border border-primary px-3 text-sm font-medium text-primary transition-colors hover:bg-primary hover:text-white"
       >
         순위 보기
+      </button>
+
+      <button
+        type="button"
+        onClick={onShowCommute}
+        className="h-9 rounded-lg border border-secondary px-3 text-sm font-medium text-secondary transition-colors hover:bg-secondary hover:text-white"
+      >
+        출퇴근 시간 계산기
       </button>
 
       {/* 학교명 검색 — 다른 필터와 성격이 달라(자유 텍스트) 가장 오른쪽에 별도 배치 */}

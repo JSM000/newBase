@@ -203,6 +203,39 @@ export const INDICATOR_BY_KEY: Record<string, Indicator> = Object.fromEntries(
 
 export const DEFAULT_INDICATOR_KEY = 'studentCountTotal';
 
+// ─────────────── 커뮤니티 지표 (별점·조회수) ───────────────
+
+/**
+ * 별점·조회수도 "표시·순위 기준" 드롭다운의 한 항목으로 다룬다(지도 색칠 + 순위 정렬 공용).
+ * 다만 값이 `School`이 아니라 런타임 소셜 데이터(useSchoolSocial)에서 오므로 `accessor`만
+ * 비워둔 정의를 여기 두고, statistics-container에서 소셜 맵과 합쳐 완성한다.
+ * bucket 경계값은 흥미 중심 참고용 1차값 — 분포 보고 조정 가능.
+ */
+export const RATING_INDICATOR_KEY = 'social:rating';
+export const VIEWS_INDICATOR_KEY = 'social:views';
+
+export const SOCIAL_INDICATOR_DEFS: Record<string, Omit<Indicator, 'accessor'>> = {
+  [RATING_INDICATOR_KEY]: {
+    key: RATING_INDICATOR_KEY,
+    label: '별점 (이동 추천도)',
+    category: 'work',
+    thresholds: [2.5, 3, 3.5, 4],
+    format: (v) => `★ ${v.toFixed(1)}`,
+    description:
+      '이동할 학교로서의 추천도 별점(1~5) 평균. 참여자가 있는 학교만 색이 칠해집니다. 재미로 보는 참고용.',
+  },
+  [VIEWS_INDICATOR_KEY]: {
+    key: VIEWS_INDICATOR_KEY,
+    label: '조회수',
+    category: 'work',
+    unit: '회',
+    thresholds: [5, 20, 50, 100],
+    description: '학교 상세를 연 누적 횟수(세션당 1회). 관심도 신호로 보는 참고용.',
+  },
+};
+
+export const SOCIAL_INDICATOR_LIST = Object.values(SOCIAL_INDICATOR_DEFS);
+
 /** 값 -> 구간 인덱스(0~4). 값이 null이면 null. */
 export function bucketIndex(indicator: Indicator, value: number | null): number | null {
   if (value === null) return null;
