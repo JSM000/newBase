@@ -120,6 +120,7 @@ export function UploadSection() {
             <div className="mt-6 rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm">
               <p className="mb-1 font-semibold text-amber-800">안내 사항</p>
               <ul className="list-inside list-disc space-y-1 text-amber-700">
+                <li>업로드한 파일은 서버로 전송되지 않고 이 브라우저 안에서만 분석됩니다.</li>
                 <li>자동 파싱 결과는 반드시 직접 확인이 필요합니다.</li>
                 <li>가산점(지역·우대)은 직접 입력해야 합니다.</li>
                 <li>최종 점수는 교육지원청 공식 서류로 확인하세요.</li>
