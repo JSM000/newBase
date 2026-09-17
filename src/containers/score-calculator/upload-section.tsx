@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useRef, useCallback } from 'react';
-import Link from 'next/link';
 import { useParseExcel } from '@/hooks/apis/excel/use-parse-excel';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { AppHeader } from '@/components/app-header';
@@ -34,13 +33,11 @@ export function UploadSection() {
   return (
     <div className="flex min-h-screen flex-col">
       <AppHeader
-        title="관외전보 점수 계산기"
-        subtitle="청주교육지원청 유치원·초등교사 | 기준일: 2026.2.28. | NEIS 인사기록카드 엑셀 파일"
-        actions={
-          <Link href="/calculator" className="text-sm text-primary-100 underline hover:text-white">
-            지역 변경
-          </Link>
-        }
+        items={[
+          { label: 'NewBase', href: '/' },
+          { label: '지역 선택', href: '/calculator' },
+          { label: '업로드' },
+        ]}
       />
 
       <main className="flex flex-1 items-center justify-center p-6">
@@ -49,10 +46,13 @@ export function UploadSection() {
             <h2 className="mb-2 text-xl font-semibold text-zinc-800">
               NEIS 인사기록카드 업로드
             </h2>
-            <p className="mb-6 text-sm text-zinc-500">
+            <p className="mb-1 text-sm text-zinc-500">
               NEIS에서 엑셀(.xlsx)로 저장한 인사기록카드를 업로드하면
               <br />
               관외이동 점수를 자동으로 계산합니다.
+            </p>
+            <p className="mb-6 text-xs text-zinc-400">
+              청주교육지원청 유치원·초등교사 | 기준일: 2026.2.28.
             </p>
 
             {errorMessage && (
@@ -123,7 +123,7 @@ export function UploadSection() {
                 <li>업로드한 파일은 서버로 전송되지 않고 이 브라우저 안에서만 분석됩니다.</li>
                 <li>자동 파싱 결과는 반드시 직접 확인이 필요합니다.</li>
                 <li>가산점(지역·우대)은 직접 입력해야 합니다.</li>
-                <li>최종 점수는 교육지원청 공식 서류로 확인하세요.</li>
+                <li>모든 수치는 참고용이며, 최종 점수는 교육지원청 공식 서류로 확인하세요.</li>
               </ul>
             </div>
           </div>

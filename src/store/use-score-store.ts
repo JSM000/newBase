@@ -78,5 +78,6 @@ export const useScoreStore = create<ScoreStore>((set, get) => ({
       result: null,
       activeTab: 'eligibility',
       eligibilityInputs: defaultEligibilityInputs,
+      inputs: defaultInputs,
     }),
 }));

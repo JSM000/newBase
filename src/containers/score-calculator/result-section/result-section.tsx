@@ -1,6 +1,6 @@
 'use client';
 
-import Link from 'next/link';
+import { useEffect } from 'react';
 import { useScoreStore, TabType } from '@/store/use-score-store';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Alert, AlertDescription } from '@/components/ui/alert';
@@ -39,6 +39,19 @@ export function ResultSection() {
     ? calculateTransferEligibility(result, eligibilityInputs)
     : null;
 
+  // 결과 화면을 벗어나면(뒤로가기·탭 닫기 등) 업로드했던 인사기록카드 내용·계산 결과를
+  // 브라우저 메모리에서 지운다 — breadcrumb 클릭(아래)이 못 잡는 경로까지 여기서 방어.
+  // popstate/pagehide 는 실제 브라우저 이벤트라 React StrictMode 의 effect 이중 실행과
+  // 무관 — 마운트 시 등록→해제→재등록만 되고, 진짜 뒤로가기/이탈 때만 콜백이 돈다.
+  useEffect(() => {
+    window.addEventListener('popstate', reset);
+    window.addEventListener('pagehide', reset);
+    return () => {
+      window.removeEventListener('popstate', reset);
+      window.removeEventListener('pagehide', reset);
+    };
+  }, [reset]);
+
   const tabs: { value: TabType; label: string }[] = [
     { value: 'eligibility',   label: '전보 판단' },
     { value: 'score',         label: '점수 상세' },
@@ -52,27 +65,14 @@ export function ResultSection() {
   return (
     <div className="flex min-h-screen flex-col">
       <AppHeader
-        title="관외전보 점수 계산기"
-        subtitle={parsed?.schoolName}
-        actions={
-          <>
-            <Link href="/calculator" className="text-sm text-primary-100 underline hover:text-white">
-              지역 변경
-            </Link>
-            <button
-              onClick={() => {
-                // 이 브라우저 메모리에 남아있던 인사기록카드 내용·계산 결과·입력값을 전부 지운다
-                // (서버엔 애초에 저장 안 됨 — CLAUDE.md "개인정보 보호 원칙" 참고).
-                if (window.confirm('업로드한 파일 내용과 계산 결과를 지우고 처음부터 다시 시작할까요?')) {
-                  reset();
-                }
-              }}
-              className="text-sm text-primary-100 underline hover:text-white"
-            >
-              정보 지우고 다시 업로드
-            </button>
-          </>
-        }
+        items={[
+          // 결과 화면에서 앞 단계로 되돌아가는 거라 "정보 지우고 다시 업로드"와 동일하게
+          // 전부 reset() — 업로드했던 데이터를 남겨둔 채 이동하지 않는다.
+          { label: 'NewBase', href: '/', onClick: reset },
+          { label: '지역 선택', href: '/calculator', onClick: reset },
+          { label: '업로드', onClick: reset },
+          { label: '계산결과' },
+        ]}
       />
 
       <main className="mx-auto w-full max-w-5xl flex-1 space-y-4 p-4">
