@@ -1,7 +1,6 @@
 'use client';
 
 import { useEffect, useMemo, useRef, useState } from 'react';
-import Link from 'next/link';
 import { AppHeader } from '@/components/app-header';
 import { KakaoMap, type KakaoMapHandle } from '@/components/kakao-map/kakao-map';
 import { useChungbukSchools } from '@/hooks/use-chungbuk-schools';
@@ -241,16 +240,7 @@ export function StatisticsContainer() {
   return (
     <div className="flex h-screen flex-col bg-zinc-50">
       <AppHeader
-        title="충북 학교 통계 지도"
-        subtitle="학교를 선택해 전보 점수·근무 여건 참고 통계를 확인하세요"
-        actions={
-          <Link
-            href="/"
-            className="text-sm text-primary-100 underline hover:text-white"
-          >
-            홈으로
-          </Link>
-        }
+        items={[{ label: 'NewBase', href: '/' }, { label: '통계지도' }]}
       />
 
       {isLoading && (

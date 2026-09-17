@@ -30,16 +30,7 @@ export function RegionSelectContainer() {
   return (
     <div className="flex h-screen flex-col bg-zinc-50">
       <AppHeader
-        title="전보 점수 계산"
-        subtitle="현재 근무지를 선택하세요"
-        actions={
-          <button
-            onClick={() => router.push('/')}
-            className="text-sm text-primary-100 underline hover:text-white"
-          >
-            홈으로
-          </button>
-        }
+        items={[{ label: 'NewBase', href: '/' }, { label: '지역 선택' }]}
       />
 
       {/* 지도 영역 */}
