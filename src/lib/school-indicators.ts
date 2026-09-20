@@ -275,7 +275,6 @@ export interface DetailField {
   estimated?: boolean;
 }
 
-const yn = (v: boolean | null): string => (v === null ? '—' : v ? '있음' : '없음');
 const n = (v: number | null, unit = ''): string => (v === null ? '—' : `${v}${unit}`);
 const ymd = (v: string | null): string =>
   v && v.length === 8 ? `${v.slice(0, 4)}.${v.slice(4, 6)}.${v.slice(6, 8)}` : '—';
@@ -352,46 +351,6 @@ export const DETAIL_GROUPS: DetailGroup[] = [
         excludedReasonField: 'teacherStatusExcludedReason',
       },
       {
-        label: '기간제 · 강사 · 휴직',
-        render: (s) =>
-          s.teacherStatusExcludedReason
-            ? '—'
-            : `기간제 ${s.contractTeacherCount ?? 0} · 강사 ${s.instructorCount ?? 0} · 휴직 ${s.teacherOnLeaveCount ?? 0}`,
-        excludedReasonField: 'teacherStatusExcludedReason',
-      },
-      {
-        label: '보건 · 영양 · 사서교사',
-        render: (s) =>
-          s.teacherStatusExcludedReason
-            ? '—'
-            : `보건 ${yn((s.healthTeacherCount ?? 0) > 0)} · 영양 ${yn((s.nutritionTeacherCount ?? 0) > 0)} · 사서 ${yn((s.librarianTeacherCount ?? 0) > 0)}`,
-        excludedReasonField: 'teacherStatusExcludedReason',
-      },
-      {
-        label: '전입 · 전출 학생수',
-        render: (s) =>
-          s.transferInStudentCount === null && s.transferOutStudentCount === null
-            ? '—'
-            : `전입 ${s.transferInStudentCount ?? 0} · 전출 ${s.transferOutStudentCount ?? 0}`,
-        excludedReasonField: 'transferStudentExcludedReason',
-      },
-      {
-        label: '행정 지원인력',
-        render: (s) =>
-          s.generalStaffCount === null && s.eduSupportStaffCount === null
-            ? '—'
-            : `일반직 ${s.generalStaffCount ?? 0} · 공무직 ${s.eduSupportStaffCount ?? 0}`,
-        excludedReasonField: 'staffExcludedReason',
-      },
-      {
-        label: '상담 지원체계',
-        render: (s) =>
-          s.counselingExcludedReason
-            ? '—'
-            : `내부상담 ${yn(s.hasInnerCounselor)} · 외부상담 ${yn(s.hasOuterCounselor)} · Wee클래스 ${yn(s.hasWeeClass)}`,
-        excludedReasonField: 'counselingExcludedReason',
-      },
-      {
         label: '급식 배식 장소',
         render: (s) => {
           if (s.mealExcludedReason) return '—';
@@ -413,12 +372,6 @@ export const DETAIL_GROUPS: DetailGroup[] = [
             : `이상 ${s.facilitySafetyIssueCount ?? 0}건 — ${s.facilitySafetyIssueLedgerNames || '대장 미상'} (최근 ${date})`;
         },
         excludedReasonField: 'facilitySafetyExcludedReason',
-      },
-      {
-        label: '교원지원공간 · 체육관 · 강당',
-        render: (s) =>
-          `지원공간 ${n(s.teacherSupportSpaceCount)} · 체육관 ${n(s.gymnasiumCount)} · 강당 ${n(s.auditoriumCount)}`,
-        excludedReasonField: 'facilitiesExcludedReason',
       },
       {
         label: '장학 · 학비지원 학생수 (추정 참고)',

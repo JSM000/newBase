@@ -372,6 +372,7 @@ const DATASETS = [
       "healthTeacherCount",
       "nutritionTeacherCount",
       "librarianTeacherCount",
+      "counselorTeacherCount",
       "teacherStatusExcludedReason",
     ],
     fieldSource: {
@@ -383,11 +384,13 @@ const DATASETS = [
       healthTeacherCount: "COL_9", // 보건교사(계)
       nutritionTeacherCount: "COL_10", // 영양교사(계)
       librarianTeacherCount: "COL_7", // 사서교사(계)
+      counselorTeacherCount: "COL_6", // 전문상담교사(계)
       teacherStatusExcludedReason: "PBAN_EXCP_RSN", // 제외사유
     },
     // Tier1: 부장교사 자리 수(deputyPrincipalTeacherCount), 학교규모(teacherCountTotal)
     // 2-2: 정교사 안정성(contractTeacherCount/instructorCount/teacherOnLeaveCount),
-    //      보건·영양·사서 전문인력 배치(healthTeacherCount/nutritionTeacherCount/librarianTeacherCount)
+    //      비교과교사(보건·영양·사서·전문상담) 배치(healthTeacherCount/nutritionTeacherCount/
+    //      librarianTeacherCount/counselorTeacherCount)
     normalize(record) {
       return {
         deputyPrincipalTeacherCount: toNumberOrNull(record.COL_3),
@@ -398,6 +401,7 @@ const DATASETS = [
         healthTeacherCount: toNumberOrNull(record.COL_9),
         nutritionTeacherCount: toNumberOrNull(record.COL_10),
         librarianTeacherCount: toNumberOrNull(record.COL_7),
+        counselorTeacherCount: toNumberOrNull(record.COL_6),
       };
     },
   },
