@@ -31,6 +31,8 @@ interface KakaoMapProps {
     path: [number, number][] | null;
     schoolPoints?: { lat: number; lng: number }[];
   } | null;
+  /** 설정 페이지에 저장해둔 집 좌표 — 길찾기를 안 켜도 항상 집모양 마커로 표시 */
+  homePosition?: { lat: number; lng: number } | null;
   /** 상세 패널이 연 학교급의 학구 폴리곤 전체(lazy load, 계획: _refs/학구도_지도_구현계획.md) */
   zoneFeatures: SchoolZoneFeature[];
   /** 그 중 지금 선택된 학교에 연결된 학구ID 목록 (전용/공동) — null 이면 아무것도 안 그림 */
@@ -77,6 +79,7 @@ export const KakaoMap = forwardRef<KakaoMapHandle, KakaoMapProps>(function Kakao
   selectedSchoolCode,
   onSelectSchool,
   routeOverlay = null,
+  homePosition = null,
   zoneFeatures,
   zoneLink,
 }, ref) {
@@ -86,6 +89,7 @@ export const KakaoMap = forwardRef<KakaoMapHandle, KakaoMapProps>(function Kakao
   const markersRef = useRef<KakaoMarker[]>([]);
   const regionOverlaysRef = useRef<KakaoCustomOverlay[]>([]);
   const routeOriginRef = useRef<KakaoCustomOverlay | null>(null);
+  const homeMarkerRef = useRef<KakaoCustomOverlay | null>(null);
   const routeLineRef = useRef<KakaoPolyline | null>(null);
   const boundaryPolygonsRef = useRef<{ name: string; polygons: KakaoPolygon[] }[]>([]);
   const zonePolygonsRef = useRef<KakaoPolygon[]>([]);
@@ -501,6 +505,35 @@ export const KakaoMap = forwardRef<KakaoMapHandle, KakaoMapProps>(function Kakao
 
     if (!bounds.isEmpty()) map.setBounds(bounds);
   }, [status, routeOverlay]);
+
+  // ── 저장된 집 위치 마커 — 길찾기를 켜지 않아도 항상 표시 (routeOverlay와 별개) ──
+  useEffect(() => {
+    const maps = mapsRef.current;
+    const map = mapRef.current;
+    if (status !== 'ready' || !maps || !map) return;
+
+    homeMarkerRef.current?.setMap(null);
+    homeMarkerRef.current = null;
+    if (!homePosition) return;
+
+    const el = document.createElement('div');
+    el.textContent = '🏠';
+    el.style.cssText =
+      'display:flex;align-items:center;justify-content:center;width:30px;height:30px;border-radius:9999px;background:#f59e0b;font-size:16px;border:2px solid #fff;box-shadow:0 1px 5px rgba(0,0,0,.4)';
+    const overlay = new maps.CustomOverlay({
+      position: new maps.LatLng(homePosition.lat, homePosition.lng),
+      content: el,
+      yAnchor: 0.5,
+      xAnchor: 0.5,
+      zIndex: 20,
+    });
+    overlay.setMap(map);
+    homeMarkerRef.current = overlay;
+
+    return () => {
+      overlay.setMap(null);
+    };
+  }, [status, homePosition]);
 
   // ── 필터 변경 시 보이는 학교에 맞춰 화면 이동 (선택만 바뀔 땐 유지) ──
   useEffect(() => {

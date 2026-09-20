@@ -37,7 +37,7 @@ export function AppHeader({ items, actions, subtitle }: AppHeaderProps) {
   const soloRoot = items.length === 1;
 
   return (
-    <header className="flex shrink-0 items-center justify-between gap-3 bg-primary px-4 py-3 text-white shadow sm:px-6">
+    <header className="sticky top-0 z-50 flex shrink-0 items-center justify-between gap-3 bg-primary px-4 py-3 text-white shadow sm:px-6">
       <div className="min-w-0">
         <nav
           aria-label="경로"

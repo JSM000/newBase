@@ -13,6 +13,8 @@ import {
 } from '@/hooks/use-school-social';
 import { isSupabaseConfigured } from '@/lib/supabase';
 import { getMyRatings } from '@/lib/school-social-client';
+import { useUserSettingsStore } from '@/store/use-user-settings-store';
+import { isExpired } from '@/lib/settings-retention';
 import type { School } from '@/types/school-stats';
 import type { ZoneMatchStatus } from './school-detail-panel';
 import {
@@ -41,6 +43,44 @@ import { CommutePanel } from './commute-panel';
 /** 오른쪽 사이드바는 한 번에 하나만 — 상세/순위/길찾기가 같은 자리를 공유(계획 3-3). */
 type PanelMode = 'none' | 'ranking' | 'detail' | 'commute';
 
+/**
+ * 저장된 로컬 설정을 동기적으로 읽어온다 (계획: _refs/개인정보_로컬설정_구현계획/08_자동화.md).
+ * SSR에서는 `persist`가 없어 `?.`로 건너뛰고 store 기본값을 반환 — myRatings와 같은 lazy
+ * 초기화 패턴이라 useState 초기값 계산 함수 안에서만 호출한다(useEffect 안에서 부르지 않음).
+ */
+function readFreshSettings() {
+  useUserSettingsStore.persist?.rehydrate();
+  const settings = useUserSettingsStore.getState();
+  if (settings.savedAt && isExpired(settings.savedAt)) return null;
+  return settings;
+}
+
+/**
+ * 통계지도가 기본으로 보여줄 시·군 — 관외전보를 고려 중이면 "떠날 지역"이 아니라 "가고 싶은
+ * 지역"의 학교를 보는 게 맞아서 desiredSigungu를 우선한다 (계획 08-2 확장).
+ */
+function resolveTargetSigungu(
+  settings: ReturnType<typeof readFreshSettings>,
+): string | null {
+  if (!settings) return null;
+  if (settings.transferPreference === 'external' && settings.desiredSigungu) {
+    return settings.desiredSigungu;
+  }
+  return settings.currentSigungu;
+}
+
+/** 유치원·미선택('all')은 통계지도 대상 학교급이 아니거나 특정 짓지 않은 상태라 'all'로 둔다. */
+function resolveTargetLevel(
+  settings: ReturnType<typeof readFreshSettings>,
+): SchoolLevelFilter {
+  switch (settings?.schoolLevel) {
+    case 'elementary': return '02';
+    case 'middle': return '03';
+    case 'high': return '04';
+    default: return 'all';
+  }
+}
+
 export function StatisticsContainer() {
   const { data, isLoading, isError, error } = useChungbukSchools();
   const { data: social } = useSchoolSocial();
@@ -48,8 +88,15 @@ export function StatisticsContainer() {
   const recordView = useRecordView();
   const mapHandleRef = useRef<KakaoMapHandle>(null);
 
-  const [level, setLevel] = useState<SchoolLevelFilter>('all');
-  const [sigungu, setSigungu] = useState<string>('all');
+  // 저장된 로컬 설정(시·군·학교급·집 좌표)이 있으면 선택 과정을 생략하고 곧바로 그 조건의
+  // 결과를 보여준다 (계획 08-2). lazy 초기화: SSR에선 기본값, 클라이언트 첫 렌더에서
+  // localStorage를 읽는다 — myRatings와 동일한 패턴.
+  const [level, setLevel] = useState<SchoolLevelFilter>(
+    () => resolveTargetLevel(readFreshSettings()),
+  );
+  const [sigungu, setSigungu] = useState<string>(
+    () => resolveTargetSigungu(readFreshSettings()) ?? 'all',
+  );
   const [search, setSearch] = useState('');
   const [ownership, setOwnership] = useState<OwnershipFilter>('공립');
   const [indicatorKey, setIndicatorKey] = useState<string>(DEFAULT_INDICATOR_KEY);
@@ -98,6 +145,9 @@ export function StatisticsContainer() {
   // (별점 표시는 학교 선택 후에만 렌더되므로 hydration 불일치 없음).
   const [myRatings, setMyRatings] =
     useState<Record<string, number>>(getMyRatings);
+
+  // 저장된 집 좌표 — 길찾기를 안 켜도 지도에 집모양 마커로 항상 표시한다.
+  const homeCoords = useUserSettingsStore((s) => s.homeCoords);
 
   // 상세 패널이 열리면 조회수 +1 (같은 세션에 이미 본 학교면 hook 내부에서 무시)
   useEffect(() => {
@@ -294,6 +344,7 @@ export function StatisticsContainer() {
               }
               onSelectSchool={handleSelectSchool}
               routeOverlay={routeOverlay}
+              homePosition={homeCoords}
               zoneFeatures={zoneCollectionQuery.data?.features ?? []}
               zoneLink={zoneLink}
             />
@@ -335,6 +386,7 @@ export function StatisticsContainer() {
               onResult={mergeCommuteResult}
               onSelectCode={setCommuteSelected}
               onClose={() => setPanelMode('none')}
+              savedHomeCoords={homeCoords}
             />
           </div>
         </>

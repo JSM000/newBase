@@ -21,10 +21,16 @@ const SCANNED_PATHS = [
   "src/lib/score-calculator.ts",
   "src/lib/transfer-eligibility.ts",
   "src/store/use-score-store.ts",
-  "src/hooks/apis/excel/use-parse-excel.ts",
   "src/types/score.ts",
   "src/containers/score-calculator",
   "src/app/calculator",
+  // 엑셀 업로드·파싱·저장 코드는 전부 이 공용 모달 하나에 모여 있다
+  // (계산기·설정 페이지 둘 다 이걸 연다 — 로컬 설정 계획 05번 참고).
+  "src/components/excel-data-dialog.tsx",
+  "src/containers/settings/settings-container.tsx",
+  "src/store/use-user-settings-store.ts",
+  "src/types/user-settings.ts",
+  "src/app/settings",
 ];
 
 // [패턴, 사람이 읽을 설명]. 정규식은 대소문자 무시.

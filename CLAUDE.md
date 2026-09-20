@@ -4,9 +4,15 @@
 
 교사 학교 전보(이동) 지원 사이트.
 
-**최종 목표**: 전보 점수 계산 + 전보 대상 여부 판단 + 통계 데이터 확인
+**최종 목표**: 전보 점수 계산 + 전보 대상 여부 판단 + 통계 데이터 확인 — **유초등·중고등 모든 학교급 대상**
 
-**현재 완성 범위**: 청주 → 관외 전보 점수 계산 기능
+**현재 완성 범위**: 청주 → 관외 전보 점수 계산 기능 (유초등만 구현됨)
+
+**⚠️ 학교급 범위 관련 — 다른 세션도 반드시 인지할 것**: `src/lib/score-calculator.ts`의 점수 계산 로직은
+현재 유초등(유치원·초등학교) 인사관리기준만 반영돼 있다. **이건 영구적인 설계 제약이 아니라 아직
+개발을 못 한 것뿐**이며, 중학교·고등학교 점수 계산 로직도 추후 구현할 계획이다. "유초등 전용"이라는
+표현을 코드 주석이나 다른 문서에서 보더라도 "앞으로도 계속 유초등만 지원한다"는 뜻으로 오해해서
+설계하지 말 것 — 중고등 확장을 가로막는 방식으로 자료구조·로직을 짜지 않는다.
 
 ## 기술 스택
 
@@ -21,6 +27,7 @@
 | 점수 계산 로직 | `src/lib/score-calculator.ts` |
 | 전보 대상 여부 판단 | `src/lib/transfer-eligibility.ts` |
 | 엑셀 파싱 | `src/lib/excel-parser.ts` (브라우저에서만 실행 — 아래 "개인정보 보호 원칙" 참고) |
+| 엑셀 업로드 UI (공용 모달) | `src/components/excel-data-dialog.tsx` — 계산기·설정 페이지(`/settings`)가 공유. 엑셀 검증·파싱·저장·삭제가 전부 이 안에 있음 |
 | 타입 정의 | `src/types/score.ts` |
 | 전역 상태 | `src/store/use-score-store.ts` |
 | 메인 컨테이너 | `src/containers/score-calculator/` |
@@ -42,7 +49,7 @@
 NEIS 인사기록카드엔 개인정보가 있다. **업로드한 파일과 그 내용(경력·포상·연구실적 등)은 어떤 형태로도 서버로 전송하지 않는다** — `parseExcelFile`(`src/lib/excel-parser.ts`)이 브라우저 안에서 `File.arrayBuffer()`로 바로 파싱하고, 점수 계산(`calculateScore`)도 클라이언트 Zustand 스토어(`use-score-store.ts`)에서 돈다.
 
 **이 불변조건을 지키는 장치들**:
-- `next.config.ts`의 `/calculator/:path*` CSP(`connect-src 'self'` 등) — 코드에 실수로 전송 로직이 들어가도 브라우저가 차단
+- `next.config.ts`의 `/calculator/:path*`·`/settings/:path*` CSP(`connect-src 'self'` 등) — 코드에 실수로 전송 로직이 들어가도 브라우저가 차단 (설정 페이지도 인사기록카드를 직접 업로드·파싱함)
 - `scripts/check-no-network-in-score-calc.mjs` (`npm run check:privacy`) — 점수 계산 관련 파일에서 `fetch`/`axios`/Supabase 등 금지 패턴을 정적으로 스캔, `.github/workflows/privacy-check.yml`로 PR마다 자동 실행
 - `xlsx` 의존성은 npm 레지스트리 최신판(0.18.5, 프로토타입 오염 CVE 미패치)이 아니라 SheetJS 공식 CDN 타르볼(`https://cdn.sheetjs.com/xlsx-0.20.3/...`)로 고정 — 업로드된 파일을 파싱하는 라이브러리라 취약점 영향이 직접적
 

@@ -35,6 +35,8 @@ interface ScoreStore {
   result: CalculationResult | null;
   activeTab: TabType;
   eligibilityInputs: TransferEligibilityInputs;
+  /** 이번 결과가 업로드 직후가 아니라 저장된 로컬 설정에서 자동으로 불러온 것인지 */
+  loadedFromSaved: boolean;
 
   setStep: (step: 'upload' | 'result') => void;
   setParsed: (parsed: ParsedFile | null) => void;
@@ -46,6 +48,7 @@ interface ScoreStore {
     key: K,
     value: TransferEligibilityInputs[K],
   ) => void;
+  setLoadedFromSaved: (v: boolean) => void;
   reset: () => void;
 }
 
@@ -56,6 +59,7 @@ export const useScoreStore = create<ScoreStore>((set, get) => ({
   result: null,
   activeTab: 'eligibility',
   eligibilityInputs: defaultEligibilityInputs,
+  loadedFromSaved: false,
 
   setStep: (step) => set({ step }),
   setParsed: (parsed) => set({ parsed }),
@@ -71,6 +75,7 @@ export const useScoreStore = create<ScoreStore>((set, get) => ({
     set((state) => ({
       eligibilityInputs: { ...state.eligibilityInputs, [key]: value },
     })),
+  setLoadedFromSaved: (loadedFromSaved) => set({ loadedFromSaved }),
   reset: () =>
     set({
       step: 'upload',
@@ -79,5 +84,6 @@ export const useScoreStore = create<ScoreStore>((set, get) => ({
       activeTab: 'eligibility',
       eligibilityInputs: defaultEligibilityInputs,
       inputs: defaultInputs,
+      loadedFromSaved: false,
     }),
 }));
