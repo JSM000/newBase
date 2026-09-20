@@ -54,7 +54,7 @@ const SUB_REGION_MIN_LEVEL = 6; // 이 이상(SIGUNGU 미만): 구/읍/면/동 �
 const FOCUS_LEVEL = 3; // 순위 목록 등에서 특정 학교로 이동할 때 가까이 확대하는 레벨
 
 // 행정구역 채움 투명도 — 지도 라벨·마커가 비쳐 보이도록 낮게.
-const BOUNDARY_FILL_OPACITY = 0.18;
+const BOUNDARY_FILL_OPACITY = 0.14;
 
 function tierOf(level: number): ViewTier {
   if (level >= SIGUNGU_MIN_LEVEL) return 'sigungu';
@@ -103,8 +103,8 @@ export const KakaoMap = forwardRef<KakaoMapHandle, KakaoMapProps>(function Kakao
   const [level, setLevel] = useState(INITIAL_LEVEL);
   // 켜면 줌 레벨과 무관하게 클러스터 없이 모든 학교 개별 마커를 표시
   const [showAllMarkers, setShowAllMarkers] = useState(false);
-  // 시·군 행정구역 경계선 표시 여부
-  const [showBoundaries, setShowBoundaries] = useState(false);
+  // 시·군 행정구역 경계선 표시 여부 — 기본 켜짐
+  const [showBoundaries, setShowBoundaries] = useState(true);
   const viewTier: ViewTier = showAllMarkers ? 'individual' : tierOf(level);
 
   // 행정구역(시·군) 경계선 — 필터·지표와 무관한 정적 데이터
@@ -214,7 +214,7 @@ export const KakaoMap = forwardRef<KakaoMapHandle, KakaoMapProps>(function Kakao
         (rings) =>
           new maps.Polygon({
             path: rings.map(toPath),
-            strokeWeight: 5,
+            strokeWeight: 2,
             strokeColor: '#27272a', // zinc-800
             strokeOpacity: 0.9,
             strokeStyle: 'solid',
@@ -537,7 +537,7 @@ export const KakaoMap = forwardRef<KakaoMapHandle, KakaoMapProps>(function Kakao
       <div ref={containerRef} className="h-full w-full" />
 
       {status === 'ready' && (
-        <div className="absolute right-3 top-3 z-10 flex flex-col items-end gap-2">
+        <div className="absolute left-3 top-3 z-10 flex flex-col items-start gap-2">
           <button
             type="button"
             onClick={() => setShowAllMarkers((v) => !v)}
