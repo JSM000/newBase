@@ -1,10 +1,12 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { cn } from '@/utils/cn';
 import { SidoDetailMap } from '@/components/sido-detail-map';
 import { AppHeader } from '@/components/app-header';
+import { useUserSettingsStore } from '@/store/use-user-settings-store';
+import { isExpired } from '@/lib/settings-retention';
 
 const SIDO_CODE = '33';
 const SIDO_NAME = '충청북도';
@@ -21,6 +23,17 @@ export function RegionSelectContainer() {
 
   const isSupported = sigungu === '청주시' && transferType === 'inter';
   const isUnsupported = transferType !== null && !isSupported;
+
+  // 저장된 근무 지역·전보 의향이 지원 범위(청주시·관외)와 일치하면 지도·모달 선택을
+  // 건너뛰고 곧바로 점수 계산 화면으로 넘어간다 (계획 08-2 확장).
+  useEffect(() => {
+    useUserSettingsStore.persist?.rehydrate();
+    const settings = useUserSettingsStore.getState();
+    if (settings.savedAt && isExpired(settings.savedAt)) return;
+    if (settings.currentSigungu === '청주시' && settings.transferPreference === 'external') {
+      router.replace('/calculator/score');
+    }
+  }, [router]);
 
   const handleModalClose = () => {
     setSigungu(null);

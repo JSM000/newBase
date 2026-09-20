@@ -22,6 +22,8 @@ interface CommutePanelProps {
   onResult: (r: RouteRankingResponse | null) => void;
   onSelectCode: (code: string | null) => void;
   onClose: () => void;
+  /** 설정 페이지에 저장해둔 집 좌표 — 있으면 주소 재검색 없이 한 번의 클릭으로 바로 쓸 수 있다 */
+  savedHomeCoords?: { lat: number; lng: number } | null;
 }
 
 /**
@@ -44,6 +46,7 @@ export function CommutePanel({
   onResult,
   onSelectCode,
   onClose,
+  savedHomeCoords,
 }: CommutePanelProps) {
   const geocode = useGeocodeCandidates();
   const ranking = useRouteRanking();
@@ -106,6 +109,22 @@ export function CommutePanel({
     setPickedOrigin(c);
     setCandidates(null);
     runRanking(c, 0);
+  }
+
+  /** 설정 페이지에 저장해둔 집 좌표를 바로 출발지로 — 주소 검색 없이 한 번의 클릭. */
+  function useSavedHome() {
+    if (!ready || !savedHomeCoords || ranking.isPending) return;
+    const origin: GeocodeCandidate = {
+      label: '저장된 집 위치',
+      roadAddress: null,
+      addressType: 'SAVED',
+      source: 'address',
+      lat: savedHomeCoords.lat,
+      lng: savedHomeCoords.lng,
+    };
+    setCandidates(null);
+    setPickedOrigin(origin);
+    runRanking(origin, 0);
   }
 
   function loadMore() {
@@ -178,6 +197,16 @@ export function CommutePanel({
             {geocode.isPending ? '검색 중' : cooling ? `${cooldownSec}초` : '검색'}
           </button>
         </div>
+        {savedHomeCoords && (
+          <button
+            type="button"
+            onClick={useSavedHome}
+            disabled={!ready || ranking.isPending}
+            className="mt-2 text-xs font-semibold text-primary hover:underline disabled:cursor-not-allowed disabled:text-zinc-300 disabled:no-underline"
+          >
+            저장된 집 위치로 검색
+          </button>
+        )}
         {pickedOrigin && !candidates && (
           <p className="mt-2 truncate text-xs text-zinc-400">
             출발지: <span className="text-zinc-600">{pickedOrigin.label}</span>
@@ -219,11 +248,6 @@ export function CommutePanel({
                   {c.addressType === 'REGION' && (
                     <span className="inline-block rounded bg-amber-50 px-1.5 py-0.5 text-[10px] font-medium text-amber-700">
                       동·읍·면 단위 근사치 — 정확한 지번을 아신다면 다시 입력해 보세요
-                    </span>
-                  )}
-                  {c.source === 'keyword' && (
-                    <span className="inline-block rounded bg-zinc-100 px-1.5 py-0.5 text-[10px] font-medium text-zinc-500">
-                      장소명 검색 결과
                     </span>
                   )}
                 </button>

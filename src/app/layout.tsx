@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import './globals.css';
 import { QueryProvider } from '@/components/provider/query-provider';
+import { SettingsExpiryCheck } from '@/components/provider/settings-expiry-check';
 
 export const metadata: Metadata = {
   title: '관외전보 점수 계산기 | 유초등 교사',
@@ -21,7 +22,10 @@ export default function RootLayout({
         />
       </head>
       <body className="min-h-screen antialiased">
-        <QueryProvider>{children}</QueryProvider>
+        <QueryProvider>
+          <SettingsExpiryCheck />
+          {children}
+        </QueryProvider>
       </body>
     </html>
   );

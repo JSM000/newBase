@@ -1,10 +1,16 @@
 'use client';
 
 import Link from 'next/link';
-import { Calculator, Map as MapIcon } from 'lucide-react';
+import { Calculator, Map as MapIcon, CircleUserRound } from 'lucide-react';
 import { AppHeader } from '@/components/app-header';
 
 const MENUS = [
+  {
+    href: '/settings',
+    icon: CircleUserRound,
+    title: '내 정보 설정',
+    desc: '지역가산·우대가산 등 자주 쓰는 개인 정보를 미리 저장해두고 다음에도 자동으로 불러옵니다.',
+  },
   {
     href: '/calculator',
     icon: Calculator,
@@ -27,9 +33,12 @@ export function HomeContainer() {
         subtitle="전보를 준비하는 교사를 위한 서비스"
       />
 
-      <main className="mx-auto w-full max-w-xl flex-1 px-6 py-10">
+      <main className="mx-auto w-full max-w-5xl flex-1 px-6 py-10">
 
-        <div className="grid items-start gap-4 sm:grid-cols-2">
+        {/* auto-fit: 정해진 칸 수(sm:grid-cols-2 등) 대신, 카드 하나가 최소 280px을 확보하는 한도 내에서
+            화면 폭에 맞춰 한 줄에 들어갈 수 있는 만큼 채우고, 넘치면 다음 줄로 넘어간다.
+            카드 개수가 늘어도 이 값만 유지하면 계속 반응형으로 동작한다. */}
+        <div className="grid items-start gap-4 [grid-template-columns:repeat(auto-fit,minmax(280px,1fr))]">
           {MENUS.map((menu) => {
             const Icon = menu.icon;
             return (

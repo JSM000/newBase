@@ -1,7 +1,8 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useScoreStore, TabType } from '@/store/use-score-store';
+import { useUserSettingsStore } from '@/store/use-user-settings-store';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { fmt } from '@/utils/formatter';
@@ -34,6 +35,9 @@ export function ResultSection() {
   const setActiveTab = useScoreStore((state) => state.setActiveTab);
   const reset = useScoreStore((state) => state.reset);
   const eligibilityInputs = useScoreStore((state) => state.eligibilityInputs);
+  const loadedFromSaved = useScoreStore((state) => state.loadedFromSaved);
+  const saveParsedFile = useUserSettingsStore((state) => state.saveParsedFile);
+  const [justSaved, setJustSaved] = useState(false);
 
   const eligibility = result
     ? calculateTransferEligibility(result, eligibilityInputs)
@@ -85,6 +89,29 @@ export function ResultSection() {
               ))}
             </AlertDescription>
           </Alert>
+        )}
+
+        {parsed && (
+          <div className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-primary-200 bg-primary-50 px-4 py-2.5 text-sm text-primary-700">
+            {loadedFromSaved ? (
+              <span>저장된 이전 데이터를 자동으로 불러왔습니다. (새로 업로드하려면 위 &quot;업로드&quot;를 눌러주세요)</span>
+            ) : (
+              <>
+                <span>이 결과를 이 기기에 저장해두면 다음 방문 때 자동으로 불러옵니다.</span>
+                <button
+                  type="button"
+                  disabled={justSaved}
+                  onClick={() => {
+                    saveParsedFile(parsed);
+                    setJustSaved(true);
+                  }}
+                  className="shrink-0 rounded-md bg-primary px-3 py-1 text-xs font-semibold text-white hover:bg-primary-600 disabled:opacity-60"
+                >
+                  {justSaved ? '저장됨' : '이 기기에 저장'}
+                </button>
+              </>
+            )}
+          </div>
         )}
 
         {result && (

@@ -7,7 +7,27 @@ import { cn } from '@/utils/cn';
 
 const Select = SelectPrimitive.Root;
 const SelectGroup = SelectPrimitive.Group;
-const SelectValue = SelectPrimitive.Value;
+
+// Radix Select.Value는 <input> 이 아니라 <span>에 렌더되기 때문에 트리거의
+// `placeholder:text-muted-foreground`(CSS ::placeholder 의사요소 기반) 가 전혀
+// 먹히지 않는다 — placeholder 문자열을 직접 회색으로 감싸서 실제로 흐리게 보이게 한다.
+function SelectValue({
+  placeholder,
+  ...props
+}: React.ComponentPropsWithoutRef<typeof SelectPrimitive.Value>) {
+  return (
+    <SelectPrimitive.Value
+      placeholder={
+        typeof placeholder === 'string' ? (
+          <span className="text-muted-foreground">{placeholder}</span>
+        ) : (
+          placeholder
+        )
+      }
+      {...props}
+    />
+  );
+}
 
 const SelectTrigger = React.forwardRef<
   React.ElementRef<typeof SelectPrimitive.Trigger>,
@@ -16,7 +36,7 @@ const SelectTrigger = React.forwardRef<
   <SelectPrimitive.Trigger
     ref={ref}
     className={cn(
-      'flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 [&>span]:line-clamp-1',
+      'flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 [&>span]:line-clamp-1',
       className,
     )}
     {...props}
