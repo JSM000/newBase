@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-09-03T15:53:17.754Z",
+  "generatedAt": "2026-09-20T14:32:31.619Z",
   "source": {
     "api": "schoolinfo.go.kr openApi.do",
     "datasets": [
@@ -86,6 +86,7 @@
           "healthTeacherCount",
           "nutritionTeacherCount",
           "librarianTeacherCount",
+          "counselorTeacherCount",
           "teacherStatusExcludedReason"
         ],
         "excludedReasonField": "teacherStatusExcludedReason",
@@ -98,6 +99,7 @@
           "healthTeacherCount": "COL_9",
           "nutritionTeacherCount": "COL_10",
           "librarianTeacherCount": "COL_7",
+          "counselorTeacherCount": "COL_6",
           "teacherStatusExcludedReason": "PBAN_EXCP_RSN"
         }
       },
@@ -395,6 +397,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 1,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 1,
       "specialistSubjectTeacherEstimate": 2,
       "specialistSubjectTeacherBySubject": {
         "국어": 0,
@@ -487,6 +490,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 1,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherEstimate": 1,
       "specialistSubjectTeacherBySubject": {
         "국어": 0,
@@ -580,6 +584,7 @@
       "healthTeacherCount": null,
       "nutritionTeacherCount": null,
       "librarianTeacherCount": null,
+      "counselorTeacherCount": null,
       "teacherStatusExcludedReason": null,
       "specialistSubjectTeacherEstimate": null,
       "specialistSubjectTeacherBySubject": null,
@@ -657,6 +662,7 @@
       "healthTeacherCount": null,
       "nutritionTeacherCount": null,
       "librarianTeacherCount": null,
+      "counselorTeacherCount": null,
       "teacherStatusExcludedReason": null,
       "specialistSubjectTeacherEstimate": null,
       "specialistSubjectTeacherBySubject": null,
@@ -733,6 +739,7 @@
       "healthTeacherCount": 0,
       "nutritionTeacherCount": 0,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherEstimate": 1,
       "specialistSubjectTeacherBySubject": {
         "국어": 0,
@@ -825,6 +832,7 @@
       "healthTeacherCount": 0,
       "nutritionTeacherCount": 0,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherEstimate": 0,
       "specialistSubjectTeacherBySubject": {
         "국어": 0,
@@ -917,6 +925,7 @@
       "healthTeacherCount": 0,
       "nutritionTeacherCount": 0,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherEstimate": 0,
       "specialistSubjectTeacherBySubject": {
         "국어": 0,
@@ -1009,6 +1018,7 @@
       "healthTeacherCount": 2,
       "nutritionTeacherCount": 1,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 1,
       "specialistSubjectTeacherEstimate": 6,
       "specialistSubjectTeacherBySubject": {
         "국어": 1,
@@ -1101,6 +1111,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 1,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherEstimate": 0,
       "specialistSubjectTeacherBySubject": {
         "국어": 0,
@@ -1193,6 +1204,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 1,
       "librarianTeacherCount": 2,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherEstimate": 2,
       "specialistSubjectTeacherBySubject": {
         "국어": 1,
@@ -1285,6 +1297,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 1,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherEstimate": 1,
       "specialistSubjectTeacherBySubject": {
         "국어": 0,
@@ -1377,6 +1390,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 1,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherEstimate": 1,
       "specialistSubjectTeacherBySubject": {
         "국어": 0,
@@ -1469,6 +1483,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 1,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 1,
       "specialistSubjectTeacherEstimate": 5,
       "specialistSubjectTeacherBySubject": {
         "국어": 0,
@@ -1562,6 +1577,7 @@
       "healthTeacherCount": null,
       "nutritionTeacherCount": null,
       "librarianTeacherCount": null,
+      "counselorTeacherCount": null,
       "teacherStatusExcludedReason": null,
       "specialistSubjectTeacherEstimate": null,
       "specialistSubjectTeacherBySubject": null,
@@ -1638,6 +1654,7 @@
       "healthTeacherCount": 2,
       "nutritionTeacherCount": 1,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherEstimate": 5,
       "specialistSubjectTeacherBySubject": {
         "국어": 0,
@@ -1730,6 +1747,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 1,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherEstimate": 1,
       "specialistSubjectTeacherBySubject": {
         "국어": 0,
@@ -1822,6 +1840,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 1,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherEstimate": 1,
       "specialistSubjectTeacherBySubject": {
         "국어": 0,
@@ -1914,6 +1933,7 @@
       "healthTeacherCount": 0,
       "nutritionTeacherCount": 1,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherEstimate": 0,
       "specialistSubjectTeacherBySubject": {
         "국어": 0,
@@ -2006,6 +2026,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 1,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherEstimate": 1,
       "specialistSubjectTeacherBySubject": {
         "국어": 0,
@@ -2098,6 +2119,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 1,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 1,
       "specialistSubjectTeacherEstimate": 4,
       "specialistSubjectTeacherBySubject": {
         "국어": 0,
@@ -2190,6 +2212,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 1,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherEstimate": 0,
       "specialistSubjectTeacherBySubject": {
         "국어": 0,
@@ -2282,6 +2305,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 1,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherEstimate": 1,
       "specialistSubjectTeacherBySubject": {
         "국어": 0,
@@ -2374,6 +2398,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 1,
       "librarianTeacherCount": 1,
+      "counselorTeacherCount": 1,
       "specialistSubjectTeacherEstimate": 6,
       "specialistSubjectTeacherBySubject": {
         "국어": 1,
@@ -2466,6 +2491,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 1,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherEstimate": 0,
       "specialistSubjectTeacherBySubject": {
         "국어": 0,
@@ -2558,6 +2584,7 @@
       "healthTeacherCount": 0,
       "nutritionTeacherCount": 1,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherEstimate": 1,
       "specialistSubjectTeacherBySubject": {
         "국어": 0,
@@ -2650,6 +2677,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 1,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherEstimate": 0,
       "specialistSubjectTeacherBySubject": {
         "국어": 0,
@@ -2742,6 +2770,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 0,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherEstimate": 1,
       "specialistSubjectTeacherBySubject": {
         "국어": 0,
@@ -2834,6 +2863,7 @@
       "healthTeacherCount": 0,
       "nutritionTeacherCount": 0,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherEstimate": 0,
       "specialistSubjectTeacherBySubject": {
         "국어": 0,
@@ -2926,6 +2956,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 1,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 1,
       "specialistSubjectTeacherEstimate": 3,
       "specialistSubjectTeacherBySubject": {
         "국어": 0,
@@ -3018,6 +3049,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 1,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherEstimate": 0,
       "specialistSubjectTeacherBySubject": {
         "국어": 0,
@@ -3110,6 +3142,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 1,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherEstimate": 4,
       "specialistSubjectTeacherBySubject": {
         "국어": 0,
@@ -3202,6 +3235,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 1,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 1,
       "specialistSubjectTeacherEstimate": 2,
       "specialistSubjectTeacherBySubject": {
         "국어": 1,
@@ -3295,6 +3329,7 @@
       "healthTeacherCount": null,
       "nutritionTeacherCount": null,
       "librarianTeacherCount": null,
+      "counselorTeacherCount": null,
       "teacherStatusExcludedReason": null,
       "specialistSubjectTeacherEstimate": null,
       "specialistSubjectTeacherBySubject": null,
@@ -3371,6 +3406,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 2,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherEstimate": 1,
       "specialistSubjectTeacherBySubject": {
         "국어": 0,
@@ -3463,6 +3499,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 1,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherEstimate": 1,
       "specialistSubjectTeacherBySubject": {
         "국어": 0,
@@ -3555,6 +3592,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 1,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherEstimate": 1,
       "specialistSubjectTeacherBySubject": {
         "국어": 0,
@@ -3647,6 +3685,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 1,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 1,
       "specialistSubjectTeacherEstimate": 6,
       "specialistSubjectTeacherBySubject": {
         "국어": 1,
@@ -3740,6 +3779,7 @@
       "healthTeacherCount": null,
       "nutritionTeacherCount": null,
       "librarianTeacherCount": null,
+      "counselorTeacherCount": null,
       "teacherStatusExcludedReason": null,
       "specialistSubjectTeacherEstimate": null,
       "specialistSubjectTeacherBySubject": null,
@@ -3816,6 +3856,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 1,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherEstimate": 1,
       "specialistSubjectTeacherBySubject": {
         "국어": 0,
@@ -3909,6 +3950,7 @@
       "healthTeacherCount": null,
       "nutritionTeacherCount": null,
       "librarianTeacherCount": null,
+      "counselorTeacherCount": null,
       "teacherStatusExcludedReason": null,
       "specialistSubjectTeacherEstimate": null,
       "specialistSubjectTeacherBySubject": null,
@@ -3985,6 +4027,7 @@
       "healthTeacherCount": 0,
       "nutritionTeacherCount": 1,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherEstimate": 0,
       "specialistSubjectTeacherBySubject": {
         "국어": 0,
@@ -4077,6 +4120,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 1,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherEstimate": 2,
       "specialistSubjectTeacherBySubject": {
         "국어": 0,
@@ -4169,6 +4213,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 1,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherEstimate": 1,
       "specialistSubjectTeacherBySubject": {
         "국어": 0,
@@ -4261,6 +4306,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 1,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherEstimate": 0,
       "specialistSubjectTeacherBySubject": {
         "국어": 0,
@@ -4354,6 +4400,7 @@
       "healthTeacherCount": null,
       "nutritionTeacherCount": null,
       "librarianTeacherCount": null,
+      "counselorTeacherCount": null,
       "teacherStatusExcludedReason": null,
       "specialistSubjectTeacherEstimate": null,
       "specialistSubjectTeacherBySubject": null,
@@ -4431,6 +4478,7 @@
       "healthTeacherCount": null,
       "nutritionTeacherCount": null,
       "librarianTeacherCount": null,
+      "counselorTeacherCount": null,
       "teacherStatusExcludedReason": null,
       "specialistSubjectTeacherEstimate": null,
       "specialistSubjectTeacherBySubject": null,
@@ -4507,6 +4555,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 0,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherEstimate": 4,
       "specialistSubjectTeacherBySubject": {
         "국어": 0,
@@ -4599,6 +4648,7 @@
       "healthTeacherCount": 0,
       "nutritionTeacherCount": 1,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherEstimate": 0,
       "specialistSubjectTeacherBySubject": {
         "국어": 0,
@@ -4691,6 +4741,7 @@
       "healthTeacherCount": 2,
       "nutritionTeacherCount": 1,
       "librarianTeacherCount": 1,
+      "counselorTeacherCount": 1,
       "specialistSubjectTeacherEstimate": 6,
       "specialistSubjectTeacherBySubject": {
         "국어": 0,
@@ -4783,6 +4834,7 @@
       "healthTeacherCount": 0,
       "nutritionTeacherCount": 1,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherEstimate": 1,
       "specialistSubjectTeacherBySubject": {
         "국어": 0,
@@ -4876,6 +4928,7 @@
       "healthTeacherCount": null,
       "nutritionTeacherCount": null,
       "librarianTeacherCount": null,
+      "counselorTeacherCount": null,
       "teacherStatusExcludedReason": null,
       "specialistSubjectTeacherEstimate": null,
       "specialistSubjectTeacherBySubject": null,
@@ -4952,6 +5005,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 1,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherEstimate": 0,
       "specialistSubjectTeacherBySubject": {
         "국어": 0,
@@ -5044,6 +5098,7 @@
       "healthTeacherCount": 0,
       "nutritionTeacherCount": 0,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherEstimate": 0,
       "specialistSubjectTeacherBySubject": {
         "국어": 0,
@@ -5136,6 +5191,7 @@
       "healthTeacherCount": 0,
       "nutritionTeacherCount": 1,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherEstimate": 0,
       "specialistSubjectTeacherBySubject": {
         "국어": 0,
@@ -5228,6 +5284,7 @@
       "healthTeacherCount": 0,
       "nutritionTeacherCount": 1,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherEstimate": 1,
       "specialistSubjectTeacherBySubject": {
         "국어": 0,
@@ -5321,6 +5378,7 @@
       "healthTeacherCount": null,
       "nutritionTeacherCount": null,
       "librarianTeacherCount": null,
+      "counselorTeacherCount": null,
       "teacherStatusExcludedReason": null,
       "specialistSubjectTeacherEstimate": null,
       "specialistSubjectTeacherBySubject": null,
@@ -5397,6 +5455,7 @@
       "healthTeacherCount": 0,
       "nutritionTeacherCount": 0,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherEstimate": 0,
       "specialistSubjectTeacherBySubject": {
         "국어": 0,
@@ -5489,6 +5548,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 1,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherEstimate": 0,
       "specialistSubjectTeacherBySubject": {
         "국어": 0,
@@ -5582,6 +5642,7 @@
       "healthTeacherCount": null,
       "nutritionTeacherCount": null,
       "librarianTeacherCount": null,
+      "counselorTeacherCount": null,
       "teacherStatusExcludedReason": null,
       "specialistSubjectTeacherEstimate": null,
       "specialistSubjectTeacherBySubject": null,
@@ -5659,6 +5720,7 @@
       "healthTeacherCount": null,
       "nutritionTeacherCount": null,
       "librarianTeacherCount": null,
+      "counselorTeacherCount": null,
       "teacherStatusExcludedReason": null,
       "specialistSubjectTeacherEstimate": null,
       "specialistSubjectTeacherBySubject": null,
@@ -5736,6 +5798,7 @@
       "healthTeacherCount": null,
       "nutritionTeacherCount": null,
       "librarianTeacherCount": null,
+      "counselorTeacherCount": null,
       "teacherStatusExcludedReason": null,
       "specialistSubjectTeacherEstimate": null,
       "specialistSubjectTeacherBySubject": null,
@@ -5812,6 +5875,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 2,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherEstimate": 3,
       "specialistSubjectTeacherBySubject": {
         "국어": 0,
@@ -5904,6 +5968,7 @@
       "healthTeacherCount": 2,
       "nutritionTeacherCount": 1,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherEstimate": 2,
       "specialistSubjectTeacherBySubject": {
         "국어": 0,
@@ -5996,6 +6061,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 1,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherEstimate": 1,
       "specialistSubjectTeacherBySubject": {
         "국어": 0,
@@ -6088,6 +6154,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 1,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherEstimate": 1,
       "specialistSubjectTeacherBySubject": {
         "국어": 0,
@@ -6180,6 +6247,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 1,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 1,
       "specialistSubjectTeacherEstimate": 4,
       "specialistSubjectTeacherBySubject": {
         "국어": 0,
@@ -6273,6 +6341,7 @@
       "healthTeacherCount": null,
       "nutritionTeacherCount": null,
       "librarianTeacherCount": null,
+      "counselorTeacherCount": null,
       "teacherStatusExcludedReason": null,
       "specialistSubjectTeacherEstimate": null,
       "specialistSubjectTeacherBySubject": null,
@@ -6349,6 +6418,7 @@
       "healthTeacherCount": 0,
       "nutritionTeacherCount": 0,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherEstimate": 0,
       "specialistSubjectTeacherBySubject": {
         "국어": 0,
@@ -6441,6 +6511,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 1,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherEstimate": 4,
       "specialistSubjectTeacherBySubject": {
         "국어": 0,
@@ -6533,6 +6604,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 1,
       "librarianTeacherCount": 1,
+      "counselorTeacherCount": 1,
       "specialistSubjectTeacherEstimate": 7,
       "specialistSubjectTeacherBySubject": {
         "국어": 0,
@@ -6625,6 +6697,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 1,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherEstimate": 0,
       "specialistSubjectTeacherBySubject": {
         "국어": 0,
@@ -6717,6 +6790,7 @@
       "healthTeacherCount": 0,
       "nutritionTeacherCount": 0,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherEstimate": 1,
       "specialistSubjectTeacherBySubject": {
         "국어": 3,
@@ -6809,6 +6883,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 0,
       "librarianTeacherCount": 1,
+      "counselorTeacherCount": 1,
       "specialistSubjectTeacherEstimate": 2,
       "specialistSubjectTeacherBySubject": {
         "국어": 0,
@@ -6901,6 +6976,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 2,
       "librarianTeacherCount": 1,
+      "counselorTeacherCount": 1,
       "specialistSubjectTeacherEstimate": 9,
       "specialistSubjectTeacherBySubject": {
         "국어": 0,
@@ -6993,6 +7069,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 0,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherEstimate": 2,
       "specialistSubjectTeacherBySubject": {
         "국어": 0,
@@ -7085,6 +7162,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 2,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherEstimate": 1,
       "specialistSubjectTeacherBySubject": {
         "국어": 0,
@@ -7177,6 +7255,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 2,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherEstimate": 5,
       "specialistSubjectTeacherBySubject": {
         "국어": 0,
@@ -7269,6 +7348,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 1,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 1,
       "specialistSubjectTeacherEstimate": 7,
       "specialistSubjectTeacherBySubject": {
         "국어": 1,
@@ -7361,6 +7441,7 @@
       "healthTeacherCount": 0,
       "nutritionTeacherCount": 0,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherEstimate": 0,
       "specialistSubjectTeacherBySubject": {
         "국어": 0,
@@ -7453,6 +7534,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 1,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 1,
       "specialistSubjectTeacherEstimate": 2,
       "specialistSubjectTeacherBySubject": {
         "국어": 0,
@@ -7545,6 +7627,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 1,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 1,
       "specialistSubjectTeacherEstimate": 1,
       "specialistSubjectTeacherBySubject": {
         "국어": 0,
@@ -7637,6 +7720,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 1,
       "librarianTeacherCount": 1,
+      "counselorTeacherCount": 1,
       "specialistSubjectTeacherEstimate": 8,
       "specialistSubjectTeacherBySubject": {
         "국어": 0,
@@ -7729,6 +7813,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 1,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 1,
       "specialistSubjectTeacherEstimate": 4,
       "specialistSubjectTeacherBySubject": {
         "국어": 0,
@@ -7821,6 +7906,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 1,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherEstimate": 1,
       "specialistSubjectTeacherBySubject": {
         "국어": 0,
@@ -7913,6 +7999,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 1,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 1,
       "specialistSubjectTeacherEstimate": 1,
       "specialistSubjectTeacherBySubject": {
         "국어": 0,
@@ -8005,6 +8092,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 0,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherEstimate": 3,
       "specialistSubjectTeacherBySubject": {
         "국어": 0,
@@ -8097,6 +8185,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 1,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherEstimate": 1,
       "specialistSubjectTeacherBySubject": {
         "국어": 0,
@@ -8187,6 +8276,7 @@
       "healthTeacherCount": null,
       "nutritionTeacherCount": null,
       "librarianTeacherCount": null,
+      "counselorTeacherCount": null,
       "teacherStatusExcludedReason": null,
       "specialistSubjectTeacherEstimate": null,
       "specialistSubjectTeacherBySubject": null,
@@ -8263,6 +8353,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 1,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherEstimate": 0,
       "specialistSubjectTeacherBySubject": {
         "국어": 0,
@@ -8355,6 +8446,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 1,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherEstimate": 0,
       "specialistSubjectTeacherBySubject": {
         "국어": 0,
@@ -8447,6 +8539,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 0,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherEstimate": 1,
       "specialistSubjectTeacherBySubject": {
         "국어": 0,
@@ -8539,6 +8632,7 @@
       "healthTeacherCount": 0,
       "nutritionTeacherCount": 0,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherEstimate": 0,
       "specialistSubjectTeacherBySubject": {
         "국어": 0,
@@ -8632,6 +8726,7 @@
       "healthTeacherCount": null,
       "nutritionTeacherCount": null,
       "librarianTeacherCount": null,
+      "counselorTeacherCount": null,
       "teacherStatusExcludedReason": null,
       "specialistSubjectTeacherEstimate": null,
       "specialistSubjectTeacherBySubject": null,
@@ -8708,6 +8803,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 1,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherEstimate": 0,
       "specialistSubjectTeacherBySubject": {
         "국어": 0,
@@ -8800,6 +8896,7 @@
       "healthTeacherCount": 0,
       "nutritionTeacherCount": 0,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherEstimate": 0,
       "specialistSubjectTeacherBySubject": {
         "국어": 0,
@@ -8892,6 +8989,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 1,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherEstimate": 1,
       "specialistSubjectTeacherBySubject": {
         "국어": 0,
@@ -8984,6 +9082,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 1,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherEstimate": 0,
       "specialistSubjectTeacherBySubject": {
         "국어": 0,
@@ -9076,6 +9175,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 1,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherEstimate": 0,
       "specialistSubjectTeacherBySubject": {
         "국어": 0,
@@ -9169,6 +9269,7 @@
       "healthTeacherCount": null,
       "nutritionTeacherCount": null,
       "librarianTeacherCount": null,
+      "counselorTeacherCount": null,
       "teacherStatusExcludedReason": null,
       "specialistSubjectTeacherEstimate": null,
       "specialistSubjectTeacherBySubject": null,
@@ -9245,6 +9346,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 1,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherEstimate": 0,
       "specialistSubjectTeacherBySubject": {
         "국어": 0,
@@ -9338,6 +9440,7 @@
       "healthTeacherCount": null,
       "nutritionTeacherCount": null,
       "librarianTeacherCount": null,
+      "counselorTeacherCount": null,
       "teacherStatusExcludedReason": null,
       "specialistSubjectTeacherEstimate": null,
       "specialistSubjectTeacherBySubject": null,
@@ -9414,6 +9517,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 1,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherEstimate": 4,
       "specialistSubjectTeacherBySubject": {
         "국어": 0,
@@ -9506,6 +9610,7 @@
       "healthTeacherCount": 2,
       "nutritionTeacherCount": 1,
       "librarianTeacherCount": 1,
+      "counselorTeacherCount": 1,
       "specialistSubjectTeacherEstimate": 12,
       "specialistSubjectTeacherBySubject": {
         "국어": 0,
@@ -9598,6 +9703,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 0,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherEstimate": 4,
       "specialistSubjectTeacherBySubject": {
         "국어": 0,
@@ -9690,6 +9796,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 1,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherEstimate": 4,
       "specialistSubjectTeacherBySubject": {
         "국어": 5,
@@ -9782,6 +9889,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 1,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherEstimate": 1,
       "specialistSubjectTeacherBySubject": {
         "국어": 0,
@@ -9874,6 +9982,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 1,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 1,
       "specialistSubjectTeacherEstimate": 2,
       "specialistSubjectTeacherBySubject": {
         "국어": 0,
@@ -9966,6 +10075,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 0,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherEstimate": 0,
       "specialistSubjectTeacherBySubject": {
         "국어": 0,
@@ -10058,6 +10168,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 1,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherEstimate": 0,
       "specialistSubjectTeacherBySubject": {
         "국어": 0,
@@ -10150,6 +10261,7 @@
       "healthTeacherCount": 0,
       "nutritionTeacherCount": 0,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherEstimate": 1,
       "specialistSubjectTeacherBySubject": {
         "국어": 0,
@@ -10242,6 +10354,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 1,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 1,
       "specialistSubjectTeacherEstimate": 4,
       "specialistSubjectTeacherBySubject": {
         "국어": 0,
@@ -10334,6 +10447,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 1,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherEstimate": 5,
       "specialistSubjectTeacherBySubject": {
         "국어": 0,
@@ -10426,6 +10540,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 2,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherEstimate": 0,
       "specialistSubjectTeacherBySubject": {
         "국어": 0,
@@ -10518,6 +10633,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 1,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherEstimate": 2,
       "specialistSubjectTeacherBySubject": {
         "국어": 0,
@@ -10610,6 +10726,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 1,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherEstimate": 5,
       "specialistSubjectTeacherBySubject": {
         "국어": 0,
@@ -10702,6 +10819,7 @@
       "healthTeacherCount": 2,
       "nutritionTeacherCount": 0,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 1,
       "specialistSubjectTeacherEstimate": 6,
       "specialistSubjectTeacherBySubject": {
         "국어": 0,
@@ -10794,6 +10912,7 @@
       "healthTeacherCount": 2,
       "nutritionTeacherCount": 1,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 1,
       "specialistSubjectTeacherEstimate": 7,
       "specialistSubjectTeacherBySubject": {
         "국어": 1,
@@ -10887,6 +11006,7 @@
       "healthTeacherCount": null,
       "nutritionTeacherCount": null,
       "librarianTeacherCount": null,
+      "counselorTeacherCount": null,
       "teacherStatusExcludedReason": null,
       "specialistSubjectTeacherEstimate": null,
       "specialistSubjectTeacherBySubject": null,
@@ -10963,6 +11083,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 2,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherEstimate": 0,
       "specialistSubjectTeacherBySubject": {
         "국어": 0,
@@ -11055,6 +11176,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 1,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 1,
       "specialistSubjectTeacherEstimate": 6,
       "specialistSubjectTeacherBySubject": {
         "국어": 1,
@@ -11147,6 +11269,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 1,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 1,
       "specialistSubjectTeacherEstimate": 3,
       "specialistSubjectTeacherBySubject": {
         "국어": 0,
@@ -11239,6 +11362,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 1,
       "librarianTeacherCount": 1,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherEstimate": 7,
       "specialistSubjectTeacherBySubject": {
         "국어": 0,
@@ -11331,6 +11455,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 1,
       "librarianTeacherCount": 1,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherEstimate": 10,
       "specialistSubjectTeacherBySubject": {
         "국어": 0,
@@ -11423,6 +11548,7 @@
       "healthTeacherCount": 0,
       "nutritionTeacherCount": 0,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherEstimate": 0,
       "specialistSubjectTeacherBySubject": {
         "국어": 0,
@@ -11516,6 +11642,7 @@
       "healthTeacherCount": null,
       "nutritionTeacherCount": null,
       "librarianTeacherCount": null,
+      "counselorTeacherCount": null,
       "teacherStatusExcludedReason": null,
       "specialistSubjectTeacherEstimate": null,
       "specialistSubjectTeacherBySubject": null,
@@ -11592,6 +11719,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 1,
       "librarianTeacherCount": 1,
+      "counselorTeacherCount": 1,
       "specialistSubjectTeacherEstimate": 1,
       "specialistSubjectTeacherBySubject": {
         "국어": 0,
@@ -11684,6 +11812,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 1,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherEstimate": 0,
       "specialistSubjectTeacherBySubject": {
         "국어": 0,
@@ -11776,6 +11905,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 1,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 1,
       "specialistSubjectTeacherEstimate": 5,
       "specialistSubjectTeacherBySubject": {
         "국어": 0,
@@ -11868,6 +11998,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 0,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 1,
       "specialistSubjectTeacherEstimate": 7,
       "specialistSubjectTeacherBySubject": {
         "국어": 0,
@@ -11960,6 +12091,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 1,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherEstimate": 0,
       "specialistSubjectTeacherBySubject": {
         "국어": 0,
@@ -12052,6 +12184,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 1,
       "librarianTeacherCount": 1,
+      "counselorTeacherCount": 1,
       "specialistSubjectTeacherEstimate": 5,
       "specialistSubjectTeacherBySubject": {
         "국어": 0,
@@ -12144,6 +12277,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 1,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 1,
       "specialistSubjectTeacherEstimate": 4,
       "specialistSubjectTeacherBySubject": {
         "국어": 0,
@@ -12236,6 +12370,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 1,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherEstimate": 2,
       "specialistSubjectTeacherBySubject": {
         "국어": 0,
@@ -12328,6 +12463,7 @@
       "healthTeacherCount": 0,
       "nutritionTeacherCount": 0,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherEstimate": 0,
       "specialistSubjectTeacherBySubject": {
         "국어": 0,
@@ -12420,6 +12556,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 2,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherEstimate": 5,
       "specialistSubjectTeacherBySubject": {
         "국어": 0,
@@ -12512,6 +12649,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 0,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherEstimate": 3,
       "specialistSubjectTeacherBySubject": {
         "국어": 0,
@@ -12604,6 +12742,7 @@
       "healthTeacherCount": 0,
       "nutritionTeacherCount": 0,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherEstimate": 0,
       "specialistSubjectTeacherBySubject": {
         "국어": 0,
@@ -12696,6 +12835,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 1,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherEstimate": 0,
       "specialistSubjectTeacherBySubject": {
         "국어": 0,
@@ -12788,6 +12928,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 1,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 1,
       "specialistSubjectTeacherEstimate": 4,
       "specialistSubjectTeacherBySubject": {
         "국어": 0,
@@ -12880,6 +13021,7 @@
       "healthTeacherCount": 0,
       "nutritionTeacherCount": 1,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherEstimate": 0,
       "specialistSubjectTeacherBySubject": {
         "국어": 0,
@@ -12972,6 +13114,7 @@
       "healthTeacherCount": 0,
       "nutritionTeacherCount": 0,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherEstimate": 0,
       "specialistSubjectTeacherBySubject": {
         "국어": 0,
@@ -13064,6 +13207,7 @@
       "healthTeacherCount": 0,
       "nutritionTeacherCount": 0,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherEstimate": 0,
       "specialistSubjectTeacherBySubject": {
         "국어": 0,
@@ -13156,6 +13300,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 1,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherEstimate": 1,
       "specialistSubjectTeacherBySubject": {
         "국어": 0,
@@ -13248,6 +13393,7 @@
       "healthTeacherCount": 0,
       "nutritionTeacherCount": 0,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherEstimate": 0,
       "specialistSubjectTeacherBySubject": {
         "국어": 0,
@@ -13340,6 +13486,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 2,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherEstimate": 0,
       "specialistSubjectTeacherBySubject": {
         "국어": 0,
@@ -13432,6 +13579,7 @@
       "healthTeacherCount": 2,
       "nutritionTeacherCount": 1,
       "librarianTeacherCount": 1,
+      "counselorTeacherCount": 1,
       "specialistSubjectTeacherEstimate": 6,
       "specialistSubjectTeacherBySubject": {
         "국어": 1,
@@ -13524,6 +13672,7 @@
       "healthTeacherCount": 2,
       "nutritionTeacherCount": 1,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 1,
       "specialistSubjectTeacherEstimate": 14,
       "specialistSubjectTeacherBySubject": {
         "국어": 0,
@@ -13616,6 +13765,7 @@
       "healthTeacherCount": 0,
       "nutritionTeacherCount": 1,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherEstimate": 0,
       "specialistSubjectTeacherBySubject": {
         "국어": 0,
@@ -13709,6 +13859,7 @@
       "healthTeacherCount": null,
       "nutritionTeacherCount": null,
       "librarianTeacherCount": null,
+      "counselorTeacherCount": null,
       "teacherStatusExcludedReason": null,
       "specialistSubjectTeacherEstimate": null,
       "specialistSubjectTeacherBySubject": null,
@@ -13785,6 +13936,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 1,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherEstimate": 1,
       "specialistSubjectTeacherBySubject": {
         "국어": 0,
@@ -13877,6 +14029,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 1,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 1,
       "specialistSubjectTeacherEstimate": 3,
       "specialistSubjectTeacherBySubject": {
         "국어": 1,
@@ -13969,6 +14122,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 1,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 1,
       "specialistSubjectTeacherEstimate": 1,
       "specialistSubjectTeacherBySubject": {
         "국어": 0,
@@ -14061,6 +14215,7 @@
       "healthTeacherCount": 0,
       "nutritionTeacherCount": 1,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherEstimate": 0,
       "specialistSubjectTeacherBySubject": {
         "국어": 0,
@@ -14153,6 +14308,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 1,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherEstimate": 3,
       "specialistSubjectTeacherBySubject": {
         "국어": 0,
@@ -14245,6 +14401,7 @@
       "healthTeacherCount": 0,
       "nutritionTeacherCount": 0,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherEstimate": 0,
       "specialistSubjectTeacherBySubject": {
         "국어": 0,
@@ -14337,6 +14494,7 @@
       "healthTeacherCount": 0,
       "nutritionTeacherCount": 1,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherEstimate": 0,
       "specialistSubjectTeacherBySubject": {
         "국어": 0,
@@ -14429,6 +14587,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 1,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherEstimate": 0,
       "specialistSubjectTeacherBySubject": {
         "국어": 0,
@@ -14522,6 +14681,7 @@
       "healthTeacherCount": null,
       "nutritionTeacherCount": null,
       "librarianTeacherCount": null,
+      "counselorTeacherCount": null,
       "teacherStatusExcludedReason": null,
       "specialistSubjectTeacherEstimate": null,
       "specialistSubjectTeacherBySubject": null,
@@ -14598,6 +14758,7 @@
       "healthTeacherCount": 0,
       "nutritionTeacherCount": 0,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherEstimate": 1,
       "specialistSubjectTeacherBySubject": {
         "국어": 0,
@@ -14690,6 +14851,7 @@
       "healthTeacherCount": 0,
       "nutritionTeacherCount": 0,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherEstimate": 0,
       "specialistSubjectTeacherBySubject": {
         "국어": 1,
@@ -14782,6 +14944,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 1,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 1,
       "specialistSubjectTeacherEstimate": 2,
       "specialistSubjectTeacherBySubject": {
         "국어": 0,
@@ -14874,6 +15037,7 @@
       "healthTeacherCount": 0,
       "nutritionTeacherCount": 0,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherEstimate": 0,
       "specialistSubjectTeacherBySubject": {
         "국어": 0,
@@ -14966,6 +15130,7 @@
       "healthTeacherCount": 0,
       "nutritionTeacherCount": 0,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherEstimate": 0,
       "specialistSubjectTeacherBySubject": {
         "국어": 0,
@@ -15058,6 +15223,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 1,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherEstimate": 0,
       "specialistSubjectTeacherBySubject": {
         "국어": 0,
@@ -15150,6 +15316,7 @@
       "healthTeacherCount": 0,
       "nutritionTeacherCount": 0,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherEstimate": 1,
       "specialistSubjectTeacherBySubject": {
         "국어": 0,
@@ -15242,6 +15409,7 @@
       "healthTeacherCount": 0,
       "nutritionTeacherCount": 0,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherEstimate": 0,
       "specialistSubjectTeacherBySubject": {
         "국어": 0,
@@ -15334,6 +15502,7 @@
       "healthTeacherCount": 0,
       "nutritionTeacherCount": 1,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherEstimate": 0,
       "specialistSubjectTeacherBySubject": {
         "국어": 0,
@@ -15427,6 +15596,7 @@
       "healthTeacherCount": null,
       "nutritionTeacherCount": null,
       "librarianTeacherCount": null,
+      "counselorTeacherCount": null,
       "teacherStatusExcludedReason": null,
       "specialistSubjectTeacherEstimate": null,
       "specialistSubjectTeacherBySubject": null,
@@ -15503,6 +15673,7 @@
       "healthTeacherCount": 0,
       "nutritionTeacherCount": 0,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherEstimate": 0,
       "specialistSubjectTeacherBySubject": {
         "국어": 0,
@@ -15595,6 +15766,7 @@
       "healthTeacherCount": 0,
       "nutritionTeacherCount": 1,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherEstimate": 0,
       "specialistSubjectTeacherBySubject": {
         "국어": 0,
@@ -15687,6 +15859,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 1,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherEstimate": 4,
       "specialistSubjectTeacherBySubject": {
         "국어": 1,
@@ -15779,6 +15952,7 @@
       "healthTeacherCount": 0,
       "nutritionTeacherCount": 0,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherEstimate": 1,
       "specialistSubjectTeacherBySubject": {
         "국어": 0,
@@ -15871,6 +16045,7 @@
       "healthTeacherCount": 0,
       "nutritionTeacherCount": 1,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherEstimate": 1,
       "specialistSubjectTeacherBySubject": {
         "국어": 0,
@@ -15964,6 +16139,7 @@
       "healthTeacherCount": null,
       "nutritionTeacherCount": null,
       "librarianTeacherCount": null,
+      "counselorTeacherCount": null,
       "teacherStatusExcludedReason": null,
       "specialistSubjectTeacherEstimate": null,
       "specialistSubjectTeacherBySubject": null,
@@ -16040,6 +16216,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 1,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherEstimate": 2,
       "specialistSubjectTeacherBySubject": {
         "국어": 0,
@@ -16132,6 +16309,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 1,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherEstimate": 0,
       "specialistSubjectTeacherBySubject": {
         "국어": 0,
@@ -16224,6 +16402,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 1,
       "librarianTeacherCount": 1,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherEstimate": 3,
       "specialistSubjectTeacherBySubject": {
         "국어": 0,
@@ -16316,6 +16495,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 2,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherEstimate": 1,
       "specialistSubjectTeacherBySubject": {
         "국어": 0,
@@ -16408,6 +16588,7 @@
       "healthTeacherCount": 0,
       "nutritionTeacherCount": 0,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherEstimate": 0,
       "specialistSubjectTeacherBySubject": {
         "국어": 0,
@@ -16500,6 +16681,7 @@
       "healthTeacherCount": 0,
       "nutritionTeacherCount": 0,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherEstimate": 1,
       "specialistSubjectTeacherBySubject": {
         "국어": 0,
@@ -16592,6 +16774,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 1,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherEstimate": 0,
       "specialistSubjectTeacherBySubject": {
         "국어": 0,
@@ -16684,6 +16867,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 1,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherEstimate": 0,
       "specialistSubjectTeacherBySubject": {
         "국어": 0,
@@ -16776,6 +16960,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 1,
       "librarianTeacherCount": 1,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherEstimate": 4,
       "specialistSubjectTeacherBySubject": {
         "국어": 1,
@@ -16868,6 +17053,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 1,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherEstimate": 1,
       "specialistSubjectTeacherBySubject": {
         "국어": 0,
@@ -16960,6 +17146,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 1,
       "librarianTeacherCount": 1,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherEstimate": 2,
       "specialistSubjectTeacherBySubject": {
         "국어": 0,
@@ -17052,6 +17239,7 @@
       "healthTeacherCount": 2,
       "nutritionTeacherCount": 2,
       "librarianTeacherCount": 2,
+      "counselorTeacherCount": 1,
       "specialistSubjectTeacherEstimate": 9,
       "specialistSubjectTeacherBySubject": {
         "국어": 0,
@@ -17144,6 +17332,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 1,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherEstimate": 2,
       "specialistSubjectTeacherBySubject": {
         "국어": 0,
@@ -17237,6 +17426,7 @@
       "healthTeacherCount": null,
       "nutritionTeacherCount": null,
       "librarianTeacherCount": null,
+      "counselorTeacherCount": null,
       "teacherStatusExcludedReason": null,
       "specialistSubjectTeacherEstimate": null,
       "specialistSubjectTeacherBySubject": null,
@@ -17313,6 +17503,7 @@
       "healthTeacherCount": 0,
       "nutritionTeacherCount": 0,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherEstimate": 0,
       "specialistSubjectTeacherBySubject": {
         "국어": 0,
@@ -17405,6 +17596,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 1,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherEstimate": 2,
       "specialistSubjectTeacherBySubject": {
         "국어": 1,
@@ -17497,6 +17689,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 1,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherEstimate": 3,
       "specialistSubjectTeacherBySubject": {
         "국어": 1,
@@ -17589,6 +17782,7 @@
       "healthTeacherCount": 0,
       "nutritionTeacherCount": 0,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherEstimate": 0,
       "specialistSubjectTeacherBySubject": {
         "국어": 0,
@@ -17681,6 +17875,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 1,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 1,
       "specialistSubjectTeacherEstimate": 1,
       "specialistSubjectTeacherBySubject": {
         "국어": 0,
@@ -17773,6 +17968,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 1,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherEstimate": 3,
       "specialistSubjectTeacherBySubject": {
         "국어": 0,
@@ -17865,6 +18061,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 1,
       "librarianTeacherCount": 1,
+      "counselorTeacherCount": 1,
       "specialistSubjectTeacherEstimate": 11,
       "specialistSubjectTeacherBySubject": {
         "국어": 0,
@@ -17957,6 +18154,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 1,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 1,
       "specialistSubjectTeacherEstimate": 2,
       "specialistSubjectTeacherBySubject": {
         "국어": 0,
@@ -18049,6 +18247,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 1,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherEstimate": 0,
       "specialistSubjectTeacherBySubject": {
         "국어": 0,
@@ -18141,6 +18340,7 @@
       "healthTeacherCount": 0,
       "nutritionTeacherCount": 0,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherEstimate": 0,
       "specialistSubjectTeacherBySubject": {
         "국어": 0,
@@ -18233,6 +18433,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 1,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherEstimate": 3,
       "specialistSubjectTeacherBySubject": {
         "국어": 1,
@@ -18325,6 +18526,7 @@
       "healthTeacherCount": 0,
       "nutritionTeacherCount": 0,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherEstimate": 0,
       "specialistSubjectTeacherBySubject": {
         "국어": 0,
@@ -18417,6 +18619,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 0,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 1,
       "specialistSubjectTeacherEstimate": 1,
       "specialistSubjectTeacherBySubject": {
         "국어": 0,
@@ -18509,6 +18712,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 0,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherEstimate": 5,
       "specialistSubjectTeacherBySubject": {
         "국어": 0,
@@ -18601,6 +18805,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 1,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherEstimate": 3,
       "specialistSubjectTeacherBySubject": {
         "국어": 0,
@@ -18693,6 +18898,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 1,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherEstimate": 0,
       "specialistSubjectTeacherBySubject": {
         "국어": 0,
@@ -18785,6 +18991,7 @@
       "healthTeacherCount": 0,
       "nutritionTeacherCount": 2,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherEstimate": 0,
       "specialistSubjectTeacherBySubject": {
         "국어": 0,
@@ -18877,6 +19084,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 2,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 1,
       "specialistSubjectTeacherEstimate": 4,
       "specialistSubjectTeacherBySubject": {
         "국어": 1,
@@ -18969,6 +19177,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 2,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 1,
       "specialistSubjectTeacherEstimate": 3,
       "specialistSubjectTeacherBySubject": {
         "국어": 0,
@@ -19061,6 +19270,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 1,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 1,
       "specialistSubjectTeacherEstimate": 5,
       "specialistSubjectTeacherBySubject": {
         "국어": 0,
@@ -19153,6 +19363,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 1,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 1,
       "specialistSubjectTeacherEstimate": 2,
       "specialistSubjectTeacherBySubject": {
         "국어": 0,
@@ -19245,6 +19456,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 1,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherEstimate": 1,
       "specialistSubjectTeacherBySubject": {
         "국어": 0,
@@ -19337,6 +19549,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 1,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherEstimate": 1,
       "specialistSubjectTeacherBySubject": {
         "국어": 0,
@@ -19430,6 +19643,7 @@
       "healthTeacherCount": null,
       "nutritionTeacherCount": null,
       "librarianTeacherCount": null,
+      "counselorTeacherCount": null,
       "teacherStatusExcludedReason": null,
       "specialistSubjectTeacherEstimate": null,
       "specialistSubjectTeacherBySubject": null,
@@ -19506,6 +19720,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 0,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 1,
       "specialistSubjectTeacherEstimate": 0,
       "specialistSubjectTeacherBySubject": {
         "국어": 0,
@@ -19599,6 +19814,7 @@
       "healthTeacherCount": null,
       "nutritionTeacherCount": null,
       "librarianTeacherCount": null,
+      "counselorTeacherCount": null,
       "teacherStatusExcludedReason": null,
       "specialistSubjectTeacherEstimate": null,
       "specialistSubjectTeacherBySubject": null,
@@ -19675,6 +19891,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 1,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 1,
       "specialistSubjectTeacherEstimate": 8,
       "specialistSubjectTeacherBySubject": {
         "국어": 0,
@@ -19767,6 +19984,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 1,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherEstimate": 2,
       "specialistSubjectTeacherBySubject": {
         "국어": 1,
@@ -19859,6 +20077,7 @@
       "healthTeacherCount": 0,
       "nutritionTeacherCount": 1,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherEstimate": 0,
       "specialistSubjectTeacherBySubject": {
         "국어": 0,
@@ -19951,6 +20170,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 0,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherEstimate": 0,
       "specialistSubjectTeacherBySubject": {
         "국어": 0,
@@ -20043,6 +20263,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 1,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 1,
       "specialistSubjectTeacherEstimate": 2,
       "specialistSubjectTeacherBySubject": {
         "국어": 1,
@@ -20135,6 +20356,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 0,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherEstimate": 1,
       "specialistSubjectTeacherBySubject": {
         "국어": 0,
@@ -20227,6 +20449,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 1,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherEstimate": 0,
       "specialistSubjectTeacherBySubject": {
         "국어": 0,
@@ -20319,6 +20542,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 0,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherEstimate": 2,
       "specialistSubjectTeacherBySubject": {
         "국어": 0,
@@ -20411,6 +20635,7 @@
       "healthTeacherCount": 2,
       "nutritionTeacherCount": 0,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherEstimate": 1,
       "specialistSubjectTeacherBySubject": {
         "국어": 0,
@@ -20503,6 +20728,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 1,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 1,
       "specialistSubjectTeacherEstimate": 6,
       "specialistSubjectTeacherBySubject": {
         "국어": 0,
@@ -20595,6 +20821,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 0,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherEstimate": 0,
       "specialistSubjectTeacherBySubject": {
         "국어": 0,
@@ -20687,6 +20914,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 1,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 1,
       "specialistSubjectTeacherEstimate": 4,
       "specialistSubjectTeacherBySubject": {
         "국어": 1,
@@ -20779,6 +21007,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 1,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherEstimate": 2,
       "specialistSubjectTeacherBySubject": {
         "국어": 0,
@@ -20871,6 +21100,7 @@
       "healthTeacherCount": 3,
       "nutritionTeacherCount": 1,
       "librarianTeacherCount": 1,
+      "counselorTeacherCount": 1,
       "specialistSubjectTeacherEstimate": 11,
       "specialistSubjectTeacherBySubject": {
         "국어": 0,
@@ -20964,6 +21194,7 @@
       "healthTeacherCount": null,
       "nutritionTeacherCount": null,
       "librarianTeacherCount": null,
+      "counselorTeacherCount": null,
       "teacherStatusExcludedReason": null,
       "specialistSubjectTeacherEstimate": null,
       "specialistSubjectTeacherBySubject": null,
@@ -21040,6 +21271,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 1,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 1,
       "specialistSubjectTeacherEstimate": 3,
       "specialistSubjectTeacherBySubject": {
         "국어": 0,
@@ -21132,6 +21364,7 @@
       "healthTeacherCount": 0,
       "nutritionTeacherCount": 1,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherEstimate": 0,
       "specialistSubjectTeacherBySubject": {
         "국어": 0,
@@ -21225,6 +21458,7 @@
       "healthTeacherCount": null,
       "nutritionTeacherCount": null,
       "librarianTeacherCount": null,
+      "counselorTeacherCount": null,
       "teacherStatusExcludedReason": null,
       "specialistSubjectTeacherEstimate": null,
       "specialistSubjectTeacherBySubject": null,
@@ -21301,6 +21535,7 @@
       "healthTeacherCount": 2,
       "nutritionTeacherCount": 1,
       "librarianTeacherCount": 1,
+      "counselorTeacherCount": 1,
       "specialistSubjectTeacherEstimate": 9,
       "specialistSubjectTeacherBySubject": {
         "국어": 0,
@@ -21393,6 +21628,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 0,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherEstimate": 4,
       "specialistSubjectTeacherBySubject": {
         "국어": 0,
@@ -21485,6 +21721,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 1,
       "librarianTeacherCount": 1,
+      "counselorTeacherCount": 2,
       "specialistSubjectTeacherEstimate": 5,
       "specialistSubjectTeacherBySubject": {
         "국어": 0,
@@ -21577,6 +21814,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 1,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 1,
       "specialistSubjectTeacherEstimate": 7,
       "specialistSubjectTeacherBySubject": {
         "국어": 1,
@@ -21669,6 +21907,7 @@
       "healthTeacherCount": 2,
       "nutritionTeacherCount": 1,
       "librarianTeacherCount": 1,
+      "counselorTeacherCount": 1,
       "specialistSubjectTeacherEstimate": 11,
       "specialistSubjectTeacherBySubject": {
         "국어": 1,
@@ -21761,6 +22000,7 @@
       "healthTeacherCount": 2,
       "nutritionTeacherCount": 1,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherEstimate": 3,
       "specialistSubjectTeacherBySubject": {
         "국어": 1,
@@ -21853,6 +22093,7 @@
       "healthTeacherCount": 2,
       "nutritionTeacherCount": 1,
       "librarianTeacherCount": 1,
+      "counselorTeacherCount": 1,
       "specialistSubjectTeacherEstimate": 10,
       "specialistSubjectTeacherBySubject": {
         "국어": 0,
@@ -21945,6 +22186,7 @@
       "healthTeacherCount": 2,
       "nutritionTeacherCount": 2,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherEstimate": 10,
       "specialistSubjectTeacherBySubject": {
         "국어": 0,
@@ -22037,6 +22279,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 1,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherEstimate": 3,
       "specialistSubjectTeacherBySubject": {
         "국어": 0,
@@ -22129,6 +22372,7 @@
       "healthTeacherCount": 0,
       "nutritionTeacherCount": 0,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherEstimate": 1,
       "specialistSubjectTeacherBySubject": {
         "국어": 0,
@@ -22221,6 +22465,7 @@
       "healthTeacherCount": 0,
       "nutritionTeacherCount": 0,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherEstimate": 0,
       "specialistSubjectTeacherBySubject": {
         "국어": 0,
@@ -22313,6 +22558,7 @@
       "healthTeacherCount": 0,
       "nutritionTeacherCount": 0,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherEstimate": 0,
       "specialistSubjectTeacherBySubject": {
         "국어": 0,
@@ -22405,6 +22651,7 @@
       "healthTeacherCount": 0,
       "nutritionTeacherCount": 1,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherEstimate": 1,
       "specialistSubjectTeacherBySubject": {
         "국어": 0,
@@ -22497,6 +22744,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 1,
       "librarianTeacherCount": 1,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherEstimate": 7,
       "specialistSubjectTeacherBySubject": {
         "국어": 0,
@@ -22589,6 +22837,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 0,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherEstimate": 1,
       "specialistSubjectTeacherBySubject": {
         "국어": 0,
@@ -22681,6 +22930,7 @@
       "healthTeacherCount": 2,
       "nutritionTeacherCount": 2,
       "librarianTeacherCount": 1,
+      "counselorTeacherCount": 1,
       "specialistSubjectTeacherEstimate": 10,
       "specialistSubjectTeacherBySubject": {
         "국어": 0,
@@ -22773,6 +23023,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 1,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherEstimate": 1,
       "specialistSubjectTeacherBySubject": {
         "국어": 0,
@@ -22865,6 +23116,7 @@
       "healthTeacherCount": 0,
       "nutritionTeacherCount": 0,
       "librarianTeacherCount": 1,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherEstimate": 0,
       "specialistSubjectTeacherBySubject": {
         "국어": 0,
@@ -22957,6 +23209,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 1,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 1,
       "specialistSubjectTeacherEstimate": 7,
       "specialistSubjectTeacherBySubject": {
         "국어": 1,
@@ -23049,6 +23302,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 1,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherEstimate": 0,
       "specialistSubjectTeacherBySubject": {
         "국어": 0,
@@ -23141,6 +23395,7 @@
       "healthTeacherCount": 0,
       "nutritionTeacherCount": 0,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherEstimate": 1,
       "specialistSubjectTeacherBySubject": {
         "국어": 0,
@@ -23233,6 +23488,7 @@
       "healthTeacherCount": 0,
       "nutritionTeacherCount": 1,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherEstimate": 0,
       "specialistSubjectTeacherBySubject": {
         "국어": 0,
@@ -23325,6 +23581,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 0,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherEstimate": 1,
       "specialistSubjectTeacherBySubject": {
         "국어": 1,
@@ -23418,6 +23675,7 @@
       "healthTeacherCount": null,
       "nutritionTeacherCount": null,
       "librarianTeacherCount": null,
+      "counselorTeacherCount": null,
       "teacherStatusExcludedReason": null,
       "specialistSubjectTeacherEstimate": null,
       "specialistSubjectTeacherBySubject": null,
@@ -23494,6 +23752,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 1,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherEstimate": 0,
       "specialistSubjectTeacherBySubject": {
         "국어": 0,
@@ -23586,6 +23845,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 1,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherEstimate": 3,
       "specialistSubjectTeacherBySubject": {
         "국어": 0,
@@ -23678,6 +23938,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 1,
       "librarianTeacherCount": 1,
+      "counselorTeacherCount": 1,
       "specialistSubjectTeacherEstimate": 1,
       "specialistSubjectTeacherBySubject": {
         "국어": 0,
@@ -23770,6 +24031,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 1,
       "librarianTeacherCount": 1,
+      "counselorTeacherCount": 1,
       "specialistSubjectTeacherEstimate": 5,
       "specialistSubjectTeacherBySubject": {
         "국어": 1,
@@ -23862,6 +24124,7 @@
       "healthTeacherCount": 2,
       "nutritionTeacherCount": 1,
       "librarianTeacherCount": 1,
+      "counselorTeacherCount": 1,
       "specialistSubjectTeacherEstimate": 7,
       "specialistSubjectTeacherBySubject": {
         "국어": 1,
@@ -23954,6 +24217,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 1,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherEstimate": 1,
       "specialistSubjectTeacherBySubject": {
         "국어": 0,
@@ -24046,6 +24310,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 1,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherEstimate": 2,
       "specialistSubjectTeacherBySubject": {
         "국어": 0,
@@ -24138,6 +24403,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 1,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 1,
       "specialistSubjectTeacherEstimate": 2,
       "specialistSubjectTeacherBySubject": {
         "국어": 0,
@@ -24230,6 +24496,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 1,
       "librarianTeacherCount": 1,
+      "counselorTeacherCount": 1,
       "specialistSubjectTeacherEstimate": 2,
       "specialistSubjectTeacherBySubject": {
         "국어": 0,
@@ -24322,6 +24589,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 0,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherEstimate": 1,
       "specialistSubjectTeacherBySubject": {
         "국어": 0,
@@ -24414,6 +24682,7 @@
       "healthTeacherCount": 2,
       "nutritionTeacherCount": 1,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 1,
       "specialistSubjectTeacherEstimate": 2,
       "specialistSubjectTeacherBySubject": {
         "국어": 0,
@@ -24506,6 +24775,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 1,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherEstimate": 3,
       "specialistSubjectTeacherBySubject": {
         "국어": 0,
@@ -24598,6 +24868,7 @@
       "healthTeacherCount": 2,
       "nutritionTeacherCount": 1,
       "librarianTeacherCount": 1,
+      "counselorTeacherCount": 1,
       "specialistSubjectTeacherEstimate": 10,
       "specialistSubjectTeacherBySubject": {
         "국어": 0,
@@ -24690,6 +24961,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 1,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 2,
       "specialistSubjectTeacherEstimate": 2,
       "specialistSubjectTeacherBySubject": {
         "국어": 1,
@@ -24782,6 +25054,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 1,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherEstimate": 0,
       "specialistSubjectTeacherBySubject": {
         "국어": 0,
@@ -24874,6 +25147,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 1,
       "librarianTeacherCount": 1,
+      "counselorTeacherCount": 1,
       "specialistSubjectTeacherEstimate": 3,
       "specialistSubjectTeacherBySubject": {
         "국어": 1,
@@ -24966,6 +25240,7 @@
       "healthTeacherCount": 0,
       "nutritionTeacherCount": 0,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherEstimate": 0,
       "specialistSubjectTeacherBySubject": {
         "국어": 0,
@@ -25058,6 +25333,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 1,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherEstimate": 0,
       "specialistSubjectTeacherBySubject": {
         "국어": 0,
@@ -25150,6 +25426,7 @@
       "healthTeacherCount": 0,
       "nutritionTeacherCount": 0,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherEstimate": 0,
       "specialistSubjectTeacherBySubject": {
         "국어": 0,
@@ -25242,6 +25519,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 2,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherEstimate": 1,
       "specialistSubjectTeacherBySubject": {
         "국어": 0,
@@ -25334,6 +25612,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 1,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 1,
       "specialistSubjectTeacherEstimate": 3,
       "specialistSubjectTeacherBySubject": {
         "국어": 0,
@@ -25426,6 +25705,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 0,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherEstimate": 0,
       "specialistSubjectTeacherBySubject": {
         "국어": 0,
@@ -25518,6 +25798,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 1,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherEstimate": 0,
       "specialistSubjectTeacherBySubject": {
         "국어": 0,
@@ -25610,6 +25891,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 1,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherEstimate": 0,
       "specialistSubjectTeacherBySubject": {
         "국어": 0,
@@ -25702,6 +25984,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 1,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherEstimate": 4,
       "specialistSubjectTeacherBySubject": {
         "국어": 0,
@@ -25794,6 +26077,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 2,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 1,
       "specialistSubjectTeacherEstimate": 3,
       "specialistSubjectTeacherBySubject": {
         "국어": 0,
@@ -25886,6 +26170,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 1,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherEstimate": 1,
       "specialistSubjectTeacherBySubject": {
         "국어": 0,
@@ -25978,6 +26263,7 @@
       "healthTeacherCount": 0,
       "nutritionTeacherCount": 0,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherEstimate": 0,
       "specialistSubjectTeacherBySubject": {
         "국어": 0,
@@ -26070,6 +26356,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 0,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherEstimate": 2,
       "specialistSubjectTeacherBySubject": {
         "국어": 0,
@@ -26162,6 +26449,7 @@
       "healthTeacherCount": 0,
       "nutritionTeacherCount": 0,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherEstimate": 1,
       "specialistSubjectTeacherBySubject": {
         "국어": 0,
@@ -26254,6 +26542,7 @@
       "healthTeacherCount": 0,
       "nutritionTeacherCount": 1,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherEstimate": 1,
       "specialistSubjectTeacherBySubject": {
         "국어": 0,
@@ -26346,6 +26635,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 1,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 1,
       "specialistSubjectTeacherEstimate": 6,
       "specialistSubjectTeacherBySubject": {
         "국어": 0,
@@ -26438,6 +26728,7 @@
       "healthTeacherCount": 0,
       "nutritionTeacherCount": 2,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherEstimate": 0,
       "specialistSubjectTeacherBySubject": {
         "국어": 0,
@@ -26530,6 +26821,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 1,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherEstimate": 1,
       "specialistSubjectTeacherBySubject": {
         "국어": 1,
@@ -26622,6 +26914,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 1,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherEstimate": 1,
       "specialistSubjectTeacherBySubject": {
         "국어": 0,
@@ -26714,6 +27007,7 @@
       "healthTeacherCount": 0,
       "nutritionTeacherCount": 0,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherEstimate": 0,
       "specialistSubjectTeacherBySubject": {
         "국어": 0,
@@ -26806,6 +27100,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 1,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherEstimate": 0,
       "specialistSubjectTeacherBySubject": {
         "국어": 0,
@@ -26898,6 +27193,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 1,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherEstimate": 1,
       "specialistSubjectTeacherBySubject": {
         "국어": 0,
@@ -26990,6 +27286,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 1,
       "librarianTeacherCount": 1,
+      "counselorTeacherCount": 1,
       "specialistSubjectTeacherBySubject": {
         "수학": 3,
         "역사": 2,
@@ -27085,6 +27382,7 @@
       "healthTeacherCount": null,
       "nutritionTeacherCount": null,
       "librarianTeacherCount": null,
+      "counselorTeacherCount": null,
       "teacherStatusExcludedReason": null,
       "specialistSubjectTeacherEstimate": null,
       "specialistSubjectTeacherBySubject": null,
@@ -27161,6 +27459,7 @@
       "healthTeacherCount": 0,
       "nutritionTeacherCount": 0,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherBySubject": {
         "역사": 1,
         "국어": 1,
@@ -27248,6 +27547,7 @@
       "healthTeacherCount": 2,
       "nutritionTeacherCount": 1,
       "librarianTeacherCount": 1,
+      "counselorTeacherCount": 1,
       "specialistSubjectTeacherBySubject": {
         "미술": 2,
         "음악": 3,
@@ -27342,6 +27642,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 0,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherBySubject": {
         "기술·가정": 1,
         "도덕": 1,
@@ -27432,6 +27733,7 @@
       "healthTeacherCount": null,
       "nutritionTeacherCount": null,
       "librarianTeacherCount": null,
+      "counselorTeacherCount": null,
       "teacherStatusExcludedReason": null,
       "specialistSubjectTeacherEstimate": null,
       "specialistSubjectTeacherBySubject": null,
@@ -27508,6 +27810,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 1,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherBySubject": {
         "음악": 2,
         "미술": 2,
@@ -27603,6 +27906,7 @@
       "healthTeacherCount": 2,
       "nutritionTeacherCount": 1,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 1,
       "specialistSubjectTeacherBySubject": {
         "음악": 1,
         "체육": 3,
@@ -27695,6 +27999,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 1,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherBySubject": {
         "미술": 1,
         "역사": 1,
@@ -27787,6 +28092,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 1,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 1,
       "specialistSubjectTeacherBySubject": {
         "영어": 1,
         "미술": 1,
@@ -27876,6 +28182,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 1,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherBySubject": {
         "체육": 1,
         "영어": 1,
@@ -27967,6 +28274,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 1,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherBySubject": {
         "기술·가정": 5,
         "체육": 6,
@@ -28061,6 +28369,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 0,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherBySubject": {
         "국어": 5,
         "역사": 2,
@@ -28153,6 +28462,7 @@
       "healthTeacherCount": null,
       "nutritionTeacherCount": null,
       "librarianTeacherCount": null,
+      "counselorTeacherCount": null,
       "teacherStatusExcludedReason": null,
       "specialistSubjectTeacherEstimate": null,
       "specialistSubjectTeacherBySubject": null,
@@ -28229,6 +28539,7 @@
       "healthTeacherCount": 2,
       "nutritionTeacherCount": 1,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherBySubject": {
         "체육": 3,
         "음악": 2,
@@ -28322,6 +28633,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 0,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherBySubject": {
         "영어": 4,
         "생활 일본어": 1,
@@ -28416,6 +28728,7 @@
       "healthTeacherCount": 0,
       "nutritionTeacherCount": 0,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherBySubject": {
         "영어": 1,
         "역사": 1,
@@ -28502,6 +28815,7 @@
       "healthTeacherCount": null,
       "nutritionTeacherCount": null,
       "librarianTeacherCount": null,
+      "counselorTeacherCount": null,
       "teacherStatusExcludedReason": null,
       "specialistSubjectTeacherEstimate": null,
       "specialistSubjectTeacherBySubject": null,
@@ -28578,6 +28892,7 @@
       "healthTeacherCount": 0,
       "nutritionTeacherCount": 0,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherBySubject": {
         "역사": 1,
         "수학": 2,
@@ -28665,6 +28980,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 1,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherBySubject": {
         "체육": 1,
         "기술·가정": 1,
@@ -28755,6 +29071,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 0,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherBySubject": {
         "국어": 4,
         "역사": 1,
@@ -28846,6 +29163,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 0,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 1,
       "specialistSubjectTeacherBySubject": {
         "영어": 2,
         "미술": 1,
@@ -28938,6 +29256,7 @@
       "healthTeacherCount": 0,
       "nutritionTeacherCount": 0,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 1,
       "specialistSubjectTeacherBySubject": {
         "국어": 5,
         "진로와 직업": 1,
@@ -29030,6 +29349,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 0,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 1,
       "specialistSubjectTeacherBySubject": {
         "국어": 4,
         "사회": 2,
@@ -29124,6 +29444,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 0,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 1,
       "specialistSubjectTeacherBySubject": {
         "생활 중국어": 1,
         "영어": 5,
@@ -29216,6 +29537,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 0,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 2,
       "specialistSubjectTeacherBySubject": {
         "한국어": 1,
         "영어": 3,
@@ -29306,6 +29628,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 1,
       "librarianTeacherCount": 1,
+      "counselorTeacherCount": 1,
       "specialistSubjectTeacherBySubject": {
         "과학": 5,
         "기술·가정": 4,
@@ -29400,6 +29723,7 @@
       "healthTeacherCount": 0,
       "nutritionTeacherCount": 0,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherBySubject": {
         "국어": 2,
         "사회": 1,
@@ -29486,6 +29810,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 1,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherBySubject": {
         "기타특수": 1,
         "진로와 직업": 1,
@@ -29577,6 +29902,7 @@
       "healthTeacherCount": null,
       "nutritionTeacherCount": null,
       "librarianTeacherCount": null,
+      "counselorTeacherCount": null,
       "teacherStatusExcludedReason": null,
       "specialistSubjectTeacherEstimate": null,
       "specialistSubjectTeacherBySubject": null,
@@ -29653,6 +29979,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 0,
       "librarianTeacherCount": 1,
+      "counselorTeacherCount": 1,
       "specialistSubjectTeacherBySubject": {
         "한문": 1,
         "기타특수": 2,
@@ -29747,6 +30074,7 @@
       "healthTeacherCount": 0,
       "nutritionTeacherCount": 0,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherBySubject": {
         "기타특수": 1,
         "진로와 직업": 1,
@@ -29835,6 +30163,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 0,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherBySubject": {
         "과학": 1,
         "체육": 1,
@@ -29922,6 +30251,7 @@
       "healthTeacherCount": null,
       "nutritionTeacherCount": null,
       "librarianTeacherCount": null,
+      "counselorTeacherCount": null,
       "teacherStatusExcludedReason": null,
       "specialistSubjectTeacherEstimate": null,
       "specialistSubjectTeacherBySubject": null,
@@ -29998,6 +30328,7 @@
       "healthTeacherCount": 0,
       "nutritionTeacherCount": 0,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherBySubject": {
         "진로와 직업": 1,
         "과학": 1,
@@ -30085,6 +30416,7 @@
       "healthTeacherCount": null,
       "nutritionTeacherCount": null,
       "librarianTeacherCount": null,
+      "counselorTeacherCount": null,
       "teacherStatusExcludedReason": null,
       "specialistSubjectTeacherEstimate": null,
       "specialistSubjectTeacherBySubject": null,
@@ -30161,6 +30493,7 @@
       "healthTeacherCount": 0,
       "nutritionTeacherCount": 1,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherBySubject": {
         "기타특수": 1,
         "진로와 직업": 1,
@@ -30248,6 +30581,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 0,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherBySubject": {
         "영미 문학 읽기": 1,
         "진로와 직업": 1,
@@ -30340,6 +30674,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 1,
       "librarianTeacherCount": 1,
+      "counselorTeacherCount": 2,
       "specialistSubjectTeacherBySubject": {
         "국어": 3,
         "도덕": 2,
@@ -30432,6 +30767,7 @@
       "healthTeacherCount": 2,
       "nutritionTeacherCount": 1,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 1,
       "specialistSubjectTeacherBySubject": {
         "도덕": 3,
         "역사": 3,
@@ -30526,6 +30862,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 1,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 1,
       "specialistSubjectTeacherBySubject": {
         "진로와 직업": 1,
         "정보": 1,
@@ -30622,6 +30959,7 @@
       "healthTeacherCount": 0,
       "nutritionTeacherCount": 0,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherBySubject": {
         "기술·가정": 1,
         "체육": 1,
@@ -30709,6 +31047,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 0,
       "librarianTeacherCount": 1,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherBySubject": {
         "기타특수": 1,
         "영어": 4,
@@ -30803,6 +31142,7 @@
       "healthTeacherCount": 0,
       "nutritionTeacherCount": 0,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherBySubject": {
         "국어": 1,
         "사회": 1,
@@ -30889,6 +31229,7 @@
       "healthTeacherCount": 2,
       "nutritionTeacherCount": 0,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherBySubject": {
         "기타특수": 1,
         "보건": 1,
@@ -30979,6 +31320,7 @@
       "healthTeacherCount": null,
       "nutritionTeacherCount": null,
       "librarianTeacherCount": null,
+      "counselorTeacherCount": null,
       "teacherStatusExcludedReason": null,
       "specialistSubjectTeacherEstimate": null,
       "specialistSubjectTeacherBySubject": null,
@@ -31055,6 +31397,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 0,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherBySubject": {
         "기술·가정": 1,
         "과학": 1,
@@ -31145,6 +31488,7 @@
       "healthTeacherCount": 0,
       "nutritionTeacherCount": 0,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherBySubject": {
         "체육": 1,
         "기술·가정": 1,
@@ -31232,6 +31576,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 0,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 1,
       "specialistSubjectTeacherBySubject": {
         "영어": 2,
         "미술": 1,
@@ -31325,6 +31670,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 1,
       "librarianTeacherCount": 1,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherBySubject": {
         "기술·가정": 4,
         "도덕": 4,
@@ -31420,6 +31766,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 0,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 1,
       "specialistSubjectTeacherBySubject": {
         "국어": 7,
         "영어": 7,
@@ -31514,6 +31861,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 1,
       "librarianTeacherCount": 1,
+      "counselorTeacherCount": 1,
       "specialistSubjectTeacherBySubject": {
         "국어": 8,
         "진로와 직업": 1,
@@ -31608,6 +31956,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 1,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherBySubject": {
         "역사": 3,
         "수학": 5,
@@ -31702,6 +32051,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 1,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 1,
       "specialistSubjectTeacherBySubject": {
         "역사": 1,
         "음악": 1,
@@ -31797,6 +32147,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 0,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 1,
       "specialistSubjectTeacherBySubject": {
         "생활 중국어": 1,
         "국어": 5,
@@ -31889,6 +32240,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 1,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 1,
       "specialistSubjectTeacherBySubject": {
         "기타특수": 1,
         "국어": 1,
@@ -31977,6 +32329,7 @@
       "healthTeacherCount": null,
       "nutritionTeacherCount": null,
       "librarianTeacherCount": null,
+      "counselorTeacherCount": null,
       "teacherStatusExcludedReason": null,
       "specialistSubjectTeacherEstimate": null,
       "specialistSubjectTeacherBySubject": null,
@@ -32053,6 +32406,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 0,
       "librarianTeacherCount": 1,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherBySubject": {
         "기술·가정": 3,
         "국어": 6,
@@ -32145,6 +32499,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 0,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherBySubject": {
         "기타특수": 1,
         "국어": 6,
@@ -32239,6 +32594,7 @@
       "healthTeacherCount": 0,
       "nutritionTeacherCount": 0,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherBySubject": {
         "사회": 1,
         "영어": 1,
@@ -32325,6 +32681,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 0,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 1,
       "specialistSubjectTeacherBySubject": {
         "과학": 5,
         "국어": 5,
@@ -32419,6 +32776,7 @@
       "healthTeacherCount": 0,
       "nutritionTeacherCount": 0,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherBySubject": {
         "과학": 1,
         "수학": 1,
@@ -32505,6 +32863,7 @@
       "healthTeacherCount": 2,
       "nutritionTeacherCount": 0,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 1,
       "specialistSubjectTeacherBySubject": {
         "미술": 1,
         "역사": 2,
@@ -32599,6 +32958,7 @@
       "healthTeacherCount": 0,
       "nutritionTeacherCount": 0,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherBySubject": {
         "기술·가정": 1,
         "과학": 1,
@@ -32682,6 +33042,7 @@
       "healthTeacherCount": 0,
       "nutritionTeacherCount": 0,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherBySubject": {
         "역사": 1,
         "국어": 1,
@@ -32768,6 +33129,7 @@
       "healthTeacherCount": 0,
       "nutritionTeacherCount": 0,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherBySubject": {
         "국어": 1,
         "역사": 1,
@@ -32854,6 +33216,7 @@
       "healthTeacherCount": 0,
       "nutritionTeacherCount": 0,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherBySubject": {
         "과학": 1,
         "국어": 1,
@@ -32939,6 +33302,7 @@
       "healthTeacherCount": 0,
       "nutritionTeacherCount": 0,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherBySubject": {
         "수학": 1,
         "기타특수": 1,
@@ -33025,6 +33389,7 @@
       "healthTeacherCount": 0,
       "nutritionTeacherCount": 0,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherBySubject": {
         "체육": 1,
         "영어": 1,
@@ -33112,6 +33477,7 @@
       "healthTeacherCount": 0,
       "nutritionTeacherCount": 0,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherBySubject": {
         "진로와 직업": 1,
         "영어": 1,
@@ -33198,6 +33564,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 1,
       "librarianTeacherCount": 1,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherBySubject": {
         "국어": 5,
         "기타특수": 1,
@@ -33292,6 +33659,7 @@
       "healthTeacherCount": 0,
       "nutritionTeacherCount": 0,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherBySubject": {
         "영어": 1,
         "생활미술": 1,
@@ -33377,6 +33745,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 0,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 1,
       "specialistSubjectTeacherBySubject": {
         "국어": 4,
         "역사": 1,
@@ -33471,6 +33840,7 @@
       "healthTeacherCount": 0,
       "nutritionTeacherCount": 1,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherBySubject": {
         "과학": 2,
         "진로와 직업": 1,
@@ -33560,6 +33930,7 @@
       "healthTeacherCount": 0,
       "nutritionTeacherCount": 0,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherBySubject": {
         "체육": 1,
         "영어": 1,
@@ -33646,6 +34017,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 1,
       "librarianTeacherCount": 1,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherBySubject": {
         "기타특수": 1,
         "사회": 2,
@@ -33740,6 +34112,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 0,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 1,
       "specialistSubjectTeacherBySubject": {
         "음악": 2,
         "영어": 4,
@@ -33834,6 +34207,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 0,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 1,
       "specialistSubjectTeacherBySubject": {
         "사회": 2,
         "역사": 2,
@@ -33927,6 +34301,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 0,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherBySubject": {
         "진로와 직업": 1,
         "생활 일본어": 1,
@@ -34021,6 +34396,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 0,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 1,
       "specialistSubjectTeacherBySubject": {
         "도덕": 3,
         "국어": 5,
@@ -34116,6 +34492,7 @@
       "healthTeacherCount": null,
       "nutritionTeacherCount": null,
       "librarianTeacherCount": null,
+      "counselorTeacherCount": null,
       "teacherStatusExcludedReason": null,
       "specialistSubjectTeacherEstimate": null,
       "specialistSubjectTeacherBySubject": null,
@@ -34192,6 +34569,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 1,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherBySubject": {
         "영어": 4,
         "진로와 직업": 1,
@@ -34286,6 +34664,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 1,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherBySubject": {
         "기타특수": 2,
         "국어": 4,
@@ -34380,6 +34759,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 1,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherBySubject": {
         "국어": 6,
         "기타특수": 2,
@@ -34473,6 +34853,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 0,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherBySubject": {
         "기타특수": 2,
         "진로와 직업": 1,
@@ -34567,6 +34948,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 0,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 1,
       "specialistSubjectTeacherBySubject": {
         "체육": 3,
         "국어": 3,
@@ -34658,6 +35040,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 0,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherBySubject": {
         "체육": 5,
         "음악": 2,
@@ -34752,6 +35135,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 0,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 1,
       "specialistSubjectTeacherBySubject": {
         "체육": 4,
         "도덕": 2,
@@ -34846,6 +35230,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 0,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherBySubject": {
         "수학": 6,
         "과학": 5,
@@ -34940,6 +35325,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 0,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherBySubject": {
         "기술·가정": 1,
         "국어": 3,
@@ -35032,6 +35418,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 0,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 1,
       "specialistSubjectTeacherBySubject": {
         "기타특수": 1,
         "음악": 1,
@@ -35123,6 +35510,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 0,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherBySubject": {
         "미술": 2,
         "음악": 2,
@@ -35216,6 +35604,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 0,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherBySubject": {
         "국어": 1,
         "역사": 1,
@@ -35303,6 +35692,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 0,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherBySubject": {
         "국어": 2,
         "과학": 2,
@@ -35394,6 +35784,7 @@
       "healthTeacherCount": 0,
       "nutritionTeacherCount": 0,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 1,
       "specialistSubjectTeacherBySubject": {
         "사회": 1,
         "역사": 1,
@@ -35488,6 +35879,7 @@
       "healthTeacherCount": null,
       "nutritionTeacherCount": null,
       "librarianTeacherCount": null,
+      "counselorTeacherCount": null,
       "teacherStatusExcludedReason": null,
       "specialistSubjectTeacherEstimate": null,
       "specialistSubjectTeacherBySubject": null,
@@ -35564,6 +35956,7 @@
       "healthTeacherCount": 0,
       "nutritionTeacherCount": 0,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherBySubject": {
         "기타특수": 1,
         "국어": 1,
@@ -35651,6 +36044,7 @@
       "healthTeacherCount": 0,
       "nutritionTeacherCount": 0,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherBySubject": {
         "사회": 1,
         "수학": 1,
@@ -35736,6 +36130,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 0,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherBySubject": {
         "미술": 1,
         "기타특수": 2,
@@ -35830,6 +36225,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 0,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherBySubject": {
         "진로와 직업": 1,
         "기타특수": 2,
@@ -35924,6 +36320,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 0,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherBySubject": {
         "영어": 4,
         "수학": 3,
@@ -36018,6 +36415,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 2,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherBySubject": {
         "기타특수": 1,
         "진로와 직업": 1,
@@ -36106,6 +36504,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 0,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherBySubject": {
         "진로와 직업": 1,
         "보건": 1,
@@ -36200,6 +36599,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 1,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 1,
       "specialistSubjectTeacherBySubject": {
         "기타특수": 1,
         "한문": 1,
@@ -36293,6 +36693,7 @@
       "healthTeacherCount": 0,
       "nutritionTeacherCount": 0,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherBySubject": {
         "기타특수": 1,
         "진로와 직업": 1,
@@ -36382,6 +36783,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 0,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 1,
       "specialistSubjectTeacherBySubject": {
         "기타과목": 1,
         "한문": 1,
@@ -36475,6 +36877,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 0,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherBySubject": {
         "수학": 4,
         "도덕": 2,
@@ -36568,6 +36971,7 @@
       "healthTeacherCount": 2,
       "nutritionTeacherCount": 0,
       "librarianTeacherCount": 1,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherBySubject": {
         "도덕": 1,
         "수학": 4,
@@ -36661,6 +37065,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 0,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 1,
       "specialistSubjectTeacherBySubject": {
         "수학": 4,
         "과학": 4,
@@ -36756,6 +37161,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 0,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherBySubject": {
         "기타특수": 1,
         "영어": 1,
@@ -36843,6 +37249,7 @@
       "healthTeacherCount": 0,
       "nutritionTeacherCount": 0,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherBySubject": {
         "사회": 1,
         "국어": 1,
@@ -36928,6 +37335,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 0,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 1,
       "specialistSubjectTeacherBySubject": {
         "기타특수": 3,
         "사회": 3,
@@ -37021,6 +37429,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 1,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 1,
       "specialistSubjectTeacherBySubject": {
         "체육": 1,
         "기타특수": 1,
@@ -37113,6 +37522,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 0,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 1,
       "specialistSubjectTeacherBySubject": {
         "체육": 5,
         "기술·가정": 3,
@@ -37207,6 +37617,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 1,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 1,
       "specialistSubjectTeacherBySubject": {
         "역사": 1,
         "수학": 3,
@@ -37300,6 +37711,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 0,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherBySubject": {
         "역사": 2,
         "수학": 3,
@@ -37393,6 +37805,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 1,
       "librarianTeacherCount": 2,
+      "counselorTeacherCount": 1,
       "specialistSubjectTeacherBySubject": {
         "기타특수": 3,
         "생활 일본어": 1,
@@ -37487,6 +37900,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 1,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 1,
       "specialistSubjectTeacherBySubject": {
         "국어": 4,
         "진로와 직업": 1,
@@ -37579,6 +37993,7 @@
       "healthTeacherCount": 0,
       "nutritionTeacherCount": 0,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherBySubject": {
         "진로와 직업": 1,
         "영어": 1,
@@ -37665,6 +38080,7 @@
       "healthTeacherCount": 0,
       "nutritionTeacherCount": 0,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherBySubject": {
         "영어": 1,
         "국어": 1,
@@ -37750,6 +38166,7 @@
       "healthTeacherCount": 0,
       "nutritionTeacherCount": 0,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherBySubject": {
         "사회": 1,
         "국어": 1,
@@ -37837,6 +38254,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 1,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 1,
       "specialistSubjectTeacherBySubject": {
         "한문": 1,
         "영어": 4,
@@ -37931,6 +38349,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 1,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 1,
       "specialistSubjectTeacherBySubject": {
         "기술·가정": 1,
         "보건": 1,
@@ -38022,6 +38441,7 @@
       "healthTeacherCount": 0,
       "nutritionTeacherCount": 0,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 1,
       "specialistSubjectTeacherBySubject": {
         "수학": 1,
         "국어": 1,
@@ -38104,6 +38524,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 0,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherBySubject": {
         "한문": 1,
         "영어": 3,
@@ -38198,6 +38619,7 @@
       "healthTeacherCount": 0,
       "nutritionTeacherCount": 0,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 1,
       "specialistSubjectTeacherBySubject": {
         "진로와 직업": 1,
         "영어": 2,
@@ -38289,6 +38711,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 0,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherBySubject": {
         "역사": 3,
         "보건": 1,
@@ -38381,6 +38804,7 @@
       "healthTeacherCount": 0,
       "nutritionTeacherCount": 0,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 1,
       "specialistSubjectTeacherBySubject": {
         "보건": 1,
         "생활 중국어": 1,
@@ -38473,6 +38897,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 0,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherBySubject": {
         "체육": 3,
         "도덕": 2,
@@ -38567,6 +38992,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 2,
       "librarianTeacherCount": 1,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherBySubject": {
         "생활 중국어": 1,
         "과학": 3,
@@ -38659,6 +39085,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 0,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 1,
       "specialistSubjectTeacherBySubject": {
         "기타특수": 2,
         "진로와 직업": 1,
@@ -38753,6 +39180,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 1,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 1,
       "specialistSubjectTeacherBySubject": {
         "과학": 3,
         "생활 중국어": 1,
@@ -38847,6 +39275,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 0,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherBySubject": {
         "진로와 직업": 1,
         "생활 중국어": 1,
@@ -38938,6 +39367,7 @@
       "healthTeacherCount": 0,
       "nutritionTeacherCount": 0,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherBySubject": {
         "진로와 직업": 1,
         "체육": 1,
@@ -39026,6 +39456,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 0,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherBySubject": {
         "기타특수": 3,
         "사회": 2,
@@ -39119,6 +39550,7 @@
       "healthTeacherCount": 0,
       "nutritionTeacherCount": 0,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherBySubject": {
         "기술·가정": 1,
         "수학": 1,
@@ -39206,6 +39638,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 1,
       "librarianTeacherCount": 1,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherBySubject": {
         "기타특수": 2,
         "국어": 6,
@@ -39300,6 +39733,7 @@
       "healthTeacherCount": 0,
       "nutritionTeacherCount": 0,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherBySubject": {
         "국어": 1,
         "수학": 1,
@@ -39383,6 +39817,7 @@
       "healthTeacherCount": 0,
       "nutritionTeacherCount": 0,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherBySubject": {
         "수학": 1,
         "국어": 2,
@@ -39469,6 +39904,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 0,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherBySubject": {
         "수학": 1,
         "영어": 1,
@@ -39554,6 +39990,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 0,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherBySubject": {
         "진로와 직업": 1,
         "영어": 2,
@@ -39645,6 +40082,7 @@
       "healthTeacherCount": null,
       "nutritionTeacherCount": null,
       "librarianTeacherCount": null,
+      "counselorTeacherCount": null,
       "teacherStatusExcludedReason": null,
       "specialistSubjectTeacherEstimate": null,
       "specialistSubjectTeacherBySubject": null,
@@ -39721,6 +40159,7 @@
       "healthTeacherCount": 0,
       "nutritionTeacherCount": 0,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherBySubject": {
         "기타특수": 1,
         "영어": 1,
@@ -39807,6 +40246,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 1,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 2,
       "specialistSubjectTeacherBySubject": {
         "대수": 1,
         "통합사회1": 2,
@@ -39912,6 +40352,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 0,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 1,
       "specialistSubjectTeacherBySubject": {
         "통합과학1": 2,
         "화학": 1,
@@ -40022,6 +40463,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 0,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherBySubject": {
         "식품 가공 기술": 2,
         "언어와 매체": 1,
@@ -40128,6 +40570,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 2,
       "librarianTeacherCount": 1,
+      "counselorTeacherCount": 1,
       "specialistSubjectTeacherBySubject": {
         "생활과 윤리": 1,
         "사회·문화": 1,
@@ -40242,6 +40685,7 @@
       "healthTeacherCount": null,
       "nutritionTeacherCount": null,
       "librarianTeacherCount": null,
+      "counselorTeacherCount": null,
       "teacherStatusExcludedReason": null,
       "specialistSubjectTeacherEstimate": null,
       "specialistSubjectTeacherBySubject": null,
@@ -40318,6 +40762,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 2,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 1,
       "specialistSubjectTeacherBySubject": {
         "체육": 1,
         "보건": 1,
@@ -40426,6 +40871,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 2,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 1,
       "specialistSubjectTeacherBySubject": {
         "기술·가정": 1,
         "물리학Ⅱ": 1,
@@ -40534,6 +40980,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 0,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherBySubject": {
         "기업 자원 통합 관리": 4,
         "체육 탐구": 1,
@@ -40642,6 +41089,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 1,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 1,
       "specialistSubjectTeacherBySubject": {
         "화법과 작문": 2,
         "한국사1": 2,
@@ -40756,6 +41204,7 @@
       "healthTeacherCount": 0,
       "nutritionTeacherCount": 0,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherBySubject": {
         "대수": 1,
         "영어Ⅰ": 1,
@@ -40864,6 +41313,7 @@
       "healthTeacherCount": null,
       "nutritionTeacherCount": null,
       "librarianTeacherCount": null,
+      "counselorTeacherCount": null,
       "teacherStatusExcludedReason": null,
       "specialistSubjectTeacherEstimate": null,
       "specialistSubjectTeacherBySubject": null,
@@ -40940,6 +41390,7 @@
       "healthTeacherCount": 0,
       "nutritionTeacherCount": 0,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherBySubject": {
         "미술 창작": 1,
         "독서": 1,
@@ -41040,6 +41491,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 1,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherBySubject": {
         "공통수학1": 1,
         "대수": 1,
@@ -41138,6 +41590,7 @@
       "healthTeacherCount": null,
       "nutritionTeacherCount": null,
       "librarianTeacherCount": null,
+      "counselorTeacherCount": null,
       "teacherStatusExcludedReason": null,
       "specialistSubjectTeacherEstimate": null,
       "specialistSubjectTeacherBySubject": null,
@@ -41214,6 +41667,7 @@
       "healthTeacherCount": 0,
       "nutritionTeacherCount": 0,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherBySubject": {
         "기타특수": 2,
         "생명과학Ⅱ": 1,
@@ -41328,6 +41782,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 0,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 2,
       "specialistSubjectTeacherBySubject": {
         "공통영어1": 2,
         "대수": 2,
@@ -41438,6 +41893,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 0,
       "librarianTeacherCount": 1,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherBySubject": {
         "심화 영어Ⅰ": 1,
         "화법과 작문": 2,
@@ -41553,6 +42009,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 0,
       "librarianTeacherCount": 1,
+      "counselorTeacherCount": 1,
       "specialistSubjectTeacherBySubject": {
         "화법과 작문": 2,
         "공통영어1": 3,
@@ -41666,6 +42123,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 2,
       "librarianTeacherCount": 1,
+      "counselorTeacherCount": 1,
       "specialistSubjectTeacherBySubject": {
         "대수": 3,
         "공통영어1": 3,
@@ -41782,6 +42240,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 0,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 1,
       "specialistSubjectTeacherBySubject": {
         "통합과학1": 2,
         "인문학과 윤리": 1,
@@ -41894,6 +42353,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 0,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 1,
       "specialistSubjectTeacherBySubject": {
         "진로와 직업": 1,
         "정보": 1,
@@ -42002,6 +42462,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 0,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherBySubject": {
         "스포츠 생활": 1,
         "윤리와 사상": 1,
@@ -42095,6 +42556,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 2,
       "librarianTeacherCount": 1,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherBySubject": {
         "세계사": 1,
         "확률과 통계": 2,
@@ -42212,6 +42674,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 0,
       "librarianTeacherCount": 1,
+      "counselorTeacherCount": 1,
       "specialistSubjectTeacherBySubject": {
         "물리학": 1,
         "통합과학1": 1,
@@ -42321,6 +42784,7 @@
       "healthTeacherCount": 0,
       "nutritionTeacherCount": 0,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherBySubject": {
         "음악": 1,
         "언어와 매체": 1,
@@ -42423,6 +42887,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 0,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherBySubject": {
         "스포츠 생활": 1,
         "성공적인 직업생활": 1,
@@ -42516,6 +42981,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 2,
       "librarianTeacherCount": 1,
+      "counselorTeacherCount": 1,
       "specialistSubjectTeacherBySubject": {
         "영어Ⅰ": 3,
         "수학과제 탐구": 1,
@@ -42630,6 +43096,7 @@
       "healthTeacherCount": 2,
       "nutritionTeacherCount": 0,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherBySubject": {
         "기타특수": 1,
         "진로와 직업": 1,
@@ -42741,6 +43208,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 2,
       "librarianTeacherCount": 1,
+      "counselorTeacherCount": 1,
       "specialistSubjectTeacherBySubject": {
         "생명과학Ⅱ": 1,
         "화학Ⅱ": 1,
@@ -42854,6 +43322,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 0,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 1,
       "specialistSubjectTeacherBySubject": {
         "화법과 작문": 2,
         "영어Ⅰ": 2,
@@ -42967,6 +43436,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 2,
       "librarianTeacherCount": 1,
+      "counselorTeacherCount": 1,
       "specialistSubjectTeacherBySubject": {
         "통합사회1": 3,
         "통합과학1": 1,
@@ -43078,6 +43548,7 @@
       "healthTeacherCount": 0,
       "nutritionTeacherCount": 0,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 1,
       "specialistSubjectTeacherBySubject": {
         "대수": 2,
         "기하": 1,
@@ -43192,6 +43663,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 1,
       "librarianTeacherCount": 1,
+      "counselorTeacherCount": 1,
       "specialistSubjectTeacherBySubject": {
         "도시의 미래 탐구": 1,
         "법과 사회": 1,
@@ -43302,6 +43774,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 1,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 1,
       "specialistSubjectTeacherBySubject": {
         "보건 간호": 1,
         "정보 통신 기기 하드웨어 개발": 1,
@@ -43389,6 +43862,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 0,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 1,
       "specialistSubjectTeacherBySubject": {
         "선반 가공": 1,
         "성공적인 직업생활": 1,
@@ -43486,6 +43960,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 0,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 1,
       "specialistSubjectTeacherBySubject": {
         "공통수학1": 2,
         "문학": 1,
@@ -43586,6 +44061,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 0,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 1,
       "specialistSubjectTeacherBySubject": {
         "물리학": 1,
         "통합과학1": 2,
@@ -43697,6 +44173,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 2,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherBySubject": {
         "사회·문화": 1,
         "윤리와 사상": 1,
@@ -43808,6 +44285,7 @@
       "healthTeacherCount": null,
       "nutritionTeacherCount": null,
       "librarianTeacherCount": null,
+      "counselorTeacherCount": null,
       "teacherStatusExcludedReason": null,
       "specialistSubjectTeacherEstimate": null,
       "specialistSubjectTeacherBySubject": null,
@@ -43884,6 +44362,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 0,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 1,
       "specialistSubjectTeacherBySubject": {
         "심리학": 1,
         "빅데이터 분석": 1,
@@ -44002,6 +44481,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 1,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 1,
       "specialistSubjectTeacherBySubject": {
         "사회와 문화": 1,
         "통합사회1": 1,
@@ -44116,6 +44596,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 0,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 1,
       "specialistSubjectTeacherBySubject": {
         "통합과학1": 1,
         "토공·포장 시공": 2,
@@ -44216,6 +44697,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 2,
       "librarianTeacherCount": 1,
+      "counselorTeacherCount": 2,
       "specialistSubjectTeacherBySubject": {
         "한국사1": 1,
         "문학": 2,
@@ -44329,6 +44811,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 0,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 1,
       "specialistSubjectTeacherBySubject": {
         "세무 일반": 1,
         "비즈니스 영어": 1,
@@ -44428,6 +44911,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 1,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherBySubject": {
         "진로와 직업": 1,
         "체육1": 1,
@@ -44517,6 +45001,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 0,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 1,
       "specialistSubjectTeacherBySubject": {
         "대수": 3,
         "화법과 작문": 1,
@@ -44628,6 +45113,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 2,
       "librarianTeacherCount": 1,
+      "counselorTeacherCount": 1,
       "specialistSubjectTeacherBySubject": {
         "공통국어1": 2,
         "문학": 2,
@@ -44739,6 +45225,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 2,
       "librarianTeacherCount": 1,
+      "counselorTeacherCount": 1,
       "specialistSubjectTeacherBySubject": {
         "화법과 작문": 3,
         "미적분": 2,
@@ -44857,6 +45344,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 2,
       "librarianTeacherCount": 1,
+      "counselorTeacherCount": 1,
       "specialistSubjectTeacherBySubject": {
         "컴퓨터 활용 생산": 5,
         "대수": 2,
@@ -44984,6 +45472,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 2,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 1,
       "specialistSubjectTeacherBySubject": {
         "일본어": 1,
         "농업 정보 관리": 1,
@@ -45105,6 +45594,7 @@
       "healthTeacherCount": 0,
       "nutritionTeacherCount": 1,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 1,
       "specialistSubjectTeacherBySubject": {
         "확률과 통계": 1,
         "대수": 4,
@@ -45219,6 +45709,7 @@
       "healthTeacherCount": 0,
       "nutritionTeacherCount": 0,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 1,
       "specialistSubjectTeacherBySubject": {
         "물리학": 1,
         "문학": 2,
@@ -45336,6 +45827,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 2,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherBySubject": {
         "심리학": 1,
         "문학과 영상": 1,
@@ -45456,6 +45948,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 0,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherBySubject": {
         "상업 경제": 2,
         "회계 원리": 2,
@@ -45564,6 +46057,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 1,
       "librarianTeacherCount": 1,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherBySubject": {
         "세계사": 1,
         "진로와 직업": 1,
@@ -45676,6 +46170,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 0,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 1,
       "specialistSubjectTeacherBySubject": {
         "음악 연주와 창작": 1,
         "체육1": 1,
@@ -45784,6 +46279,7 @@
       "healthTeacherCount": 0,
       "nutritionTeacherCount": 0,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 1,
       "specialistSubjectTeacherBySubject": {
         "프로그래밍 JAVA 기초": 1,
         "한국사1": 1,
@@ -45892,6 +46388,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 2,
       "librarianTeacherCount": 1,
+      "counselorTeacherCount": 1,
       "specialistSubjectTeacherBySubject": {
         "화법과 작문": 2,
         "통합사회1": 2,
@@ -46009,6 +46506,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 2,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 1,
       "specialistSubjectTeacherBySubject": {
         "기본영어1": 2,
         "미디어 영어": 1,
@@ -46112,6 +46610,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 0,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 1,
       "specialistSubjectTeacherBySubject": {
         "한국사1": 1,
         "통합과학1": 1,
@@ -46214,6 +46713,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 1,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherBySubject": {
         "한문": 1,
         "영어Ⅰ": 2,
@@ -46328,6 +46828,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 2,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherBySubject": {
         "화학 분석": 2,
         "반도체 개발": 1,
@@ -46433,6 +46934,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 1,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 1,
       "specialistSubjectTeacherBySubject": {
         "미술": 1,
         "음악": 1,
@@ -46540,6 +47042,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 0,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 1,
       "specialistSubjectTeacherBySubject": {
         "음악": 1,
         "기타과목": 4,
@@ -46638,6 +47141,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 0,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 1,
       "specialistSubjectTeacherBySubject": {
         "기타특수": 2,
         "공통수학1": 1,
@@ -46748,6 +47252,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 2,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 1,
       "specialistSubjectTeacherBySubject": {
         "기타특수": 2,
         "건강 기능 식품 가공": 1,
@@ -46850,6 +47355,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 0,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 1,
       "specialistSubjectTeacherBySubject": {
         "한국사1": 1,
         "실생활 영어 회화": 1,
@@ -46945,6 +47451,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 1,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 1,
       "specialistSubjectTeacherBySubject": {
         "지구과학Ⅱ": 1,
         "확률과 통계": 1,
@@ -47059,6 +47566,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 0,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 1,
       "specialistSubjectTeacherBySubject": {
         "문학": 1,
         "공통수학1": 1,
@@ -47173,6 +47681,7 @@
       "healthTeacherCount": 0,
       "nutritionTeacherCount": 0,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 1,
       "specialistSubjectTeacherBySubject": {
         "미술": 1,
         "정보": 1,
@@ -47280,6 +47789,7 @@
       "healthTeacherCount": 2,
       "nutritionTeacherCount": 3,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherBySubject": {
         "보건": 1,
         "인간과 심리": 1,
@@ -47386,6 +47896,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 0,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherBySubject": {
         "화법과 작문": 1,
         "생명과학Ⅱ": 1,
@@ -47481,6 +47992,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 2,
       "librarianTeacherCount": 1,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherBySubject": {
         "스포츠 문화": 1,
         "한국사1": 2,
@@ -47592,6 +48104,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 1,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 1,
       "specialistSubjectTeacherBySubject": {
         "직무 의사소통": 1,
         "통합과학1": 1,
@@ -47705,6 +48218,7 @@
       "healthTeacherCount": 0,
       "nutritionTeacherCount": 1,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 1,
       "specialistSubjectTeacherBySubject": {
         "공통영어1": 2,
         "영어Ⅰ": 2,
@@ -47815,6 +48329,7 @@
       "healthTeacherCount": 0,
       "nutritionTeacherCount": 0,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 1,
       "specialistSubjectTeacherBySubject": {
         "실용 국어": 1,
         "시스템 프로그래밍": 2,
@@ -47926,6 +48441,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 0,
       "librarianTeacherCount": 1,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherBySubject": {
         "한국사1": 2,
         "통합사회1": 1,
@@ -48040,6 +48556,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 0,
       "librarianTeacherCount": 1,
+      "counselorTeacherCount": 1,
       "specialistSubjectTeacherBySubject": {
         "주제 탐구 독서": 1,
         "통합사회1": 2,
@@ -48156,6 +48673,7 @@
       "healthTeacherCount": 0,
       "nutritionTeacherCount": 1,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 1,
       "specialistSubjectTeacherBySubject": {
         "독서": 1,
         "화학Ⅱ": 1,
@@ -48263,6 +48781,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 1,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherBySubject": {
         "한국사1": 1,
         "독서와 작문": 1,
@@ -48350,6 +48869,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 0,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherBySubject": {
         "프랑스어": 1,
         "공통수학1": 1,
@@ -48458,6 +48978,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 2,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 1,
       "specialistSubjectTeacherBySubject": {
         "통합과학1": 1,
         "체육1": 1,
@@ -48563,6 +49084,7 @@
       "healthTeacherCount": 0,
       "nutritionTeacherCount": 1,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherBySubject": {
         "제빵": 1,
         "바리스타": 1,
@@ -48659,6 +49181,7 @@
       "healthTeacherCount": 0,
       "nutritionTeacherCount": 0,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 1,
       "specialistSubjectTeacherBySubject": {
         "공통영어1": 1,
         "대수": 1,
@@ -48777,6 +49300,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 1,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherBySubject": {
         "심리학": 1,
         "일본어": 1,
@@ -48882,6 +49406,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 0,
       "librarianTeacherCount": 0,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherBySubject": {
         "인공지능 기초": 1,
         "체육1": 1,
@@ -48970,6 +49495,7 @@
       "healthTeacherCount": 1,
       "nutritionTeacherCount": 0,
       "librarianTeacherCount": 1,
+      "counselorTeacherCount": 0,
       "specialistSubjectTeacherBySubject": {
         "공통수학1": 3,
         "문학": 2,

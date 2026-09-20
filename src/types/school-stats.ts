@@ -43,6 +43,7 @@ export interface School {
   healthTeacherCount: number | null;
   nutritionTeacherCount: number | null;
   librarianTeacherCount: number | null;
+  counselorTeacherCount: number | null; // 전문상담교사
   teacherStatusExcludedReason: string | null;
 
   // --- 표시과목별 교원 현황(24) ---
