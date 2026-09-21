@@ -5,6 +5,7 @@ import type {
 } from '@/types/commute';
 import schoolsRender from '../../public/data/chungbuk-schools-render.json';
 import { getServiceSupabase } from './supabase-server';
+import { reserveApiBudget } from './api-budget';
 import { fetchCarRoute } from './kakao-directions';
 import { haversineKm, compareByCommute, type LatLng } from './route-origin';
 import type { OwnershipFilter } from './school-region';
@@ -24,7 +25,7 @@ import type { OwnershipFilter } from './school-region';
 
 const ALL_SCHOOLS = (schoolsRender as ChungbukSchoolsData).schools;
 
-const DAILY_BUDGET = Number(process.env.ROUTE_DAILY_BUDGET) || 8000;
+const DAILY_BUDGET = Number(process.env.ROUTE_DAILY_BUDGET) || 9000; // 무료한도(10,000/일)의 90%
 const MAX_PER_QUERY = Number(process.env.ROUTE_MAX_PER_QUERY) || 20;
 const CONCURRENCY = 6;
 const BUDGET_ROLLBACK_LIMIT = 2_000_000_000;
@@ -41,28 +42,14 @@ interface RankingInput {
   offset: number;
 }
 
-/** KST 기준 날짜 문자열 — 예산은 한국 자정에 리셋. */
-function kstDay(): string {
-  return new Date(Date.now() + 9 * 3600 * 1000).toISOString().slice(0, 10);
-}
-
 const round2 = (n: number): number => Math.round(n * 100) / 100;
 
-async function reserveBudget(
+function reserveBudget(
   supabase: NonNullable<ReturnType<typeof getServiceSupabase>>,
   n: number,
   limit = DAILY_BUDGET,
 ): Promise<boolean> {
-  const { data, error } = await supabase.rpc('reserve_api_budget', {
-    p_day: kstDay(),
-    p_n: n,
-    p_limit: limit,
-  });
-  if (error) {
-    console.error('reserve_api_budget 실패', error);
-    return false;
-  }
-  return data !== null;
+  return reserveApiBudget(supabase, 'directions', n, limit);
 }
 
 /** 동시 실행 수를 제한하며 map. */

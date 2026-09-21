@@ -56,4 +56,23 @@
 
 ---
 
+## 4. 서버 쿼터 게이트 적용 현황 (2026-09-21)
+
+Supabase `api_budget` 테이블(`day`, `api_type`, `used`) + `reserve_api_budget` RPC로 **API 종류별로 따로** 일일 상한을 건다(무료한도의 90%가 기본값, 각 env로 조정 가능). 원자적 예약 → 호출 → 실패 시 롤백 패턴은 셋 다 동일(`src/lib/api-budget.ts`의 `reserveApiBudget` 공용).
+
+| API | api_type | 기본 상한(env) | 코드 위치 |
+|---|---|---|---|
+| 길찾기 | `directions` | 9,000/일(`ROUTE_DAILY_BUDGET`) | `src/lib/route-ranking.ts` |
+| 주소 검색 | `geocode_address` | 90,000/일(`GEOCODE_ADDRESS_DAILY_BUDGET`) | `src/lib/kakao-geocode.ts` |
+| 키워드 검색(폴백) | `geocode_keyword` | 90,000/일(`GEOCODE_KEYWORD_DAILY_BUDGET`) | `src/lib/kakao-geocode.ts` |
+
+- 마이그레이션: `supabase/migrations/0003_api_budget_per_type.sql` (0002는 `directions` 전용 단일 카운터였음 — api_type 컬럼 추가해 종류별로 분리)
+- 주소검색 예산 초과: 검색 자체를 하드 에러로 막음(`GeocodeUnavailableError('over_budget')`, HTTP 429) — 매 검색마다 항상 나가는 1차 호출이라
+- 키워드검색 예산 초과: 에러 안 띄우고 조용히 빈 결과 반환 — 주소검색 실패 시에만 쓰는 폴백이라 덜 치명적으로 처리
+- Supabase 미설정 시: geocode도 route-ranking과 동일하게 기능 자체를 비활성화(fail-closed) — 이 기능은 어차피 Supabase 없인 길찾기 단계에서 막히므로 geocode만 열어둘 이유가 없음
+
+지도 SDK 쿼터(300,000/일)는 서버 호출이 아니라 브라우저에서 SDK 스크립트를 로드하는 것뿐이라 서버 예산 게이트 대상이 아님 — 앱 로드 횟수가 곧 소진량.
+
+---
+
 이 문서를 참조하는 곳: `_refs/학교_소요시간_순위_구현계획.md` 3번, Claude 세션 메모리 `reference_kakao_api_quota`
