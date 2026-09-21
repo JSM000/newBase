@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { geocodeCandidates } from '@/lib/kakao-geocode';
+import { geocodeCandidates, GeocodeUnavailableError } from '@/lib/kakao-geocode';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -9,9 +9,8 @@ function bad(message: string, status = 400) {
 }
 
 /**
- * 주소 → 후보 목록. 길찾기 예산(api_budget)과 무관 — 카카오 로컬(주소·키워드) 검색은
- * 별도 쿼터라 여기선 Supabase 를 건드리지 않는다. 실측(길찾기)은 후보를 고른 뒤
- * /api/route-ranking 에서만 발생한다.
+ * 주소 → 후보 목록. 길찾기(directions)와는 무료한도·단가가 달라 예산(api_budget)을
+ * 종류별로 따로 센다(계획: _refs/카카오_API_쿼터.md) — kakao-geocode.ts가 처리.
  */
 export async function POST(req: NextRequest) {
   let body: Record<string, unknown>;
@@ -32,6 +31,9 @@ export async function POST(req: NextRequest) {
     const candidates = await geocodeCandidates(address);
     return NextResponse.json({ candidates }, { headers: { 'Cache-Control': 'no-store' } });
   } catch (e) {
+    if (e instanceof GeocodeUnavailableError) {
+      return bad(e.message, e.reason === 'over_budget' ? 429 : 503);
+    }
     console.error('geocodeCandidates 실패', e);
     return bad('주소 검색 중 오류가 발생했습니다.', 500);
   }
