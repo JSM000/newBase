@@ -15,7 +15,8 @@ import { groupSchoolsBySigungu, groupSchoolsBySubRegion } from '@/lib/school-reg
 import { loadKakaoMaps, KAKAO_APP_KEY } from '@/lib/kakao-loader';
 import { useSchoolClusters } from '@/hooks/use-school-clusters';
 import { useChungbukBoundaries } from '@/hooks/use-chungbuk-boundaries';
-import { getMarkerImage, createRegionClusterElement } from './marker-image';
+import { formatDuration } from '@/utils/formatter';
+import { getMarkerImage, createRegionClusterElement, COMMUTE_MARKER_SCALE } from './marker-image';
 
 interface KakaoMapProps {
   schools: School[];
@@ -24,11 +25,14 @@ interface KakaoMapProps {
   onSelectSchool: (school: School) => void;
   /**
    * 길찾기 패널이 켜졌을 때 — 집(출발지) 마커 + 선택 학교까지의 경로 폴리라인.
-   * `path`가 있으면 경로에, 없으면 집 + `schoolPoints` 전체에 맞춰 화면을 이동한다.
+   * `path`가 있으면 실제 도로 경로를, 없고 `selectedPosition`만 있으면(아직 실측 안 돼
+   * 직선거리만 있는 학교를 선택한 경우) 집↔학교 직선을 그린다. 둘 다 없으면 집 +
+   * `schoolPoints` 전체에 맞춰 화면을 이동한다.
    */
   routeOverlay?: {
     origin: { lat: number; lng: number };
     path: [number, number][] | null;
+    selectedPosition?: { lat: number; lng: number } | null;
     schoolPoints?: { lat: number; lng: number }[];
   } | null;
   /** 설정 페이지에 저장해둔 집 좌표 — 길찾기를 안 켜도 항상 집모양 마커로 표시 */
@@ -37,6 +41,15 @@ interface KakaoMapProps {
   zoneFeatures: SchoolZoneFeature[];
   /** 그 중 지금 선택된 학교에 연결된 학구ID 목록 (전용/공동) — null 이면 아무것도 안 그림 */
   zoneLink: SchoolZoneLink | null;
+  /**
+   * 출퇴근 시간 계산기 탭일 때만 전달 — 마우스 호버 툴팁에 표시·순위 기준 대신 이 값을
+   * 보여준다(school-code 별 실측/직선 결과). `null`이면 기존처럼 indicator 값을 보여준다.
+   */
+  commuteStats?: Map<string, { durationSec: number | null; straightKm: number }> | null;
+  /** 켜면 줌 레벨과 무관하게 클러스터 없이 모든 학교 개별 마커를 표시. 토글 UI는 필터 바로 이동, 값만 받는다 */
+  showAllMarkers: boolean;
+  /** 시·군 행정구역 경계선 표시 여부. 토글 UI는 필터 바로 이동, 값만 받는다 */
+  showBoundaries: boolean;
 }
 
 /** 부모(순위 목록 등)가 지도를 조작할 수 있는 명령형 API. */
@@ -57,6 +70,9 @@ const FOCUS_LEVEL = 3; // 순위 목록 등에서 특정 학교로 이동할 때
 
 // 행정구역 채움 투명도 — 지도 라벨·마커가 비쳐 보이도록 낮게.
 const BOUNDARY_FILL_OPACITY = 0.14;
+
+// 출퇴근 시간 계산기 탭 전용 마커·클러스터 색 — 표시·순위 기준 색상과 겹치지 않게 primary 고정.
+const COMMUTE_MARKER_COLOR = '#e77474';
 
 function tierOf(level: number): ViewTier {
   if (level >= SIGUNGU_MIN_LEVEL) return 'sigungu';
@@ -82,6 +98,9 @@ export const KakaoMap = forwardRef<KakaoMapHandle, KakaoMapProps>(function Kakao
   homePosition = null,
   zoneFeatures,
   zoneLink,
+  commuteStats = null,
+  showAllMarkers,
+  showBoundaries,
 }, ref) {
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<KakaoMap | null>(null);
@@ -105,11 +124,9 @@ export const KakaoMap = forwardRef<KakaoMapHandle, KakaoMapProps>(function Kakao
       : 'Kakao 지도 API 키가 설정되지 않았습니다. 개발 서버를 NEXT_PUBLIC_KAKAOMAP_API_KEY=발급키 npm run dev 로 실행하세요.',
   );
   const [level, setLevel] = useState(INITIAL_LEVEL);
-  // 켜면 줌 레벨과 무관하게 클러스터 없이 모든 학교 개별 마커를 표시
-  const [showAllMarkers, setShowAllMarkers] = useState(false);
-  // 시·군 행정구역 경계선 표시 여부 — 기본 켜짐
-  const [showBoundaries, setShowBoundaries] = useState(true);
   const viewTier: ViewTier = showAllMarkers ? 'individual' : tierOf(level);
+  // commuteStats가 주어지면(빈 Map이어도) 출퇴근 탭 — 마커/클러스터 색·크기, 툴팁에서 쓴다.
+  const isCommuteMode = commuteStats !== null;
 
   // 행정구역(시·군) 경계선 — 필터·지표와 무관한 정적 데이터
   const { data: boundaryData } = useChungbukBoundaries();
@@ -332,6 +349,8 @@ export const KakaoMap = forwardRef<KakaoMapHandle, KakaoMapProps>(function Kakao
     regionOverlaysRef.current = [];
 
     const tooltip = tooltipRef.current;
+    // isCommuteMode는 컴포넌트 최상단에서 계산됨 — 표시·순위 기준 색/크기 대신 고정된
+    // primary 색 + 확대된 크기로 통일해서, "자료 없음"(회색·최소크기)과 구분되게 한다.
 
     // 뱃지 표시 위치 = 클릭 시 이동 위치, 하나로 통일(계획 3-2). chungbuk-school-clusters.json의
     // bestCenter(밀집 위치, 필터 무관 사전 계산값)를 쓰고, 아직 못 불러왔거나 매칭이 안 되는
@@ -357,8 +376,16 @@ export const KakaoMap = forwardRef<KakaoMapHandle, KakaoMapProps>(function Kakao
     ): KakaoCustomOverlay {
       const avgValue = averageIndicatorValue(indicator, groupSchools);
       const bucket = avgValue === null ? null : bucketIndex(indicator, avgValue);
-      const color = avgValue === null ? NO_DATA_COLOR : bucketColor(indicator, avgValue);
-      const el = createRegionClusterElement(name, groupSchools.length, color, bucket);
+      const color = isCommuteMode
+        ? COMMUTE_MARKER_COLOR
+        : avgValue === null ? NO_DATA_COLOR : bucketColor(indicator, avgValue);
+      const el = createRegionClusterElement(
+        name,
+        groupSchools.length,
+        color,
+        bucket,
+        isCommuteMode ? COMMUTE_MARKER_SCALE : undefined,
+      );
 
       el.addEventListener('click', () => {
         moveToPosition(mapsNs, targetMap, position, targetLevel);
@@ -405,12 +432,14 @@ export const KakaoMap = forwardRef<KakaoMapHandle, KakaoMapProps>(function Kakao
 
       const value = indicator.accessor(school);
       const bucket = value === null ? null : bucketIndex(indicator, value);
-      const color = value === null ? NO_DATA_COLOR : bucketColor(indicator, value);
+      const color = isCommuteMode
+        ? COMMUTE_MARKER_COLOR
+        : value === null ? NO_DATA_COLOR : bucketColor(indicator, value);
       const isSelected = school.schulCode === selectedSchoolCode;
 
       const marker = new maps.Marker({
         position: pos,
-        image: getMarkerImage(maps, color, isSelected, bucket),
+        image: getMarkerImage(maps, color, isSelected, bucket, isCommuteMode ? COMMUTE_MARKER_SCALE : undefined),
         title: school.schulNm,
         clickable: true,
       });
@@ -426,11 +455,20 @@ export const KakaoMap = forwardRef<KakaoMapHandle, KakaoMapProps>(function Kakao
           tooltipHideTimerRef.current = null;
         }
         tooltip.setPosition(pos);
+        // 출퇴근 탭(commuteStats 전달됨)에선 표시·순위 기준 대신 실측/직선 결과를 보여준다.
+        const commuteStat = commuteStats?.get(school.schulCode);
+        const detailLine = commuteStats
+          ? commuteStat
+            ? commuteStat.durationSec !== null
+              ? `자동차 ${formatDuration(commuteStat.durationSec)}`
+              : `직선 ${commuteStat.straightKm}km`
+            : ''
+          : `${indicator.label} ${formatIndicatorValue(indicator, indicator.accessor(school))}`;
         // pointer-events:none — 툴팁이 마커와 겹쳐도 마우스를 가로채지 않아야 한다.
         tooltip.setContent(
           `<div style="pointer-events:none;padding:6px 10px;background:#111827;color:#fff;border-radius:8px;font-size:12px;white-space:nowrap;box-shadow:0 2px 8px rgba(0,0,0,.25)">
              <b>${school.schulNm}</b>
-             <span style="opacity:.75;margin-left:6px">${indicator.label} ${formatIndicatorValue(indicator, indicator.accessor(school))}</span>
+             ${detailLine ? `<span style="opacity:.75;margin-left:6px">${detailLine}</span>` : ''}
            </div>`,
         );
         tooltip.setMap(map);
@@ -448,7 +486,7 @@ export const KakaoMap = forwardRef<KakaoMapHandle, KakaoMapProps>(function Kakao
     }
 
     markersRef.current = markers;
-  }, [status, schools, indicator, selectedSchoolCode, viewTier, sigunguCenters, subRegionCenters]);
+  }, [status, schools, indicator, selectedSchoolCode, viewTier, sigunguCenters, subRegionCenters, commuteStats, isCommuteMode]);
 
   // ── 길찾기: 집(출발) 마커 + 선택 학교까지 경로 폴리라인 ──
   useEffect(() => {
@@ -496,6 +534,24 @@ export const KakaoMap = forwardRef<KakaoMapHandle, KakaoMapProps>(function Kakao
       line.setMap(map);
       routeLineRef.current = line;
       for (const ll of latlngs) bounds.extend(ll);
+    } else if (routeOverlay.selectedPosition) {
+      // 아직 실측 안 된(직선거리만 있는) 학교를 선택한 경우 — 실제 도로 경로 대신
+      // 집↔학교 직선을 점선으로 표시해 "이건 실제 경로가 아니다"를 구분한다.
+      const targetPos = new maps.LatLng(
+        routeOverlay.selectedPosition.lat,
+        routeOverlay.selectedPosition.lng,
+      );
+      const line = new maps.Polyline({
+        path: [originPos, targetPos],
+        strokeWeight: 3,
+        strokeColor: '#9ca3af', // zinc-400
+        strokeOpacity: 0.9,
+        strokeStyle: 'shortdash',
+        zIndex: 25,
+      });
+      line.setMap(map);
+      routeLineRef.current = line;
+      bounds.extend(targetPos);
     } else {
       // 경로 미선택 — 집 + 대상 학교 전체가 보이게
       for (const p of routeOverlay.schoolPoints ?? []) {
@@ -568,35 +624,6 @@ export const KakaoMap = forwardRef<KakaoMapHandle, KakaoMapProps>(function Kakao
   return (
     <div className="relative h-full w-full overflow-hidden rounded-xl bg-zinc-100">
       <div ref={containerRef} className="h-full w-full" />
-
-      {status === 'ready' && (
-        <div className="absolute left-3 top-3 z-10 flex flex-col items-start gap-2">
-          <button
-            type="button"
-            onClick={() => setShowAllMarkers((v) => !v)}
-            aria-pressed={showAllMarkers}
-            className={`rounded-lg border px-3 py-1.5 text-xs font-medium shadow-custom backdrop-blur transition-colors ${
-              showAllMarkers
-                ? 'border-primary bg-primary text-white'
-                : 'border-zinc-200 bg-white/95 text-zinc-700 hover:bg-white'
-            }`}
-          >
-            {showAllMarkers ? '지역별로 묶어 보기' : '학교 개별 마커 보기'}
-          </button>
-          <button
-            type="button"
-            onClick={() => setShowBoundaries((v) => !v)}
-            aria-pressed={showBoundaries}
-            className={`rounded-lg border px-3 py-1.5 text-xs font-medium shadow-custom backdrop-blur transition-colors ${
-              showBoundaries
-                ? 'border-primary bg-primary text-white'
-                : 'border-zinc-200 bg-white/95 text-zinc-700 hover:bg-white'
-            }`}
-          >
-            {showBoundaries ? '행정구역 경계 끄기' : '행정구역 경계 켜기'}
-          </button>
-        </div>
-      )}
 
       {status === 'loading' && (
         <div className="absolute inset-0 flex items-center justify-center bg-zinc-50/80">

@@ -28,6 +28,13 @@ const PIN_TIP_LOCAL = { x: 12, y: 22 };
 export const BUCKET_SCALE = [0.58, 0.78, 1.02, 1.3, 1.62] as const;
 const NO_DATA_SCALE = 0.58;
 
+/**
+ * 출퇴근 시간 계산기 탭 전용 크기 — "자료 없음"(0.58, 가장 작음)과 헷갈리지 않도록
+ * 눈에 띄게 크게. BUCKET_SCALE 중간값(1.02)보다는 작게 잡아 실제 점수 지표의
+ * "높음" 단계와도 안 헷갈리게 한다.
+ */
+export const COMMUTE_MARKER_SCALE = 0.9;
+
 function scaleFor(bucket: number | null): number {
   return bucket === null ? NO_DATA_SCALE : (BUCKET_SCALE[bucket] ?? NO_DATA_SCALE);
 }
@@ -62,12 +69,14 @@ export function getMarkerImage(
   color: string,
   selected: boolean,
   bucket: number | null,
+  /** 주어지면 bucket 기반 배율 대신 이 값을 그대로 쓴다 (출퇴근 탭 등, 지표 구간과 무관한 고정 크기) */
+  scaleOverride?: number,
 ): unknown {
-  const key = `${color}|${selected ? 's' : 'n'}|${bucket ?? 'x'}`;
+  const key = `${color}|${selected ? 's' : 'n'}|${scaleOverride ?? bucket ?? 'x'}`;
   const hit = cache.get(key);
   if (hit) return hit;
 
-  const k = scaleFor(bucket);
+  const k = scaleOverride ?? scaleFor(bucket);
   const tip = toScreen(PIN_TIP_LOCAL);
   const image = new maps.MarkerImage(
     svgPin(color, selected, k),
@@ -97,8 +106,10 @@ export function createRegionClusterElement(
   count: number,
   color: string,
   bucket: number | null,
+  /** 주어지면 bucket 기반 배율 대신 이 값을 그대로 쓴다 (개별 마커의 scaleOverride와 동일 목적) */
+  scaleOverride?: number,
 ): HTMLDivElement {
-  const scale = clusterScaleFor(bucket);
+  const scale = scaleOverride ?? clusterScaleFor(bucket);
   const dim = Math.max(34, Math.round(46 * scale)); // 숫자가 들어가므로 최소 지름 보장
   const font = Math.max(12, Math.round(15 * scale));
 
