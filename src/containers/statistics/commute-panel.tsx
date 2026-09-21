@@ -1,13 +1,9 @@
 'use client';
 
-import { useEffect, useState, type FormEvent } from 'react';
 import { MapPin, X } from 'lucide-react';
 import { cn } from '@/utils/cn';
 import { formatDuration, formatDistance } from '@/utils/formatter';
 import { schulKndLabel, type SchoolLevelFilter, type OwnershipFilter } from '@/lib/school-region';
-import { useGeocodeCandidates } from '@/hooks/use-geocode-candidates';
-import { useRouteRanking } from '@/hooks/use-route-ranking';
-import { cooldownRemainingMs, markSearched } from '@/lib/commute-rate-limit';
 import type { GeocodeCandidate, RouteRankingResponse } from '@/types/commute';
 import type { SchulKndCode } from '@/types/school-stats';
 
@@ -19,22 +15,27 @@ interface CommutePanelProps {
   ownership: OwnershipFilter;
   result: RouteRankingResponse | null;
   selectedCode: string | null;
-  onResult: (r: RouteRankingResponse | null) => void;
   onSelectCode: (code: string | null) => void;
   onClose: () => void;
-  /** 설정 페이지에 저장해둔 집 좌표 — 있으면 주소 재검색 없이 한 번의 클릭으로 바로 쓸 수 있다 */
-  savedHomeCoords?: { lat: number; lng: number } | null;
+  /** 주소 검색(필터바)에서 받아온 후보 목록 — 골라서 출발지를 확정하는 건 여기서 한다 */
+  candidates: GeocodeCandidate[] | null;
+  pickedOrigin: GeocodeCandidate | null;
+  onPickCandidate: (c: GeocodeCandidate) => void;
+  sortDir: 'near' | 'far';
+  onSortDirChange: (d: 'near' | 'far') => void;
+  onLoadMore: () => void;
+  cooling: boolean;
+  cooldownSec: number;
+  isRanking: boolean;
+  errorMsg: string | null;
 }
 
 /**
- * 오른쪽 사이드바 — 집주소를 입력하면 현재 필터(시·군 + 학교급 + 설립구분)의 학교까지 자동차
- * 소요시간을 순위로 보여준다. 학교를 누르면 statistics-container 가 그 학교의 경로를 지도에
- * 그린다(경로는 순위 응답에 포함돼 있어 추가 호출 없음).
- *
- * 검색은 2단계: ① 주소 → 후보 목록 조회(/api/geocode), ② 사용자가 후보 하나를 직접 골라 확정 →
- * 그 좌표로 길찾기 실행(/api/route-ranking). 카카오 응답 1위를 자동 채택하지 않는 이유는, 동/읍/면
- * 단위 같은 부정확한 매칭이 1위로 올 수 있어서다(address_type 참고). 30초 재검색 제한은 ①(후보
- * 조회) 시점에 기록 — 후보를 고르는 동작 자체는 쿨다운과 무관하게 항상 가능해야 한다.
+ * 오른쪽 사이드바 — 필터바에서 검색한 주소의 후보 목록 중 출발지를 고르면, 현재 필터
+ * (시·군 + 학교급 + 설립구분)의 학교까지 자동차 소요시간을 순위로 보여준다. 학교를 누르면
+ * statistics-container 가 그 학교의 경로를 지도에 그린다(경로는 순위 응답에 포함돼 있어
+ * 추가 호출 없음). 주소 검색 자체(입력창·쿨다운)는 필터바 쪽에 있다 — 검색 로직은
+ * use-commute-search.ts 훅에 모여있고 이 컴포넌트와 필터바가 나눠 쓴다.
  */
 export function CommutePanel({
   isOpen,
@@ -43,104 +44,20 @@ export function CommutePanel({
   ownership,
   result,
   selectedCode,
-  onResult,
   onSelectCode,
   onClose,
-  savedHomeCoords,
+  candidates,
+  pickedOrigin,
+  onPickCandidate,
+  sortDir,
+  onSortDirChange,
+  onLoadMore,
+  cooling,
+  cooldownSec,
+  isRanking,
+  errorMsg,
 }: CommutePanelProps) {
-  const geocode = useGeocodeCandidates();
-  const ranking = useRouteRanking();
-  const [address, setAddress] = useState('');
-  const [candidates, setCandidates] = useState<GeocodeCandidate[] | null>(null);
-  const [pickedOrigin, setPickedOrigin] = useState<GeocodeCandidate | null>(null);
-  const [sortDir, setSortDir] = useState<'near' | 'far'>('near');
-  const [cooldownMs, setCooldownMs] = useState(0);
-
-  // 쿨다운 카운트다운. 1초마다 localStorage 를 다시 읽어 남은 시간을 반영한다.
-  // (마운트·검색 완료 시 재시작 — 검색 직후 즉시 반영은 아래 onSuccess 에서 처리.)
-  useEffect(() => {
-    const id = setInterval(() => {
-      setCooldownMs(cooldownRemainingMs());
-    }, 1000);
-    return () => clearInterval(id);
-  }, [geocode.isPending, ranking.isPending]);
-
   const ready = level !== 'all' && sigungu !== 'all';
-  const cooling = cooldownMs > 0;
-  const cooldownSec = Math.ceil(cooldownMs / 1000);
-
-  /** ① 주소 검색 — 후보 목록만 받아온다. 30초 쿨다운은 여기서 기록. */
-  function handleSearchSubmit(e: FormEvent) {
-    e.preventDefault();
-    if (!ready || !address.trim() || cooling || geocode.isPending || ranking.isPending) return;
-    onResult(null);
-    onSelectCode(null);
-    setPickedOrigin(null);
-    setCandidates(null);
-    geocode.mutate(
-      { address: address.trim() },
-      {
-        onSuccess: (res) => {
-          markSearched();
-          setCooldownMs(cooldownRemainingMs());
-          setCandidates(res.candidates);
-        },
-      },
-    );
-  }
-
-  /** ② 실측(길찾기) 실행 — offset=0 이면 새 검색, 그 이상이면 "나머지도 계산" 이어받기. */
-  function runRanking(origin: GeocodeCandidate, offset: number) {
-    ranking.mutate(
-      {
-        origin: { lat: origin.lat, lng: origin.lng },
-        schulKndCode: level as SchulKndCode,
-        sigungu,
-        ownership,
-        offset,
-      },
-      { onSuccess: (res) => onResult(res) },
-    );
-  }
-
-  /** 후보 목록에서 출발지를 확정 — 쿨다운과 무관하게 항상 가능(직전 검색의 연장 동작). */
-  function pickCandidate(c: GeocodeCandidate) {
-    if (ranking.isPending) return;
-    setPickedOrigin(c);
-    setCandidates(null);
-    runRanking(c, 0);
-  }
-
-  /** 설정 페이지에 저장해둔 집 좌표를 바로 출발지로 — 주소 검색 없이 한 번의 클릭. */
-  function useSavedHome() {
-    if (!ready || !savedHomeCoords || ranking.isPending) return;
-    const origin: GeocodeCandidate = {
-      label: '저장된 집 위치',
-      roadAddress: null,
-      addressType: 'SAVED',
-      source: 'address',
-      lat: savedHomeCoords.lat,
-      lng: savedHomeCoords.lng,
-    };
-    setCandidates(null);
-    setPickedOrigin(origin);
-    runRanking(origin, 0);
-  }
-
-  function loadMore() {
-    if (!pickedOrigin || !result || cooling || ranking.isPending) return;
-    runRanking(pickedOrigin, result.measuredCount);
-  }
-
-  const errorMsg = geocode.isError
-    ? geocode.error instanceof Error
-      ? geocode.error.message
-      : '주소 검색 중 오류가 발생했습니다.'
-    : ranking.isError
-      ? ranking.error instanceof Error
-        ? ranking.error.message
-        : '경로 계산 중 오류가 발생했습니다.'
-      : null;
 
   const ordered =
     result && sortDir === 'far'
@@ -150,7 +67,7 @@ export function CommutePanel({
   return (
     <aside
       className={cn(
-        'absolute inset-y-0 right-0 z-20 flex w-full max-w-sm flex-col border-l border-zinc-200 bg-white shadow-2xl',
+        'absolute inset-y-0 right-0 z-30 flex w-full max-w-sm flex-col border-l border-zinc-200 bg-white shadow-2xl',
         isOpen ? '' : 'hidden',
       )}
     >
@@ -172,53 +89,14 @@ export function CommutePanel({
         </button>
       </header>
 
-      <form onSubmit={handleSearchSubmit} className="border-b border-zinc-100 p-4">
-        <label
-          className="mb-1 block text-[11px] font-medium uppercase tracking-wide text-zinc-400"
-          htmlFor="commute-address"
-        >
-          집주소
-        </label>
-        <div className="flex gap-2">
-          <input
-            id="commute-address"
-            type="text"
-            value={address}
-            onChange={(e) => setAddress(e.target.value)}
-            placeholder="도로명 주소 (지번·건물명도 가능)"
-            className="h-9 min-w-0 flex-1 rounded-lg border border-zinc-200 bg-white px-3 text-sm placeholder:text-zinc-400 focus:border-primary focus:outline-none"
-            autoComplete="street-address"
-          />
-          <button
-            type="submit"
-            disabled={!ready || !address.trim() || cooling || geocode.isPending || ranking.isPending}
-            className="h-9 shrink-0 rounded-lg bg-primary px-3 text-sm font-semibold text-white transition-colors hover:bg-primary-700 disabled:opacity-50"
-          >
-            {geocode.isPending ? '검색 중' : cooling ? `${cooldownSec}초` : '검색'}
-          </button>
-        </div>
-        {savedHomeCoords && (
-          <button
-            type="button"
-            onClick={useSavedHome}
-            disabled={!ready || ranking.isPending}
-            className="mt-2 text-xs font-semibold text-primary hover:underline disabled:cursor-not-allowed disabled:text-zinc-300 disabled:no-underline"
-          >
-            저장된 집 위치로 검색
-          </button>
-        )}
-        {pickedOrigin && !candidates && (
-          <p className="mt-2 truncate text-xs text-zinc-400">
-            출발지: <span className="text-zinc-600">{pickedOrigin.label}</span>
-          </p>
-        )}
-        {cooling && (
-          <p className="mt-2 text-xs text-zinc-400">
-            방금 검색했어요. {cooldownSec}초 후 다시 검색할 수 있습니다.
-          </p>
-        )}
-        {errorMsg && <p className="mt-2 text-xs text-red-600">{errorMsg}</p>}
-      </form>
+      {pickedOrigin && !candidates && (
+        <p className="truncate border-b border-zinc-100 px-4 py-2 text-xs text-zinc-400">
+          출발지: <span className="text-zinc-600">{pickedOrigin.label}</span>
+        </p>
+      )}
+      {errorMsg && (
+        <p className="border-b border-zinc-100 px-4 py-2 text-xs text-red-600">{errorMsg}</p>
+      )}
 
       {candidates && (
         <div className="border-b border-zinc-100">
@@ -235,8 +113,8 @@ export function CommutePanel({
                 <button
                   key={`${c.lat},${c.lng},${i}`}
                   type="button"
-                  onClick={() => pickCandidate(c)}
-                  disabled={ranking.isPending}
+                  onClick={() => onPickCandidate(c)}
+                  disabled={isRanking}
                   className="flex w-full flex-col items-start gap-1 border-b border-zinc-50 px-4 py-2.5 text-left transition-colors last:border-b-0 hover:bg-zinc-50 disabled:opacity-50"
                 >
                   <span className="block truncate text-sm font-medium text-zinc-800">
@@ -265,7 +143,7 @@ export function CommutePanel({
               <button
                 key={d}
                 type="button"
-                onClick={() => setSortDir(d)}
+                onClick={() => onSortDirChange(d)}
                 className={cn(
                   'rounded-md px-2 py-1 font-medium transition-colors',
                   sortDir === d
@@ -281,11 +159,21 @@ export function CommutePanel({
       )}
 
       <div className="min-h-0 flex-1 overflow-y-auto">
-        {!result && !candidates && (
+        {/* 후보를 고른 직후 ~ 첫 결과가 오기 전 — 학교 수가 많으면 꽤 걸려서 스피너로 알려준다.
+            "나머지도 계산"(이미 result가 있는 재계산)은 그 버튼 자체의 "계산 중…" 표시로 충분하니
+            기존 목록을 가리지 않는다. */}
+        {isRanking && !result && (
+          <div className="flex flex-col items-center justify-center gap-3 p-8 text-zinc-500">
+            <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+            <p className="text-sm">소요시간을 계산하는 중입니다…</p>
+          </div>
+        )}
+
+        {!isRanking && !result && !candidates && (
           <p className="p-4 text-sm text-zinc-400">
             {ready
-              ? '집주소를 입력하고 검색을 눌러 주세요.'
-              : '필터바에서 시·군과 학교급을 고른 뒤 집주소를 입력하세요.'}
+              ? '위 필터바에서 집주소를 검색해 주세요.'
+              : '필터바에서 시·군과 학교급을 고른 뒤 집주소를 검색하세요.'}
           </p>
         )}
 
@@ -357,11 +245,11 @@ export function CommutePanel({
             ) : (
               <button
                 type="button"
-                onClick={loadMore}
-                disabled={cooling || ranking.isPending}
+                onClick={onLoadMore}
+                disabled={cooling || isRanking}
                 className="text-xs font-semibold text-primary hover:underline disabled:opacity-50"
               >
-                {ranking.isPending
+                {isRanking
                   ? '계산 중…'
                   : cooling
                     ? `${cooldownSec}초 후 나머지 계산 가능`

@@ -351,7 +351,7 @@ export function SchoolDetailPanel({
   const views = social?.views ?? 0;
 
   return (
-    <aside className="absolute inset-y-0 right-0 z-20 flex w-full max-w-sm flex-col border-l border-zinc-200 bg-white shadow-2xl">
+    <aside className="absolute inset-y-0 right-0 z-30 flex w-full max-w-sm flex-col border-l border-zinc-200 bg-white shadow-2xl">
       <header className="flex items-start justify-between gap-3 border-b border-zinc-100 p-4">
         <div>
           <div className="flex items-center gap-2">

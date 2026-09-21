@@ -85,7 +85,7 @@ export function SchoolRankingPanel({
     // 상세 패널을 봤다가 닫으면 스크롤하던 순위 위치 그대로 돌아오게 — isOpen이 꺼져도 언마운트하지
     // 않고 display:none만 준다(display:none이어도 scrollTop은 브라우저가 유지해줌).
     <aside
-      className={`absolute inset-y-0 right-0 z-20 flex w-full max-w-sm flex-col border-l border-zinc-200 bg-white shadow-2xl ${
+      className={`absolute inset-y-0 right-0 z-30 flex w-full max-w-sm flex-col border-l border-zinc-200 bg-white shadow-2xl ${
         isOpen ? '' : 'hidden'
       }`}
     >

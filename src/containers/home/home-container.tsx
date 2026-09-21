@@ -50,11 +50,11 @@ export function HomeContainer() {
                 <div className="flex h-56 w-56 shrink-0 items-center justify-center rounded-xl bg-primary-50 text-primary">
                   <Icon className="h-36 w-36" />
                 </div>
-                {/* 평소엔 아이콘만 — 호버 시 grid-template-rows 를 0fr→1fr 로 늘려 부드럽게 펼침
-                    (max-h 로 임의 픽셀 지정하면 설명이 길 때 잘릴 수 있어 1fr 트릭 사용) */}
+                <h2 className="mt-3 text-lg font-bold text-zinc-800">{menu.title}</h2>
+                {/* 제목은 항상 보이고, 설명만 호버 시 grid-template-rows 를 0fr→1fr 로 늘려
+                    부드럽게 펼침(max-h 로 임의 픽셀 지정하면 설명이 길 때 잘릴 수 있어 1fr 트릭 사용) */}
                 <div className="grid w-full grid-rows-[0fr] transition-[grid-template-rows] duration-300 ease-out group-hover:grid-rows-[1fr]">
                   <div className="overflow-hidden opacity-0 transition-opacity duration-300 group-hover:opacity-100">
-                    <h2 className="mt-3 text-lg font-bold text-zinc-800">{menu.title}</h2>
                     <p className="mt-1 text-sm leading-relaxed text-zinc-500">
                       {menu.desc}
                     </p>

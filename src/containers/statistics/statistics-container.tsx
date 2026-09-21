@@ -31,7 +31,7 @@ import {
 } from '@/lib/school-region';
 import { compareByCommute } from '@/lib/route-origin';
 import type { RouteRankingResponse } from '@/types/commute';
-import { SchoolFilterBar } from './school-filter-bar';
+import { SchoolFilterBar, type StatsView } from './school-filter-bar';
 import { IndicatorLegend } from './indicator-legend';
 import { SchoolDetailPanel } from './school-detail-panel';
 import {
@@ -39,6 +39,7 @@ import {
   type RankSortDirection,
 } from './school-ranking-panel';
 import { CommutePanel } from './commute-panel';
+import { useCommuteSearch } from './use-commute-search';
 
 /** 오른쪽 사이드바는 한 번에 하나만 — 상세/순위/길찾기가 같은 자리를 공유(계획 3-3). */
 type PanelMode = 'none' | 'ranking' | 'detail' | 'commute';
@@ -102,6 +103,30 @@ export function StatisticsContainer() {
   const [indicatorKey, setIndicatorKey] = useState<string>(DEFAULT_INDICATOR_KEY);
   const [selected, setSelected] = useState<School | null>(null);
   const [panelMode, setPanelMode] = useState<PanelMode>('none');
+  // 필터바 탭 선택 — 이것만으로는 사이드바가 안 열린다. "순위 보기"/"검색" 버튼을 눌러야
+  // panelMode가 바뀌어 사이드바가 열린다(탭 전환 자체로 사이드바가 튀어나오면 혼란스럽다는 피드백).
+  const [statsView, setStatsView] = useState<StatsView>('ranking');
+  // 탭+필터 바 접힘 상태 — 사이드바와 마찬가지로 지도 위에 오버레이로 뜨고, 접으면 지도가
+  // 화면을 최대한 차지한다. 페이지에 처음 들어왔을 땐 필터를 바로 볼 수 있게 펼친 채로 시작.
+  const [filterBarOpen, setFilterBarOpen] = useState(true);
+
+  // 지도 컨트롤(학교 개별 마커/행정구역 경계) — 필터 바 안에서 같이 접혔다 펼쳐지도록
+  // KakaoMap 내부 state가 아니라 여기서 들고 필터 바·지도 양쪽에 내려준다.
+  const [showAllMarkers, setShowAllMarkers] = useState(false);
+  const [showBoundaries, setShowBoundaries] = useState(true);
+
+  // 탭이 바뀌는 "순간"에 개별 마커 기본값을 맞춰준다 — 출퇴근 탭은 학교별 소요시간/직선거리를
+  // 바로 봐야 하니 개별 마커가 기본(on), 순위 탭은 지역 클러스터 뱃지가 기본(off)이다.
+  // useEffect 대신 렌더 중 비교(React 문서가 권장하는 "prop 변화에 따라 state 조정" 패턴,
+  // https://react.dev/learn/you-might-not-need-an-effect#adjusting-state-when-a-prop-changes)를
+  // 쓴 이유: 탭이 "바뀌는 그 순간"에만 한 번 맞춰주고, 같은 탭에 머무는 동안 사용자가 직접
+  // 바꾼 값은 되돌리지 않아야 한다. ref가 아니라 state로 이전 값을 들고 비교한다 —
+  // 이 프로젝트 lint(react-hooks/refs)가 렌더 중 ref.current 접근 자체를 막는다.
+  const [prevStatsView, setPrevStatsView] = useState(statsView);
+  if (prevStatsView !== statsView) {
+    setPrevStatsView(statsView);
+    setShowAllMarkers(statsView === 'commute');
+  }
   // 상세 패널을 닫았을 때 돌아갈 자리 — 순위 목록을 보다가 상세로 들어간 거면 'ranking'으로 복귀
   const [returnMode, setReturnMode] = useState<PanelMode>('none');
   const [sortDirection, setSortDirection] = useState<RankSortDirection>('desc');
@@ -149,6 +174,17 @@ export function StatisticsContainer() {
   // 저장된 집 좌표 — 길찾기를 안 켜도 지도에 집모양 마커로 항상 표시한다.
   const homeCoords = useUserSettingsStore((s) => s.homeCoords);
 
+  // 집주소 검색 — 입력은 필터바, 후보 선택·결과는 CommutePanel(사이드바)이 나눠 쓴다.
+  const commuteSearchReady = level !== 'all' && sigungu !== 'all';
+  const commuteSearch = useCommuteSearch({
+    ready: commuteSearchReady,
+    level,
+    sigungu,
+    ownership,
+    onResult: mergeCommuteResult,
+    onSelectCode: setCommuteSelected,
+  });
+
   // 상세 패널이 열리면 조회수 +1 (같은 세션에 이미 본 학교면 hook 내부에서 무시)
   useEffect(() => {
     if (panelMode === 'detail' && selected) {
@@ -185,9 +221,27 @@ export function StatisticsContainer() {
     return {
       origin: commuteResult.origin,
       path: hit?.path ?? null,
+      // 실측(도로 경로)이 아직 없는 학교(직선거리만 있는 학교)를 선택했을 때, 집↔학교
+      // 직선이라도 지도에 보여주기 위한 좌표 — path가 있으면 이건 굳이 안 쓴다.
+      selectedPosition: hit?.position ?? null,
       schoolPoints: commuteResult.results.map((r) => r.position),
     };
   }, [panelMode, commuteResult, commuteSelected]);
+
+  // "출퇴근 시간 계산기" 탭이 선택돼 있기만 하면 채워짐(사이드바를 아직 안 열었어도,
+  // 검색 전이라 빈 Map이어도) — KakaoMap이 이 값의 존재 여부로 "출퇴근 모드"를 판단해서,
+  // 호버 툴팁엔 표시·순위 기준 대신 실측/직선 결과를, 마커·클러스터엔 지표 색/크기 대신
+  // 고정된 primary 색 + 확대 크기를 쓴다(kakao-map.tsx의 isCommuteMode/COMMUTE_MARKER_*
+  // 참고 — "자료 없음"과 헷갈리지 않도록 구분). panelMode가 아니라 statsView 기준인 이유:
+  // 탭만 눌러도(사이드바를 열지 않아도) 바로 적용돼야 한다.
+  const commuteStats = useMemo(() => {
+    if (statsView !== 'commute') return null;
+    const map = new Map<string, { durationSec: number | null; straightKm: number }>();
+    for (const r of commuteResult?.results ?? []) {
+      map.set(r.schulCode, { durationSec: r.durationSec, straightKm: r.straightKm });
+    }
+    return map;
+  }, [statsView, commuteResult]);
 
   const sigunguOptions = useMemo(
     () =>
@@ -311,26 +365,7 @@ export function StatisticsContainer() {
       )}
 
       {data && (
-        <>
-          <SchoolFilterBar
-            level={level}
-            onLevelChange={setLevel}
-            sigungu={sigungu}
-            onSigunguChange={setSigungu}
-            sigunguOptions={sigunguOptions}
-            search={search}
-            onSearchChange={setSearch}
-            ownership={ownership}
-            onOwnershipChange={setOwnership}
-            indicatorKey={indicatorKey}
-            onIndicatorKeyChange={setIndicatorKey}
-            socialEnabled={isSupabaseConfigured}
-            resultCount={filtered.length}
-            onShowRanking={() => setPanelMode('ranking')}
-            onShowCommute={() => setPanelMode('commute')}
-          />
-
-          <div className="relative min-h-0 flex-1 p-3">
+        <div className="relative min-h-0 flex-1 p-3">
             <KakaoMap
               ref={mapHandleRef}
               schools={filtered}
@@ -347,11 +382,66 @@ export function StatisticsContainer() {
               homePosition={homeCoords}
               zoneFeatures={zoneCollectionQuery.data?.features ?? []}
               zoneLink={zoneLink}
+              commuteStats={commuteStats}
+              showAllMarkers={showAllMarkers}
+              showBoundaries={showBoundaries}
             />
 
-            <div className="pointer-events-none absolute bottom-3 left-3 z-10 sm:bottom-6 sm:left-6">
-              <IndicatorLegend indicator={indicator} noDataCount={noDataCount} />
+            {/* 탭+필터 바 — 사이드바(오른쪽)와 같은 방식으로 지도 위에 오버레이. 접으면 지도가
+                화면을 최대한 차지하고, 펼치면 이 카드가 위쪽에서 덮어씌운다. */}
+            <div className="pointer-events-none absolute inset-x-3 top-3 z-20">
+              <div className="pointer-events-auto inline-block max-w-full">
+                <SchoolFilterBar
+                  level={level}
+                  onLevelChange={setLevel}
+                  sigungu={sigungu}
+                  onSigunguChange={setSigungu}
+                  sigunguOptions={sigunguOptions}
+                  search={search}
+                  onSearchChange={setSearch}
+                  ownership={ownership}
+                  onOwnershipChange={setOwnership}
+                  indicatorKey={indicatorKey}
+                  onIndicatorKeyChange={setIndicatorKey}
+                  socialEnabled={isSupabaseConfigured}
+                  resultCount={filtered.length}
+                  view={statsView}
+                  onViewChange={setStatsView}
+                  onShowRanking={() => setPanelMode('ranking')}
+                  addressValue={commuteSearch.address}
+                  onAddressChange={commuteSearch.setAddress}
+                  onAddressSubmit={(e) => {
+                    e.preventDefault();
+                    setPanelMode('commute');
+                    commuteSearch.searchAddress(commuteSearch.address);
+                  }}
+                  addressReady={commuteSearchReady}
+                  addressSearching={commuteSearch.isSearching}
+                  addressCooling={commuteSearch.cooling}
+                  addressCooldownSec={commuteSearch.cooldownSec}
+                  onUseSavedHome={
+                    homeCoords
+                      ? () => {
+                          setPanelMode('commute');
+                          commuteSearch.useSavedOrigin(homeCoords);
+                        }
+                      : undefined
+                  }
+                  collapsed={!filterBarOpen}
+                  onToggleCollapsed={() => setFilterBarOpen((v) => !v)}
+                  showAllMarkers={showAllMarkers}
+                  onShowAllMarkersChange={setShowAllMarkers}
+                  showBoundaries={showBoundaries}
+                  onShowBoundariesChange={setShowBoundaries}
+                />
+              </div>
             </div>
+
+            {statsView !== 'commute' && (
+              <div className="pointer-events-none absolute bottom-3 left-3 z-10 sm:bottom-6 sm:left-6">
+                <IndicatorLegend indicator={indicator} noDataCount={noDataCount} />
+              </div>
+            )}
 
             <SchoolDetailPanel
               school={panelMode === 'detail' ? selected : null}
@@ -383,13 +473,20 @@ export function StatisticsContainer() {
               ownership={ownership}
               result={commuteResult}
               selectedCode={commuteSelected}
-              onResult={mergeCommuteResult}
               onSelectCode={setCommuteSelected}
               onClose={() => setPanelMode('none')}
-              savedHomeCoords={homeCoords}
+              candidates={commuteSearch.candidates}
+              pickedOrigin={commuteSearch.pickedOrigin}
+              onPickCandidate={commuteSearch.pickCandidate}
+              sortDir={commuteSearch.sortDir}
+              onSortDirChange={commuteSearch.setSortDir}
+              onLoadMore={() => commuteSearch.loadMore(commuteResult)}
+              cooling={commuteSearch.cooling}
+              cooldownSec={commuteSearch.cooldownSec}
+              isRanking={commuteSearch.isRanking}
+              errorMsg={commuteSearch.geocodeErrorMsg ?? commuteSearch.rankingErrorMsg}
             />
-          </div>
-        </>
+        </div>
       )}
 
       <footer className="shrink-0 border-t border-zinc-200 bg-white px-4 py-1.5 text-center text-[11px] leading-tight text-zinc-400">
