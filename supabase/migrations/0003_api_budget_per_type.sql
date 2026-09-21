@@ -30,6 +30,20 @@ end $$;
 -- 이후 신규 insert는 항상 api_type을 명시하게 default 제거.
 alter table public.api_budget alter column api_type drop default;
 
+-- api_type을 코드가 실제로 쓰는 3개 값으로 고정 — 오타(예: 'geocode_adress')가 새 카운터로
+-- 조용히 분리돼 그 API에 한도가 사실상 안 걸리는 사고를 막는다. 종류가 늘면 이 제약도 같이 넓힐 것.
+do $$
+begin
+  if not exists (
+    select 1 from pg_constraint
+    where conname = 'api_budget_api_type_check' and conrelid = 'public.api_budget'::regclass
+  ) then
+    alter table public.api_budget
+      add constraint api_budget_api_type_check
+      check (api_type in ('directions', 'geocode_address', 'geocode_keyword'));
+  end if;
+end $$;
+
 -- 함수 시그니처가 바뀌므로(date,int,int) -> (date,text,int,int) 옛 버전을 먼저 지운다.
 drop function if exists public.reserve_api_budget(date, int, int);
 
@@ -42,8 +56,14 @@ as $$
 declare
   v_used int;
 begin
+  -- p_n=0 이나 절댓값 500 초과는 거부. 음수는 허용 — 실패한 호출분을 되돌리는 롤백 경로가
+  -- 음수 p_n(+큰 p_limit)으로 이 함수를 재호출한다(route-ranking.ts BUDGET_ROLLBACK_LIMIT 참고).
+  -- used가 음수로 내려가는 것 자체는 테이블의 api_budget_used_nonneg CHECK가 막는다.
   if p_n = 0 or abs(p_n) > 500 then
     raise exception 'reserve_api_budget: p_n out of range (%)', p_n;
+  end if;
+  if p_limit <= 0 then
+    raise exception 'reserve_api_budget: p_limit must be positive (%)', p_limit;
   end if;
   if p_api_type is null or length(trim(p_api_type)) = 0 then
     raise exception 'reserve_api_budget: p_api_type required';
@@ -62,7 +82,7 @@ $$;
 revoke all on function public.reserve_api_budget(date, text, int, int) from public, anon, authenticated;
 grant execute on function public.reserve_api_budget(date, text, int, int) to service_role;
 
--- api_type 값 목록(코드에서 쓰는 문자열 그대로, 참고용 — DB 레벨 enum 제약은 안 둠):
+-- api_type 값 목록(코드에서 쓰는 문자열 그대로, 위 CHECK 제약과 일치시킬 것):
 --   'directions'      길찾기(route-ranking.ts)
 --   'geocode_address'  주소 검색(kakao-geocode.ts)
 --   'geocode_keyword'  키워드 검색 폴백(kakao-geocode.ts)
