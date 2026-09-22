@@ -111,9 +111,6 @@ export function SchoolFilterBar({
   showBoundaries,
   onShowBoundariesChange,
 }: SchoolFilterBarProps) {
-  const scoreIndicators = INDICATORS.filter((i) => i.category === 'score');
-  const workIndicators = INDICATORS.filter((i) => i.category === 'work');
-
   // 접힌 상태 — 지도 위에 얇은 알약 형태로만 떠 있고, 누르면 펼쳐진다.
   if (collapsed) {
     return (
@@ -210,16 +207,8 @@ export function SchoolFilterBar({
                 onChange={(e) => onIndicatorKeyChange(e.target.value)}
                 className={selectClass}
               >
-                <optgroup label="전보 점수 참고">
-                  {scoreIndicators.map((i) => (
-                    <option key={i.key} value={i.key}>
-                      {i.label}
-                      {i.estimated ? ' (추정)' : ''}
-                    </option>
-                  ))}
-                </optgroup>
-                <optgroup label="근무 여건 참고">
-                  {workIndicators.map((i) => (
+                <optgroup label="학교 지표">
+                  {INDICATORS.map((i) => (
                     <option key={i.key} value={i.key}>
                       {i.label}
                       {i.estimated ? ' (추정)' : ''}

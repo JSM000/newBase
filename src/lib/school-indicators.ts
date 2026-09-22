@@ -1,16 +1,14 @@
 /**
  * 지도에서 마커 색상으로 시각화할 수 있는 "표시 지표" 정의 + 상세 패널 필드 그룹.
  *
- * 계획 문서 _refs/학교통계_지도_구현계획.md 의 2-1(점수 참고) / 2-2(근무여건 참고) 구분을
- * 저장 구조가 아니라 여기(프론트 표시 단계)에서 매핑한다.
+ * 계획 문서 _refs/학교통계_지도_구현계획.md 는 2-1(점수 참고) / 2-2(근무여건 참고)로 나눴었는데,
+ * 실제로는 구분 없이 하나로 관리한다 — 굳이 나눠서 볼 이유가 없다는 판단.
  *
  * bucket 경계값(thresholds)은 524개 학교 분포를 보고 잡은 1차값이며,
  * 실제 분포 확인 후 조정 가능(계획 4-4 미해결 항목).
  */
 
 import type { School } from '@/types/school-stats';
-
-export type IndicatorCategory = 'score' | 'work';
 
 /**
  * 구간별 색상 (낮음 -> 높음). 5단계.
@@ -30,7 +28,6 @@ export interface Indicator {
   /** 값을 꺼내는 함수 (없으면 null) */
   accessor: (s: School) => number | null;
   unit?: string;
-  category: IndicatorCategory;
   /** Tier2 간접 추정치면 true — UI에 "추정치" 표기 */
   estimated?: boolean;
   /** null일 때 사유가 담긴 School 필드 */
@@ -50,13 +47,11 @@ const num = (v: number | null | undefined): number | null =>
   typeof v === 'number' && Number.isFinite(v) ? v : null;
 
 export const INDICATORS: Indicator[] = [
-  // ─────────────── 2-1 전보 점수 관련 참고 지표 ───────────────
   {
     key: 'homeroomClassCount',
     label: '학급수 (담임 자리)',
     accessor: (s) => num(s.homeroomClassCount),
     unit: '학급',
-    category: 'score',
     excludedReasonField: 'schoolStatusExcludedReason',
     thresholds: [6, 12, 24, 36],
     description:
@@ -67,7 +62,6 @@ export const INDICATORS: Indicator[] = [
     label: '특수학급 수',
     accessor: (s) => num(s.specialClassCount),
     unit: '학급',
-    category: 'score',
     excludedReasonField: 'schoolStatusExcludedReason',
     thresholds: [1, 2, 3, 5],
     description: '특수통합학급 담임(월 0.01점) 자리. 통합교육 업무 부담과도 연결.',
@@ -77,7 +71,6 @@ export const INDICATORS: Indicator[] = [
     label: '보직(부장)교사 수',
     accessor: (s) => num(s.deputyPrincipalTeacherCount),
     unit: '명',
-    category: 'score',
     excludedReasonField: 'teacherStatusExcludedReason',
     thresholds: [3, 5, 8, 12],
     description: '보직교사(계) = 부장교사 자리 수. 부장교사 실적점(월 0.02~0.03점) 확보 가능성.',
@@ -87,21 +80,17 @@ export const INDICATORS: Indicator[] = [
     label: '교과전담 규모 (추정)',
     accessor: (s) => num(s.specialistSubjectTeacherEstimate),
     unit: '명',
-    category: 'score',
     estimated: true,
     excludedReasonField: 'subjectTeacherExcludedReason',
     thresholds: [1, 2, 4, 6],
     description:
       'Tier2 추정치. 초등부 과목별 교원수 합으로 교과전담(월 0.03점) 운영 규모만 짐작(명시 필드 없음). 초등학교만 값이 있음.',
   },
-
-  // ─────────────── 2-2 근무 난이도·편의성 참고 지표 ───────────────
   {
     key: 'studentCountTotal',
     label: '전체 학생수',
     accessor: (s) => num(s.studentCountTotal),
     unit: '명',
-    category: 'work',
     excludedReasonField: 'schoolStatusExcludedReason',
     thresholds: [60, 200, 500, 900],
     description: '학교 규모. 소규모교는 업무 다중분장, 대규모교는 학생·민원 절대량이 큼.',
@@ -111,7 +100,6 @@ export const INDICATORS: Indicator[] = [
     label: '학급당 학생수',
     accessor: (s) => num(s.avgStudentsPerClass),
     unit: '명',
-    category: 'work',
     excludedReasonField: 'schoolStatusExcludedReason',
     thresholds: [10, 18, 24, 28],
     description: '과밀학급 여부. 값이 클수록 담임 업무·생활지도 부담 증가.',
@@ -121,7 +109,6 @@ export const INDICATORS: Indicator[] = [
     label: '교사 1인당 주당 수업시수',
     accessor: (s) => num(s.avgWeeklyTeachingHoursPerTeacher),
     unit: '시간',
-    category: 'work',
     excludedReasonField: 'teachingHoursExcludedReason',
     thresholds: [18, 20, 22, 24],
     description: '값이 클수록 수업 부담이 큼.',
@@ -131,7 +118,6 @@ export const INDICATORS: Indicator[] = [
     label: '기간제교사 수',
     accessor: (s) => num(s.contractTeacherCount),
     unit: '명',
-    category: 'work',
     excludedReasonField: 'teacherStatusExcludedReason',
     thresholds: [1, 3, 6, 10],
     description: '정교사 인력 안정성 참고. 기간제 비중이 크면 업무 연속성·분장 부담이 커질 수 있음.',
@@ -141,7 +127,6 @@ export const INDICATORS: Indicator[] = [
     label: '휴직교원 수',
     accessor: (s) => num(s.teacherOnLeaveCount),
     unit: '명',
-    category: 'work',
     excludedReasonField: 'teacherStatusExcludedReason',
     thresholds: [1, 3, 5, 8],
     description: '인력 공백 규모 참고.',
@@ -151,7 +136,6 @@ export const INDICATORS: Indicator[] = [
     label: '특수학급 학생수',
     accessor: (s) => num(s.specialClassStudentCount),
     unit: '명',
-    category: 'work',
     excludedReasonField: 'schoolStatusExcludedReason',
     thresholds: [1, 8, 15, 25],
     description: '통합교육 관련 업무량 참고.',
@@ -163,7 +147,6 @@ export const INDICATORS: Indicator[] = [
     label: '전입출 학생 비율',
     accessor: (s) => num(s.transferChurnRate),
     unit: '%',
-    category: 'work',
     excludedReasonField: 'transferStudentExcludedReason',
     thresholds: [3, 7, 12, 20],
     description: '(전입+전출) / 전체 학생수. 전입출이 잦으면 학급 운영·기록 업무가 늘어남.',
@@ -175,7 +158,6 @@ export const INDICATORS: Indicator[] = [
     label: '행정 지원인력 (일반직+공무직)',
     accessor: (s) => num(s.supportStaffCount),
     unit: '명',
-    category: 'work',
     excludedReasonField: 'staffExcludedReason',
     thresholds: [5, 9, 14, 20],
     lowerIsHeavier: true,
@@ -187,7 +169,6 @@ export const INDICATORS: Indicator[] = [
     label: '장학·학비지원 학생 비율',
     accessor: (s) => num(s.scholarshipSupportRate),
     unit: '%',
-    category: 'work',
     estimated: true,
     excludedReasonField: 'scholarshipExcludedReason',
     thresholds: [3, 8, 15, 25],
@@ -218,7 +199,6 @@ export const SOCIAL_INDICATOR_DEFS: Record<string, Omit<Indicator, 'accessor'>> 
   [RATING_INDICATOR_KEY]: {
     key: RATING_INDICATOR_KEY,
     label: '별점 (이동 추천도)',
-    category: 'work',
     thresholds: [2.5, 3, 3.5, 4],
     format: (v) => `★ ${v.toFixed(1)}`,
     description:
@@ -227,7 +207,6 @@ export const SOCIAL_INDICATOR_DEFS: Record<string, Omit<Indicator, 'accessor'>> 
   [VIEWS_INDICATOR_KEY]: {
     key: VIEWS_INDICATOR_KEY,
     label: '조회수',
-    category: 'work',
     unit: '회',
     thresholds: [5, 20, 50, 100],
     description: '학교 상세를 연 누적 횟수(세션당 1회). 관심도 신호로 보는 참고용.',
@@ -281,14 +260,12 @@ const ymd = (v: string | null): string =>
 
 export interface DetailGroup {
   title: string;
-  category: IndicatorCategory;
   fields: DetailField[];
 }
 
 export const DETAIL_GROUPS: DetailGroup[] = [
   {
-    title: '전보 점수 참고',
-    category: 'score',
+    title: '학교 참고 정보',
     fields: [
       {
         label: '학급수 (담임 자리)',
@@ -326,12 +303,6 @@ export const DETAIL_GROUPS: DetailGroup[] = [
         excludedReasonField: 'schoolStatusExcludedReason',
         estimated: true,
       },
-    ],
-  },
-  {
-    title: '근무 여건 참고',
-    category: 'work',
-    fields: [
       {
         label: '학생수 / 학급당',
         render: (s) =>
