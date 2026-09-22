@@ -315,16 +315,8 @@ export function SchoolFilterBar({
                 onChange={(e) => onIndicatorKeyChange(e.target.value)}
                 className={selectClass}
               >
-                <optgroup label="전보 점수 참고">
-                  {scoreIndicators.map((i) => (
-                    <option key={i.key} value={i.key}>
-                      {i.label}
-                      {i.estimated ? ' (추정)' : ''}
-                    </option>
-                  ))}
-                </optgroup>
-                <optgroup label="근무 여건 참고">
-                  {workIndicators.map((i) => (
+                <optgroup label="학교 지표">
+                  {INDICATORS.map((i) => (
                     <option key={i.key} value={i.key}>
                       {i.label}
                       {i.estimated ? ' (추정)' : ''}

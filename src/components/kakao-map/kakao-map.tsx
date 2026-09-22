@@ -11,7 +11,7 @@ import {
   formatIndicatorValue,
   NO_DATA_COLOR,
 } from '@/lib/school-indicators';
-import { groupSchoolsBySigungu, groupSchoolsBySubRegion } from '@/lib/school-region';
+import { groupSchoolsBySigungu, groupSchoolsBySubRegion, normalizeSigungu } from '@/lib/school-region';
 import { loadKakaoMaps, KAKAO_APP_KEY } from '@/lib/kakao-loader';
 import { useSchoolClusters } from '@/hooks/use-school-clusters';
 import { useChungbukBoundaries } from '@/hooks/use-chungbuk-boundaries';
@@ -258,7 +258,10 @@ export const KakaoMap = forwardRef<KakaoMapHandle, KakaoMapProps>(function Kakao
           }),
       );
       for (const polygon of polygons) polygon.setMap(map);
-      return { name: f.properties.name, polygons };
+      // boundaryData는 괴산군/증평군을 여전히 별개 폴리곤으로 갖고 있음 — 채움색(sigunguFillColors)은
+      // 병합 단위(괴산·증평군) 키라서, 여기서도 normalizeSigungu로 맞춰야 두 폴리곤이 같은 색으로 칠해진다.
+      // (지오메트리 자체를 하나로 합친 건 아니라 둘 사이 경계선은 남아있음 — 일단 이 정도로 처리)
+      return { name: normalizeSigungu(f.properties.name) ?? f.properties.name, polygons };
     });
     boundaryPolygonsRef.current = groups;
 

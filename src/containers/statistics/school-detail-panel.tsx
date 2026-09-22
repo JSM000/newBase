@@ -407,12 +407,7 @@ export function SchoolDetailPanel({
 
         {DETAIL_GROUPS.map((group) => (
           <section key={group.title}>
-            <h3
-              className={
-                'mb-2 text-xs font-semibold uppercase tracking-wide ' +
-                (group.category === 'score' ? 'text-primary' : 'text-secondary')
-              }
-            >
+            <h3 className="mb-2 text-xs font-semibold uppercase tracking-wide text-zinc-500">
               {group.title}
             </h3>
             <dl className="divide-y divide-zinc-100 rounded-lg border border-zinc-100">

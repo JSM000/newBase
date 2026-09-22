@@ -8,7 +8,7 @@ import { getServiceSupabase } from './supabase-server';
 import { reserveApiBudget } from './api-budget';
 import { fetchCarRoute } from './kakao-directions';
 import { haversineKm, compareByCommute, type LatLng } from './route-origin';
-import type { OwnershipFilter } from './school-region';
+import { normalizeSigungu, type OwnershipFilter } from './school-region';
 
 /**
  * 집→학교 소요시간 순위 계산 (계획 4-1).
@@ -83,9 +83,10 @@ export async function computeRanking(
   const origin = input.origin;
 
   // 대상 학교 = 선택 시군구·학교급·설립구분(지도 필터와 동일 기준), 좌표 있는 것. haversine 오름차순.
+  // sigunguName은 괴산군/증평군을 그대로 갖고 있으므로 normalizeSigungu로 병합 단위와 비교한다.
   const targets = ALL_SCHOOLS.filter(
     (s: School) =>
-      s.sigunguName === input.sigungu &&
+      normalizeSigungu(s.sigunguName) === input.sigungu &&
       s.schulKndCode === input.schulKndCode &&
       (input.ownership === 'all' || s.fondScCode === input.ownership) &&
       s.position,

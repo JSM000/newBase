@@ -73,6 +73,13 @@ function computeBestCenter(positions, radiusKm) {
   return { lat: roundCoord(lat), lng: roundCoord(lng) };
 }
 
+// 괴산군・증평군은 같은 교육지원청(괴산증평교육지원청) 관할이라 전보 신청 단위가 하나로
+// 묶인다 — src/lib/school-region.ts의 normalizeSigungu()와 동일한 매핑을 여기서도 써야
+// 시·군 클러스터(뱃지 위치)가 kakao-map.tsx가 조회하는 병합 단위 이름과 맞는다. .mjs 스크립트라
+// 그 TS 파일을 직접 import하지 않고 매핑만 복제함(build-boundaries.mjs의 normName()과 같은 패턴).
+const SIGUNGU_GROUP_MAP = { 괴산군: "괴산·증평군", 증평군: "괴산·증평군" };
+const normalizeSigungu = (name) => SIGUNGU_GROUP_MAP[name] ?? name;
+
 function buildCluster(name, schools, radiusKm, extra = {}) {
   const positions = schools.filter((s) => s.position).map((s) => s.position);
   const bestCenter = computeBestCenter(positions, radiusKm);
@@ -88,18 +95,39 @@ async function main() {
   // 않고 그대로 읽기만 한다 (src/lib/school-region.ts도 동일한 필드를 그대로 읽음 — 파싱
   // 로직이 collect-school-stats.mjs 한 곳에만 있음).
 
-  // 시·군 그룹
-  const bySigungu = new Map();
+  // 시·군 그룹 — "밀집 위치"는 병합 전(원래 시·군) 단위로 각각 계산한 뒤, 병합 그룹이면 그
+  // 대표 위치들을 평균한다. 병합 그룹 전체를 한 번에 탐색하면(괴산 28개교 + 증평 7개교) 학교가
+  // 빽빽한 쪽(증평)에 마커가 쏠려서 넓게 퍼진 쪽(괴산)이 시각적으로 묻히는 문제가 실측 확인됨.
+  const byRawSigungu = new Map();
   for (const school of schools) {
     const name = school.sigunguName;
     if (!name) continue;
-    if (!bySigungu.has(name)) bySigungu.set(name, []);
-    bySigungu.get(name).push(school);
+    if (!byRawSigungu.has(name)) byRawSigungu.set(name, []);
+    byRawSigungu.get(name).push(school);
   }
+
+  const byGroup = new Map(); // 병합 단위 이름 -> { schools, centers(=원 시·군별 밀집 위치들) }
+  for (const [rawName, list] of byRawSigungu) {
+    const groupName = normalizeSigungu(rawName);
+    if (!byGroup.has(groupName)) byGroup.set(groupName, { schools: [], centers: [] });
+    const entry = byGroup.get(groupName);
+    entry.schools.push(...list);
+    const positions = list.filter((s) => s.position).map((s) => s.position);
+    const center = computeBestCenter(positions, SIGUNGU_RADIUS_KM);
+    if (center) entry.centers.push(center);
+  }
+
   // bestCenter가 null인(=좌표 있는 학교가 하나도 없는, 전부 폐교 등) 그룹은 지도에 찍을 위치가
   // 없으므로 결과에서 제외 (실측: 보은군 내북면 — 유일한 소속 학교인 내북중학교가 폐교라 좌표 없음)
-  const sigunguClusters = [...bySigungu.entries()]
-    .map(([name, list]) => buildCluster(name, list, SIGUNGU_RADIUS_KM))
+  const sigunguClusters = [...byGroup.entries()]
+    .map(([name, { centers }]) => {
+      if (centers.length === 0) return { name, bestCenter: null };
+      if (centers.length === 1) return { name, bestCenter: centers[0] };
+      // 병합 그룹: 원 시·군별 밀집 위치들의 평균 = 두 지역 사이 중간쯤에 마커를 찍는다.
+      const lat = centers.reduce((sum, p) => sum + p.lat, 0) / centers.length;
+      const lng = centers.reduce((sum, p) => sum + p.lng, 0) / centers.length;
+      return { name, bestCenter: { lat: roundCoord(lat), lng: roundCoord(lng) } };
+    })
     .filter((c) => c.bestCenter !== null);
 
   // 구/읍/면/동 그룹 (시·군 이름도 같이 들고 있음)
