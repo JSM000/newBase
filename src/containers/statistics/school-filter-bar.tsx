@@ -220,8 +220,6 @@ export function SchoolFilterBar({
   showBoundaries,
   onShowBoundariesChange,
 }: SchoolFilterBarProps) {
-  const scoreIndicators = INDICATORS.filter((i) => i.category === 'score');
-  const workIndicators = INDICATORS.filter((i) => i.category === 'work');
   const [originDialogOpen, setOriginDialogOpen] = useState(false);
   const [destinationDialogOpen, setDestinationDialogOpen] = useState(false);
 
