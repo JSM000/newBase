@@ -27,7 +27,7 @@ import { useGeocodeCandidates } from '@/hooks/use-geocode-candidates';
 import { cooldownRemainingMs, markSearched } from '@/lib/commute-rate-limit';
 import { getExpiresAt, RETENTION_DAYS } from '@/lib/settings-retention';
 import { formatDateTime } from '@/utils/formatter';
-import { CHUNGBUK_SIGUNGU_ORDER } from '@/lib/school-region';
+import { CHUNGBUK_SIGUNGU_ORDER, normalizeSigungu } from '@/lib/school-region';
 import type { GeocodeCandidate } from '@/types/commute';
 import type { TransferPreference, SchoolLevel } from '@/types/user-settings';
 
@@ -181,7 +181,7 @@ export function SettingsContainer() {
             <Label className="text-zinc-600">현재 근무 중인 시·군·구</Label>
             <Select
               key={currentSigungu === null ? 'unset' : 'set'}
-              value={currentSigungu ?? undefined}
+              value={normalizeSigungu(currentSigungu) ?? undefined}
               onValueChange={(v) => setCurrentSigungu(v === 'all' ? null : v)}
             >
               <SelectTrigger>
@@ -227,7 +227,7 @@ export function SettingsContainer() {
               <Label className="text-zinc-600">이동을 희망하는 시·군</Label>
               <Select
                 key={desiredSigungu === null ? 'unset' : 'set'}
-                value={desiredSigungu ?? undefined}
+                value={normalizeSigungu(desiredSigungu) ?? undefined}
                 onValueChange={(v) => setDesiredSigungu(v)}
               >
                 <SelectTrigger>
