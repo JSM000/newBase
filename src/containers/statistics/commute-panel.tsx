@@ -17,10 +17,8 @@ interface CommutePanelProps {
   selectedCode: string | null;
   onSelectCode: (code: string | null) => void;
   onClose: () => void;
-  /** 주소 검색(필터바)에서 받아온 후보 목록 — 골라서 출발지를 확정하는 건 여기서 한다 */
-  candidates: GeocodeCandidate[] | null;
+  /** 출발지 팝업(필터바)에서 이미 확정된 주소 — 결과 목록 위에 안내로만 보여준다 */
   pickedOrigin: GeocodeCandidate | null;
-  onPickCandidate: (c: GeocodeCandidate) => void;
   sortDir: 'near' | 'far';
   onSortDirChange: (d: 'near' | 'far') => void;
   onLoadMore: () => void;
@@ -46,9 +44,7 @@ export function CommutePanel({
   selectedCode,
   onSelectCode,
   onClose,
-  candidates,
   pickedOrigin,
-  onPickCandidate,
   sortDir,
   onSortDirChange,
   onLoadMore,
@@ -89,50 +85,13 @@ export function CommutePanel({
         </button>
       </header>
 
-      {pickedOrigin && !candidates && (
+      {pickedOrigin && (
         <p className="truncate border-b border-zinc-100 px-4 py-2 text-xs text-zinc-400">
           출발지: <span className="text-zinc-600">{pickedOrigin.label}</span>
         </p>
       )}
       {errorMsg && (
         <p className="border-b border-zinc-100 px-4 py-2 text-xs text-red-600">{errorMsg}</p>
-      )}
-
-      {candidates && (
-        <div className="border-b border-zinc-100">
-          {candidates.length === 0 ? (
-            <p className="p-4 text-sm text-zinc-400">
-              검색 결과가 없습니다. 다른 주소로 다시 검색해 주세요.
-            </p>
-          ) : (
-            <>
-              <p className="px-4 pt-3 pb-1 text-[11px] font-medium uppercase tracking-wide text-zinc-400">
-                출발지를 선택하세요
-              </p>
-              {candidates.map((c, i) => (
-                <button
-                  key={`${c.lat},${c.lng},${i}`}
-                  type="button"
-                  onClick={() => onPickCandidate(c)}
-                  disabled={isRanking}
-                  className="flex w-full flex-col items-start gap-1 border-b border-zinc-50 px-4 py-2.5 text-left transition-colors last:border-b-0 hover:bg-zinc-50 disabled:opacity-50"
-                >
-                  <span className="block truncate text-sm font-medium text-zinc-800">
-                    {c.label}
-                  </span>
-                  {c.roadAddress && c.roadAddress !== c.label && (
-                    <span className="block truncate text-xs text-zinc-400">{c.roadAddress}</span>
-                  )}
-                  {c.addressType === 'REGION' && (
-                    <span className="inline-block rounded bg-amber-50 px-1.5 py-0.5 text-[10px] font-medium text-amber-700">
-                      동·읍·면 단위 근사치 — 정확한 지번을 아신다면 다시 입력해 보세요
-                    </span>
-                  )}
-                </button>
-              ))}
-            </>
-          )}
-        </div>
       )}
 
       {result && result.results.length > 0 && (
@@ -169,11 +128,9 @@ export function CommutePanel({
           </div>
         )}
 
-        {!isRanking && !result && !candidates && (
+        {!isRanking && !result && (
           <p className="p-4 text-sm text-zinc-400">
-            {ready
-              ? '위 필터바에서 집주소를 검색해 주세요.'
-              : '필터바에서 시·군과 학교급을 고른 뒤 집주소를 검색하세요.'}
+            위 필터바에서 출발지·도착지를 고르고 &quot;출퇴근 시간 계산&quot;을 눌러주세요.
           </p>
         )}
 
