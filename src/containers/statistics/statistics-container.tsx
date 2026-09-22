@@ -106,7 +106,7 @@ export function StatisticsContainer() {
   const [indicatorKey, setIndicatorKey] = useState<string>(DEFAULT_INDICATOR_KEY);
   const [selected, setSelected] = useState<School | null>(null);
   const [panelMode, setPanelMode] = useState<PanelMode>('none');
-  // 필터바 탭 선택 — 이것만으로는 사이드바가 안 열린다. "순위 보기"/"검색" 버튼을 눌러야
+  // 필터바 탭 선택 — 이것만으로는 사이드바가 안 열린다. "학교 순위"/"검색" 버튼을 눌러야
   // panelMode가 바뀌어 사이드바가 열린다(탭 전환 자체로 사이드바가 튀어나오면 혼란스럽다는 피드백).
   const [statsView, setStatsView] = useState<StatsView>('ranking');
   // 탭+필터 바 접힘 상태 — 사이드바와 마찬가지로 지도 위에 오버레이로 뜨고, 접으면 지도가
@@ -411,25 +411,25 @@ export function StatisticsContainer() {
                   view={statsView}
                   onViewChange={setStatsView}
                   onShowRanking={() => setPanelMode('ranking')}
+                  originLabel={commuteSearch.pickedOrigin?.label ?? null}
                   addressValue={commuteSearch.address}
                   onAddressChange={commuteSearch.setAddress}
-                  onAddressSubmit={(e) => {
-                    e.preventDefault();
-                    setPanelMode('commute');
-                    commuteSearch.searchAddress(commuteSearch.address);
-                  }}
-                  addressReady={commuteSearchReady}
+                  onAddressSearch={() => commuteSearch.searchAddress(commuteSearch.address)}
                   addressSearching={commuteSearch.isSearching}
                   addressCooling={commuteSearch.cooling}
                   addressCooldownSec={commuteSearch.cooldownSec}
+                  geocodeErrorMsg={commuteSearch.geocodeErrorMsg}
+                  candidates={commuteSearch.candidates}
+                  onPickCandidate={commuteSearch.pickCandidate}
                   onUseSavedHome={
-                    homeCoords
-                      ? () => {
-                          setPanelMode('commute');
-                          commuteSearch.useSavedOrigin(homeCoords);
-                        }
-                      : undefined
+                    homeCoords ? () => commuteSearch.useSavedOrigin(homeCoords) : undefined
                   }
+                  destinationReady={commuteSearchReady}
+                  isRanking={commuteSearch.isRanking}
+                  onConfirmSearch={() => {
+                    setPanelMode('commute');
+                    commuteSearch.confirmSearch();
+                  }}
                   collapsed={!filterBarOpen}
                   onToggleCollapsed={() => setFilterBarOpen((v) => !v)}
                   showAllMarkers={showAllMarkers}
@@ -478,16 +478,14 @@ export function StatisticsContainer() {
               selectedCode={commuteSelected}
               onSelectCode={setCommuteSelected}
               onClose={() => setPanelMode('none')}
-              candidates={commuteSearch.candidates}
               pickedOrigin={commuteSearch.pickedOrigin}
-              onPickCandidate={commuteSearch.pickCandidate}
               sortDir={commuteSearch.sortDir}
               onSortDirChange={commuteSearch.setSortDir}
               onLoadMore={() => commuteSearch.loadMore(commuteResult)}
               cooling={commuteSearch.cooling}
               cooldownSec={commuteSearch.cooldownSec}
               isRanking={commuteSearch.isRanking}
-              errorMsg={commuteSearch.geocodeErrorMsg ?? commuteSearch.rankingErrorMsg}
+              errorMsg={commuteSearch.rankingErrorMsg}
             />
         </div>
       )}

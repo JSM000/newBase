@@ -9,7 +9,7 @@ import type { SchoolLevelFilter, OwnershipFilter } from '@/lib/school-region';
 import type { SchulKndCode } from '@/types/school-stats';
 
 interface UseCommuteSearchArgs {
-  /** 필터에서 시·군·학교급을 고른 상태인지 — 검색/재계산 가능 여부 */
+  /** 도착지(시·군·학교급)를 고른 상태인지 — confirmSearch(길찾기 실행) 가능 여부 */
   ready: boolean;
   level: SchoolLevelFilter;
   sigungu: string;
@@ -19,12 +19,17 @@ interface UseCommuteSearchArgs {
 }
 
 /**
- * "집에서 학교까지" 길찾기 검색 로직 — 주소 입력은 필터바로, 후보 선택·결과 목록은
- * 사이드바(CommutePanel)로 나뉘면서 두 컴포넌트가 같은 상태를 공유해야 해서 훅으로 뽑았다.
+ * "집에서 학교까지" 길찾기 검색 로직 — 출발지(집주소) 팝업과 도착지(시·군/학교급) 팝업,
+ * 결과 목록(사이드바)이 같은 상태를 공유해야 해서 훅으로 뽑았다.
  *
- * 검색은 2단계: ① 주소 → 후보 목록 조회(/api/geocode), ② 사용자가 후보 하나를 직접 골라
- * 확정 → 그 좌표로 길찾기 실행(/api/route-ranking). 카카오 응답 1위를 자동 채택하지 않는
- * 이유는, 동/읍/면 단위 같은 부정확한 매칭이 1위로 올 수 있어서다(address_type 참고).
+ * 지도 길찾기 서비스처럼 출발지·도착지를 독립적으로(순서 무관) 먼저 정해두고, 마지막에
+ * "출퇴근 시간 계산" 버튼 한 번으로 실행하는 3단계 흐름:
+ * ① `searchAddress` — 주소 → 후보 목록 조회(/api/geocode). 도착지가 아직 안 정해졌어도
+ *   항상 가능. 카카오 응답 1위를 자동 채택하지 않는 이유는, 동/읍/면 단위 같은 부정확한
+ *   매칭이 1위로 올 수 있어서다(address_type 참고).
+ * ② `pickCandidate`/`useSavedOrigin` — 후보 하나(또는 저장된 집 위치)를 출발지로 확정만
+ *   해둔다(길찾기는 아직 안 돎).
+ * ③ `confirmSearch` — 출발지·도착지가 둘 다 갖춰진 뒤 실제 길찾기 실행(/api/route-ranking).
  * 30초 재검색 제한은 ①(후보 조회) 시점에 기록 — 후보를 고르는 동작 자체는 쿨다운과 무관하게
  * 항상 가능해야 한다.
  */
@@ -53,7 +58,7 @@ export function useCommuteSearch({
   const cooling = cooldownMs > 0;
   const cooldownSec = Math.ceil(cooldownMs / 1000);
 
-  /** ② 실측(길찾기) 실행 — offset=0 이면 새 검색, 그 이상이면 "나머지도 계산" 이어받기. */
+  /** 실측(길찾기) 실행 — offset=0 이면 새 검색, 그 이상이면 "나머지도 계산" 이어받기. */
   function runRanking(origin: GeocodeCandidate, offset: number) {
     ranking.mutate(
       {
@@ -67,11 +72,13 @@ export function useCommuteSearch({
     );
   }
 
-  /** ① 주소 검색 — 후보 목록만 받아온다. 30초 쿨다운은 여기서 기록. */
+  /**
+   * ① 주소 검색 — 후보 목록만 받아온다. 30초 쿨다운은 여기서 기록.
+   * 출발지(주소)와 도착지(시·군/학교급)는 이제 팝업 두 개로 독립적으로 고르므로, 도착지가
+   * 아직 안 정해졌어도(`ready`가 false여도) 주소 검색은 항상 가능하다.
+   */
   function searchAddress(rawAddress: string) {
-    if (!ready || !rawAddress.trim() || cooling || geocode.isPending || ranking.isPending) return;
-    onResult(null);
-    onSelectCode(null);
+    if (!rawAddress.trim() || cooling || geocode.isPending || ranking.isPending) return;
     setPickedOrigin(null);
     setCandidates(null);
     geocode.mutate(
@@ -86,9 +93,8 @@ export function useCommuteSearch({
     );
   }
 
-  /** 설정 페이지에 저장해둔 집 좌표를 바로 출발지로 — 주소 검색 없이 한 번의 클릭. */
+  /** 설정 페이지에 저장해둔 집 좌표를 바로 출발지로 확정 — 검색 없이 한 번의 클릭. */
   function useSavedOrigin(coords: { lat: number; lng: number }) {
-    if (!ready || ranking.isPending) return;
     const origin: GeocodeCandidate = {
       label: '저장된 집 위치',
       roadAddress: null,
@@ -99,15 +105,20 @@ export function useCommuteSearch({
     };
     setCandidates(null);
     setPickedOrigin(origin);
-    runRanking(origin, 0);
   }
 
-  /** 후보 목록에서 출발지를 확정 — 쿨다운과 무관하게 항상 가능(직전 검색의 연장 동작). */
+  /** 후보 목록에서 출발지를 확정만 한다 — 길찾기는 "출퇴근 시간 계산" 버튼(confirmSearch)에서. */
   function pickCandidate(c: GeocodeCandidate) {
-    if (ranking.isPending) return;
     setPickedOrigin(c);
     setCandidates(null);
-    runRanking(c, 0);
+  }
+
+  /** ② 출발지 + 도착지 조건이 둘 다 갖춰진 뒤, "출퇴근 시간 계산" 버튼을 눌렀을 때 실행. */
+  function confirmSearch() {
+    if (!pickedOrigin || !ready || ranking.isPending) return;
+    onResult(null);
+    onSelectCode(null);
+    runRanking(pickedOrigin, 0);
   }
 
   function loadMore(result: RouteRankingResponse | null) {
@@ -145,6 +156,7 @@ export function useCommuteSearch({
     searchAddress,
     useSavedOrigin,
     pickCandidate,
+    confirmSearch,
     loadMore,
   };
 }

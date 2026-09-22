@@ -74,6 +74,19 @@ const BOUNDARY_FILL_OPACITY = 0.14;
 // 출퇴근 시간 계산기 탭 전용 마커·클러스터 색 — 표시·순위 기준 색상과 겹치지 않게 primary 고정.
 const COMMUTE_MARKER_COLOR = '#e77474';
 
+/**
+ * 집을 나타내는 마커 엘리먼트 — 저장된 집 위치(항상 표시)와 길찾기 출발지(경로 표시 중)
+ * 둘 다 같은 모양을 쓴다. 전엔 출발지 쪽만 "집" 글자 뱃지라 "안 이쁘다"는 피드백으로,
+ * 저장된 집 위치 쪽 🏠 이모지 스타일로 통일.
+ */
+function createHomeMarkerElement(): HTMLDivElement {
+  const el = document.createElement('div');
+  el.textContent = '🏠';
+  el.style.cssText =
+    'display:flex;align-items:center;justify-content:center;width:30px;height:30px;border-radius:9999px;background:#f59e0b;font-size:16px;border:2px solid #fff;box-shadow:0 1px 5px rgba(0,0,0,.4)';
+  return el;
+}
+
 function tierOf(level: number): ViewTier {
   if (level >= SIGUNGU_MIN_LEVEL) return 'sigungu';
   if (level >= SUB_REGION_MIN_LEVEL) return 'subRegion';
@@ -505,13 +518,9 @@ export const KakaoMap = forwardRef<KakaoMapHandle, KakaoMapProps>(function Kakao
     if (!routeOverlay) return;
 
     const originPos = new maps.LatLng(routeOverlay.origin.lat, routeOverlay.origin.lng);
-    const el = document.createElement('div');
-    el.textContent = '집';
-    el.style.cssText =
-      'display:flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:9999px;background:#0072a1;color:#fff;font-size:11px;font-weight:700;border:2px solid #fff;box-shadow:0 1px 5px rgba(0,0,0,.4)';
     const originOverlay = new maps.CustomOverlay({
       position: originPos,
-      content: el,
+      content: createHomeMarkerElement(),
       yAnchor: 0.5,
       xAnchor: 0.5,
       zIndex: 30,
@@ -528,9 +537,9 @@ export const KakaoMap = forwardRef<KakaoMapHandle, KakaoMapProps>(function Kakao
       );
       const line = new maps.Polyline({
         path: latlngs,
-        strokeWeight: 5,
-        strokeColor: '#bd2d2d',
-        strokeOpacity: 0.9,
+        strokeWeight: 7,
+        strokeColor: '#4285f4', // 구글맵 스타일 경로 파란색 — 진한 남색(#1d4ed8)이 촌스럽다는 피드백으로 더 산뜻한 톤으로 교체
+        strokeOpacity: 0.95,
         strokeStyle: 'solid',
         zIndex: 25,
       });
@@ -575,13 +584,9 @@ export const KakaoMap = forwardRef<KakaoMapHandle, KakaoMapProps>(function Kakao
     homeMarkerRef.current = null;
     if (!homePosition) return;
 
-    const el = document.createElement('div');
-    el.textContent = '🏠';
-    el.style.cssText =
-      'display:flex;align-items:center;justify-content:center;width:30px;height:30px;border-radius:9999px;background:#f59e0b;font-size:16px;border:2px solid #fff;box-shadow:0 1px 5px rgba(0,0,0,.4)';
     const overlay = new maps.CustomOverlay({
       position: new maps.LatLng(homePosition.lat, homePosition.lng),
-      content: el,
+      content: createHomeMarkerElement(),
       yAnchor: 0.5,
       xAnchor: 0.5,
       zIndex: 20,
