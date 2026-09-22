@@ -1,17 +1,35 @@
 import type { School } from '@/types/school-stats';
 
-/** 충북 11개 시·군 표시 순서 (청주 먼저, 나머지 가나다) */
+/**
+ * 괴산군·증평군은 같은 교육지원청(괴산증평교육지원청) 관할이라 전보 신청 단위가 하나로
+ * 묶인다 — 초등은 실제 교사(사용자) 확인, 중등은 인사관리기준 문서상 명확한 근거는
+ * 없지만(제11조의 "괴산・증평"은 근무연한 예외 지역 나열일 뿐, "동일시·군" 조항들은 개별
+ * 시·군 표현만 씀) 필터 단위를 학교급별로 나누지 않고 일단 통일 적용하기로 함.
+ * 원본 데이터(School.sigunguName)는 "괴산군"/"증평군" 그대로 두고, 필터·표시 단위에서만
+ * normalizeSigungu()로 합친다 — 데이터 재수집(collect-school-stats.mjs) 없이 적용 가능.
+ */
+const SIGUNGU_GROUP_MAP: Record<string, string> = {
+  괴산군: '괴산·증평군',
+  증평군: '괴산·증평군',
+};
+
+/** 필터·그룹핑에 쓸 시·군 이름 — 괴산/증평만 하나로 합치고 나머지는 그대로. */
+export function normalizeSigungu(name: string | null): string | null {
+  if (!name) return name;
+  return SIGUNGU_GROUP_MAP[name] ?? name;
+}
+
+/** 충북 10개 시·군 표시 순서 (청주 먼저, 나머지 가나다 — 괴산·증평군은 병합 단위) */
 export const CHUNGBUK_SIGUNGU_ORDER = [
   '청주시',
   '충주시',
   '제천시',
-  '괴산군',
+  '괴산·증평군',
   '단양군',
   '보은군',
   '영동군',
   '옥천군',
   '음성군',
-  '증평군',
   '진천군',
 ];
 
@@ -38,7 +56,7 @@ export function groupSchoolsBySigungu(schools: School[]): SigunguGroup[] {
   const byName = new Map<string, School[]>();
   for (const school of schools) {
     if (!school.position) continue;
-    const name = school.sigunguName;
+    const name = normalizeSigungu(school.sigunguName);
     if (!name) continue;
     if (!byName.has(name)) byName.set(name, []);
     byName.get(name)!.push(school);

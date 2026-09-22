@@ -26,6 +26,7 @@ import {
 } from '@/lib/school-indicators';
 import {
   sortSigungu,
+  normalizeSigungu,
   type SchoolLevelFilter,
   type OwnershipFilter,
 } from '@/lib/school-region';
@@ -63,10 +64,12 @@ function resolveTargetSigungu(
   settings: ReturnType<typeof readFreshSettings>,
 ): string | null {
   if (!settings) return null;
-  if (settings.transferPreference === 'external' && settings.desiredSigungu) {
-    return settings.desiredSigungu;
-  }
-  return settings.currentSigungu;
+  const raw =
+    settings.transferPreference === 'external' && settings.desiredSigungu
+      ? settings.desiredSigungu
+      : settings.currentSigungu;
+  // normalizeSigungu: 병합 전에 저장된 "괴산군"/"증평군" 값이 남아있어도 병합 단위로 맞춰준다.
+  return normalizeSigungu(raw);
 }
 
 /** 유치원·미선택('all')은 통계지도 대상 학교급이 아니거나 특정 짓지 않은 상태라 'all'로 둔다. */
@@ -194,7 +197,7 @@ export function StatisticsContainer() {
       sortSigungu([
         ...new Set(
           allSchools
-            .map((s) => s.sigunguName)
+            .map((s) => normalizeSigungu(s.sigunguName))
             .filter((v): v is string => v !== null),
         ),
       ]),
@@ -206,7 +209,7 @@ export function StatisticsContainer() {
     return allSchools.filter((s) => {
       if (!s.position) return false;
       if (level !== 'all' && s.schulKndCode !== level) return false;
-      if (sigungu !== 'all' && s.sigunguName !== sigungu) return false;
+      if (sigungu !== 'all' && normalizeSigungu(s.sigunguName) !== sigungu) return false;
       if (ownership !== 'all' && s.fondScCode !== ownership) return false;
       if (q && !s.schulNm.includes(q)) return false;
       return true;
