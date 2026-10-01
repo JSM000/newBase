@@ -27,8 +27,10 @@ export function haversineKm(a: LatLng, b: LatLng): number {
 }
 
 /**
- * 소요시간 있는 학교를 시간 오름차순으로, 없는 학교는 뒤에 직선거리 오름차순으로.
- * 서버 응답 정렬 + 클라 "나머지 계산" 병합 후 재정렬에 공용으로 쓴다.
+ * 소요시간 있는 학교를 시간 오름차순으로, 없는 학교(대기·실패 모두)는 뒤에 직선거리
+ * 오름차순으로. "계산 실패"는 이 정렬과 별개로 UI에서 아예 다른 목록(박스)으로 빼서 보여주므로
+ * (commute-panel.tsx), 여기선 failed를 구분하지 않는다.
+ * 서버 응답 정렬 + 클라 "나머지 계산"/재시도 병합 후 재정렬에 공용으로 쓴다.
  */
 export function compareByCommute(
   a: RankedSchoolResult,

@@ -1,9 +1,11 @@
 'use client';
 
-import { MapPin, X } from 'lucide-react';
+import { useState } from 'react';
+import { ChevronDown, ChevronUp, MapPin, X } from 'lucide-react';
 import { cn } from '@/utils/cn';
 import { formatDuration, formatDistance } from '@/utils/formatter';
 import { schulKndLabel, type SchoolLevelFilter, type OwnershipFilter } from '@/lib/school-region';
+import { MAX_SCHOOLS_PER_SEARCH } from '@/lib/route-ranking-constants';
 import type { GeocodeCandidate, RouteRankingResponse } from '@/types/commute';
 import type { SchulKndCode } from '@/types/school-stats';
 import { FavoriteToggleButton } from './favorite-toggle-button';
@@ -26,8 +28,8 @@ interface CommutePanelProps {
   sortDir: 'near' | 'far';
   onSortDirChange: (d: 'near' | 'far') => void;
   onLoadMore: () => void;
-  cooling: boolean;
-  cooldownSec: number;
+  /** "계산 실패"로 표시된 학교만 다시 시도 — onLoadMore(아직 안 건드린 다음 구간)와는 별개 동작 */
+  onRetryFailed: () => void;
   isRanking: boolean;
   errorMsg: string | null;
 }
@@ -54,17 +56,27 @@ export function CommutePanel({
   sortDir,
   onSortDirChange,
   onLoadMore,
-  cooling,
-  cooldownSec,
+  onRetryFailed,
   isRanking,
   errorMsg,
 }: CommutePanelProps) {
   const ready = favoritesOnly ? favoriteCount > 0 : level !== 'all' && sigungu !== 'all';
 
-  const ordered =
-    result && sortDir === 'far'
-      ? [...result.results].reverse()
-      : (result?.results ?? []);
+  // 계산 실패는 순위 목록에 안 섞는다 — 소요시간을 모르니 순위를 매길 수 없고, 직선거리만
+  // 보고 "멀어서 뒤로 밀렸나보다"로 오해하기도 쉬워서 아예 분리해 위쪽 박스에 따로 보여준다.
+  const failedResults = result?.results.filter((r) => r.failed) ?? [];
+  const visibleResults = result?.results.filter((r) => !r.failed) ?? [];
+  const ordered = sortDir === 'far' ? [...visibleResults].reverse() : visibleResults;
+
+  // 실패 박스가 실패 학교 수만큼 끝없이 길어지면 목록(순위) 자체가 아래로 밀려버려서,
+  // 기본은 3줄(2열×3행=6칸)만 보여준다. 숨겨진 게 있으면 마지막 칸을 "···"로 바꿔 더 있다는
+  // 걸 표시하고, 펼치기/접기는 </> 화살표 하나로 간단히 토글한다.
+  const [failedExpanded, setFailedExpanded] = useState(false);
+  const FAILED_PREVIEW_COUNT = 6;
+  const hasMoreFailed = failedResults.length > FAILED_PREVIEW_COUNT;
+  const visibleFailed =
+    hasMoreFailed && !failedExpanded ? failedResults.slice(0, FAILED_PREVIEW_COUNT - 1) : failedResults;
+  const showEllipsis = hasMoreFailed && !failedExpanded;
 
   return (
     <aside
@@ -75,15 +87,17 @@ export function CommutePanel({
     >
       <header className="flex items-start justify-between gap-3 border-b border-zinc-100 p-4">
         <div>
-          <h2 className="text-lg font-bold text-zinc-800">집에서 학교까지</h2>
-          <p className="mt-0.5 text-xs text-zinc-500">
+          <h2 className="text-lg font-bold text-zinc-800">출퇴근 시간</h2>
+          <p className="mt-0.5 truncate text-xs text-zinc-500">
             {!ready
               ? favoritesOnly
                 ? '관심학교가 없습니다'
                 : '필터에서 시·군과 학교급을 먼저 선택하세요'
-              : favoritesOnly
-                ? `관심학교 ${favoriteCount}개 자동차 소요시간`
-                : `${sigungu} · ${schulKndLabel(level as SchulKndCode)}${ownership === 'all' ? '' : ` · ${ownership}`} 자동차 소요시간`}
+              : `${pickedOrigin ? pickedOrigin.label : '출발지 미정'} → ${
+                  favoritesOnly
+                    ? `관심학교 ${favoriteCount}개`
+                    : `${sigungu} · ${schulKndLabel(level as SchulKndCode)}${ownership === 'all' ? '' : ` · ${ownership}`}`
+                }`}
           </p>
         </div>
         <button
@@ -94,37 +108,8 @@ export function CommutePanel({
           <X className="h-5 w-5" />
         </button>
       </header>
-
-      {pickedOrigin && (
-        <p className="truncate border-b border-zinc-100 px-4 py-2 text-xs text-zinc-400">
-          출발지: <span className="text-zinc-600">{pickedOrigin.label}</span>
-        </p>
-      )}
       {errorMsg && (
         <p className="border-b border-zinc-100 px-4 py-2 text-xs text-red-600">{errorMsg}</p>
-      )}
-
-      {result && result.results.length > 0 && (
-        <div className="flex items-center justify-between border-b border-zinc-100 px-4 py-2">
-          <span className="text-xs text-zinc-500">{result.results.length}곳</span>
-          <div className="flex gap-1 text-xs">
-            {(['near', 'far'] as const).map((d) => (
-              <button
-                key={d}
-                type="button"
-                onClick={() => onSortDirChange(d)}
-                className={cn(
-                  'rounded-md px-2 py-1 font-medium transition-colors',
-                  sortDir === d
-                    ? 'bg-primary text-white'
-                    : 'text-zinc-500 hover:bg-zinc-100',
-                )}
-              >
-                {d === 'near' ? '가까운 순' : '먼 순'}
-              </button>
-            ))}
-          </div>
-        </div>
       )}
 
       <div className="min-h-0 flex-1 overflow-y-auto">
@@ -150,8 +135,112 @@ export function CommutePanel({
           </p>
         )}
 
+        {/* 150곳 상한/예산초과 안내 — 결과창 가장 위쪽. 계산 실패 박스와 같은 UI(경고 아이콘
+            + 문구 왼쪽, 버튼 오른쪽, 호박색 테마)로 맞춘다. */}
+        {result && (result.remainingCount > 0 || result.overBudget) && (
+          <div className="mb-2 flex items-center justify-between gap-3 border-b border-amber-100 bg-amber-50 px-4 py-3">
+            {result.overBudget ? (
+              <p className="text-xs leading-relaxed text-amber-700">
+                &#9888;&#65039; 오늘 무료 경로 계산 한도를 모두 사용했어요, 나머지는 내일 다시
+                시도해 주세요
+              </p>
+            ) : (
+              <>
+                <p className="text-xs leading-relaxed text-amber-700">
+                  &#9888;&#65039; 한 번에 최대 {MAX_SCHOOLS_PER_SEARCH}개 학교만 계산 가능
+                  <br />
+                  <span className="inline-block pl-5">
+                    나머지 {result.remainingCount}개는 우측의 버튼을 눌러 추가 계산.
+                  </span>
+                </p>
+                <button
+                  type="button"
+                  onClick={onLoadMore}
+                  disabled={isRanking}
+                  className="shrink-0 rounded-lg bg-amber-600 px-3 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-amber-700 disabled:opacity-50"
+                >
+                  {isRanking ? '계산 중…' : `추가 계산`}
+                </button>
+              </>
+            )}
+          </div>
+        )}
+
+        {/* 계산 실패 박스 — 목록 맨 위. 설명·재시도 버튼을 박스 가장 위쪽에 두고, 그 아래
+            실패한 학교 이름만 2열로 나열한다(소요시간을 모르니 순위에 못 넣고, 클릭해도 보여줄
+            경로가 없어 버튼이 아니라 단순 목록). 재시도·추가 계산 둘 다 쿨다운을 안 본다 —
+            실패는 사용자가 남발해서가 아니라 서버·카카오 쪽 일시적 문제고, 추가 계산도
+            사용자가 명시적으로 이어서 계산하길 원하는 거라 기다리게 할 이유가 없다. */}
+        {failedResults.length > 0 && (
+          <div className="border-b border-amber-100 bg-amber-50 px-4 py-3">
+            <div className="mb-3 flex items-center justify-between gap-3 border-b border-amber-200 pb-3">
+              <p className="text-xs leading-relaxed text-amber-700">
+                &#9888;&#65039; {failedResults.length}개 학교 오류 발생, 우측의 버튼을 눌러 재계산
+              </p>
+              <button
+                type="button"
+                onClick={onRetryFailed}
+                disabled={isRanking}
+                className="shrink-0 rounded-lg bg-amber-600 px-3 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-amber-700 disabled:opacity-50"
+              >
+                {isRanking ? '계산 중…' : `재계산`}
+              </button>
+            </div>
+            <ul className="grid grid-cols-2 gap-x-3 gap-y-1">
+              {visibleFailed.map((s) => (
+                <li key={s.schulCode} className="truncate text-xs text-amber-800">
+                  {s.schulNm}
+                  <span className="ml-1 text-amber-600">{s.straightKm}km</span>
+                </li>
+              ))}
+              {showEllipsis && (
+                <li className="col-span-2 text-left text-base font-extrabold tracking-widest text-amber-700">
+                  ···
+                </li>
+              )}
+            </ul>
+            {hasMoreFailed && (
+              <button
+                type="button"
+                onClick={() => setFailedExpanded((v) => !v)}
+                aria-label={failedExpanded ? '목록 접기' : '목록 더 보기'}
+                className="flex h-3 w-full items-center justify-center leading-none text-amber-700 hover:text-amber-900"
+              >
+                {failedExpanded ? (
+                  <ChevronUp className="h-3 w-3" />
+                ) : (
+                  <ChevronDown className="h-3 w-3" />
+                )}
+              </button>
+            )}
+          </div>
+        )}
+
+        {result && visibleResults.length > 0 && (
+          <div className="flex items-center justify-between border-b border-zinc-100 px-4 py-2">
+            <span className="text-xs text-zinc-500">{visibleResults.length}개 학교</span>
+            <div className="flex gap-1 text-xs">
+              {(['near', 'far'] as const).map((d) => (
+                <button
+                  key={d}
+                  type="button"
+                  onClick={() => onSortDirChange(d)}
+                  className={cn(
+                    'rounded-md px-2 py-1 font-medium transition-colors',
+                    sortDir === d
+                      ? 'bg-primary text-white'
+                      : 'text-zinc-500 hover:bg-zinc-100',
+                  )}
+                >
+                  {d === 'near' ? '가까운 순' : '먼 순'}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
         {ordered.map((s) => {
-          const rank = (result?.results.indexOf(s) ?? 0) + 1;
+          const rank = visibleResults.indexOf(s) + 1;
           const selected = s.schulCode === selectedCode;
           const measured = s.durationSec !== null;
           return (
@@ -173,9 +262,7 @@ export function CommutePanel({
                 <span
                   className={cn(
                     'flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-xs font-bold',
-                    measured
-                      ? 'bg-primary text-white'
-                      : 'bg-zinc-200 text-zinc-500',
+                    measured ? 'bg-primary text-white' : 'bg-zinc-200 text-zinc-500',
                   )}
                 >
                   {rank}
@@ -209,30 +296,6 @@ export function CommutePanel({
             </div>
           );
         })}
-
-        {result && (result.remainingCount > 0 || result.overBudget) && (
-          <div className="px-4 py-3 text-center">
-            {result.overBudget ? (
-              <p className="text-xs leading-relaxed text-amber-700">
-                오늘 무료 경로 계산 한도를 모두 사용했어요. 계산된 학교는 순위에
-                표시되며, 나머지는 내일 다시 시도해 주세요.
-              </p>
-            ) : (
-              <button
-                type="button"
-                onClick={onLoadMore}
-                disabled={cooling || isRanking}
-                className="text-xs font-semibold text-primary hover:underline disabled:opacity-50"
-              >
-                {isRanking
-                  ? '계산 중…'
-                  : cooling
-                    ? `${cooldownSec}초 후 나머지 계산 가능`
-                    : `나머지 ${result.remainingCount}곳도 계산`}
-              </button>
-            )}
-          </div>
-        )}
       </div>
 
       <footer className="flex items-center gap-1.5 border-t border-zinc-100 px-4 py-2 text-[11px] leading-tight text-zinc-400">

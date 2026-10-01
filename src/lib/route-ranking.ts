@@ -9,6 +9,7 @@ import { reserveApiBudget } from './api-budget';
 import { fetchCarRoute } from './kakao-directions';
 import { haversineKm, compareByCommute, type LatLng } from './route-origin';
 import { normalizeSigungu, type OwnershipFilter } from './school-region';
+import { MAX_SCHOOLS_PER_SEARCH } from './route-ranking-constants';
 
 /**
  * 집→학교 소요시간 순위 계산 (계획 4-1).
@@ -26,7 +27,7 @@ import { normalizeSigungu, type OwnershipFilter } from './school-region';
 const ALL_SCHOOLS = (schoolsRender as ChungbukSchoolsData).schools;
 
 const DAILY_BUDGET = Number(process.env.ROUTE_DAILY_BUDGET) || 9000; // 무료한도(10,000/일)의 90%
-const MAX_PER_QUERY = Number(process.env.ROUTE_MAX_PER_QUERY) || 20;
+const MAX_PER_QUERY = Number(process.env.ROUTE_MAX_PER_QUERY) || MAX_SCHOOLS_PER_SEARCH;
 const CONCURRENCY = 6;
 const BUDGET_ROLLBACK_LIMIT = 2_000_000_000;
 
@@ -42,6 +43,8 @@ interface RankingInput {
   /** 설립구분 필터('all'이면 전체) — 지도·순위 표시와 같은 기준으로 대상을 좁힌다. */
   ownership?: OwnershipFilter;
   offset: number;
+  /** 주어지면 offset 배치 대신 이 학교들만 다시 시도("계산 실패" 재시도 전용). */
+  retryCodes?: string[];
 }
 
 const round2 = (n: number): number => Math.round(n * 100) / 100;
@@ -54,7 +57,18 @@ function reserveBudget(
   return reserveApiBudget(supabase, 'directions', n, limit);
 }
 
-/** 동시 실행 수를 제한하며 map. */
+// 카카오 길찾기(1:1) QPS 한도는 비공개지만 경험상 ~10/s (_refs/카카오_API_쿼터.md 1번).
+// 동시성만 제한하고 속도는 안 늦췄더니(개별 호출이 빠르면 순간 처리량이 10/s를 쉽게 넘김)
+// 429(레이트리밋)로 실패하는 학교가 생겼다 — 호출 "시작" 자체를 초당 이 건수 이하로 페이싱해서
+// 원천적으로 한도를 안 넘게 막는다(10/s에서 20% 여유).
+const MAX_DIRECTIONS_PER_SEC = 8;
+const DISPATCH_INTERVAL_MS = 1000 / MAX_DIRECTIONS_PER_SEC;
+
+function sleep(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+/** 동시 실행 수 제한 + 호출 시작 속도 페이싱(MAX_DIRECTIONS_PER_SEC)을 함께 적용하는 map. */
 async function mapPool<T, R>(
   items: T[],
   limit: number,
@@ -62,9 +76,16 @@ async function mapPool<T, R>(
 ): Promise<R[]> {
   const out: R[] = new Array(items.length);
   let cursor = 0;
+  // nextSlot 갱신은 항상 await 없이 동기적으로 일어나서(아래 sleep 전에 먼저 증가),
+  // 워커가 여럿이어도 각자 겹치지 않는 디스패치 시각을 하나씩 받아간다.
+  let nextSlot = Date.now();
   async function worker() {
     while (cursor < items.length) {
       const i = cursor++;
+      const myTurn = nextSlot;
+      nextSlot += DISPATCH_INTERVAL_MS;
+      const wait = myTurn - Date.now();
+      if (wait > 0) await sleep(wait);
       out[i] = await fn(items[i]);
     }
   }
@@ -105,8 +126,15 @@ export async function computeRanking(
     }))
     .sort((a, b) => a.straightKm - b.straightKm);
 
-  const to = Math.min(input.offset + MAX_PER_QUERY, targets.length);
-  const batch = targets.slice(input.offset, to);
+  // 재시도 모드("계산 실패" 학교만 다시) — 진행 위치(offset)는 그대로 둔 채, 지정된 학교들만
+  // 대상으로 한 번 더 길찾기를 돌린다. 일반 모드는 기존대로 직선거리순 다음 구간을 꺼낸다.
+  const retryCodes = input.retryCodes;
+  const isRetry = Boolean(retryCodes && retryCodes.length > 0);
+  const to = isRetry ? input.offset : Math.min(input.offset + MAX_PER_QUERY, targets.length);
+  const batch = isRetry
+    ? targets.filter((t) => retryCodes!.includes(t.school.schulCode))
+    : targets.slice(input.offset, to);
+  const batchCodes = new Set(batch.map((t) => t.school.schulCode));
 
   let overBudget = false;
   const routed = new Map<
@@ -155,6 +183,9 @@ export async function computeRanking(
       durationSec: r ? r.durationSec : null,
       distanceM: r ? r.distanceM : null,
       path: r ? r.path : null,
+      // 이번 배치(또는 재시도 대상)에 포함됐는데 경로를 못 구했으면 "실패" — 아직 시도 전인
+      // 학교(durationSec null + failed false)와 구분해야 클라에서 재시도 대상을 정확히 추릴 수 있다.
+      failed: !r && batchCodes.has(t.school.schulCode),
     };
   });
 

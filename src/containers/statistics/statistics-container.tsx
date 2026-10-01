@@ -141,10 +141,13 @@ export function StatisticsContainer() {
   if (prevStatsView !== statsView) {
     setPrevStatsView(statsView);
     setShowAllMarkers(statsView === 'commute');
-    // 길찾기 사이드바(panelMode='commute')가 열린 채로 "학교 순위" 탭으로 바꾸면 닫는다.
-    // 안 그러면 panelMode가 여전히 commute라, 지도에서 학교를 눌렀을 때 상세정보 대신
-    // (사용자 눈엔 이미 떠난 탭인) 길찾기 경로 선택으로 처리되는 혼란이 있었다.
+    // 지금 탭에 연결된 사이드바가 열린 채로 다른 탭으로 바꾸면 닫는다. 안 그러면 panelMode가
+    // 떠난 탭 걸로 남아있어서, 지도에서 학교를 눌렀을 때 사용자 눈엔 이미 떠난 탭의 동작
+    // (상세정보 대신 길찾기 경로 선택이 된다거나)으로 처리되는 혼란이 있었다.
     if (statsView !== 'commute' && panelMode === 'commute') {
+      setPanelMode('none');
+    }
+    if (statsView !== 'ranking' && panelMode === 'ranking') {
       setPanelMode('none');
     }
   }
@@ -193,17 +196,19 @@ export function StatisticsContainer() {
     setCommuteResult((p) => {
       if (!p) return res;
       const merged = res.results.map((r) => {
-        if (r.durationSec !== null) return r;
+        if (r.durationSec !== null) return r; // 이번에 성공
         const old = p.results.find((o) => o.schulCode === r.schulCode);
-        return old && old.durationSec !== null ? old : r;
+        if (old && old.durationSec !== null) return old; // 이전에 이미 성공 — 유지
+        // 이번 호출이 손 안 댄 자리(일반 진행이면 재시도 대상 밖, 재시도 호출이면 다른 코드)인데
+        // 예전에 "계산 실패" 기록이 남아있었으면 그 기록을 지우지 않는다 — 안 그러면 재시도
+        // 버튼을 눌러 일부만 다시 시도했을 때 나머지 실패 기록이 사라져 보인다.
+        if (old && old.failed && !r.failed) return old;
+        return r; // 이번에 새로 실패했거나, 원래부터 미시도(대기)
       });
       merged.sort(compareByCommute);
-      return {
-        ...res,
-        results: merged,
-        measuredCount: merged.filter((r) => r.durationSec !== null).length,
-        remainingCount: merged.filter((r) => r.durationSec === null).length,
-      };
+      // measuredCount/remainingCount는 res(이번 응답)의 값을 그대로 쓴다 — "진행 위치" 기준이라
+      // (재시도 호출은 위치를 안 건드리므로 그대로, 일반 진행 호출은 res가 이미 새 위치를 반영).
+      return { ...res, results: merged };
     });
   }
 
@@ -271,6 +276,21 @@ export function StatisticsContainer() {
 
   const allSchools = useMemo(() => data?.schools ?? [], [data]);
 
+  // 길찾기 도착지 조건에 해당하는 학교 수 — route-ranking.ts(computeRanking)의 대상 선정
+  // 로직을 클라이언트에서 그대로 따라 해서, 검색 버튼을 누르기 "전에" 몇 곳이 대상인지 미리
+  // 보여준다(한 번에 최대 MAX_SCHOOLS_PER_SEARCH곳까지만 계산되니, 그걸 넘는지 미리 알림).
+  const commuteTargetCount = useMemo(() => {
+    if (commuteFavoritesOnly) return favoriteCodes.length;
+    if (level === 'all' || sigungu === 'all') return 0;
+    return allSchools.filter(
+      (s) =>
+        s.position &&
+        normalizeSigungu(s.sigunguName) === sigungu &&
+        s.schulKndCode === level &&
+        (ownership === 'all' || s.fondScCode === ownership),
+    ).length;
+  }, [allSchools, commuteFavoritesOnly, favoriteCodes, level, sigungu, ownership]);
+
   // 지도에 넘길 길찾기 오버레이 — 매 렌더 새 객체가 되지 않도록 메모이즈
   // (안 그러면 KakaoMap 의 오버레이 effect 가 매번 재실행됨). 경로는 선택된 학교의 결과에서 꺼냄.
   const routeOverlay = useMemo(() => {
@@ -329,13 +349,19 @@ export function StatisticsContainer() {
     return allSchools.filter((s) => {
       if (!s.position) return false;
       if (favoriteSetForFilter && !favoriteSetForFilter.has(s.schulCode)) return false;
-      if (level !== 'all' && s.schulKndCode !== level) return false;
-      if (sigungu !== 'all' && normalizeSigungu(s.sigunguName) !== sigungu) return false;
-      if (ownership !== 'all' && s.fondScCode !== ownership) return false;
+      // 관심학교만 보기가 켜져 있으면 설립구분/학교급/시·군 필터는 건너뛴다 — 즐겨찾기한
+      // 학교 전체를 보려고 켠 토글인데, 지역 필터가 "충주"로 남아있으면 충주 안의 관심학교만
+      // 보여서 나머지 관심학교가 숨어버리는 문제가 있었다. (길찾기 탭의 즐겨찾기 모드도
+      // 같은 방식으로 이 필터들을 무시한다 — commuteFavoritesOnly 참고.)
+      if (!favoritesOnly) {
+        if (level !== 'all' && s.schulKndCode !== level) return false;
+        if (sigungu !== 'all' && normalizeSigungu(s.sigunguName) !== sigungu) return false;
+        if (ownership !== 'all' && s.fondScCode !== ownership) return false;
+      }
       if (q && !s.schulNm.includes(q)) return false;
       return true;
     });
-  }, [allSchools, level, sigungu, ownership, search, favoriteSetForFilter]);
+  }, [allSchools, level, sigungu, ownership, search, favoritesOnly, favoriteSetForFilter]);
 
   const noDataCount = useMemo(
     () => filtered.filter((s) => indicator.accessor(s) === null).length,
@@ -485,6 +511,9 @@ export function StatisticsContainer() {
                   addressSearching={commuteSearch.isSearching}
                   addressCooling={commuteSearch.cooling}
                   addressCooldownSec={commuteSearch.cooldownSec}
+                  rankingCooling={commuteSearch.rankingCooling}
+                  rankingCooldownSec={commuteSearch.rankingCooldownSec}
+                  commuteTargetCount={commuteTargetCount}
                   geocodeErrorMsg={commuteSearch.geocodeErrorMsg}
                   candidates={commuteSearch.candidates}
                   onPickCandidate={commuteSearch.pickCandidate}
@@ -561,8 +590,7 @@ export function StatisticsContainer() {
               sortDir={commuteSearch.sortDir}
               onSortDirChange={commuteSearch.setSortDir}
               onLoadMore={() => commuteSearch.loadMore(commuteResult)}
-              cooling={commuteSearch.cooling}
-              cooldownSec={commuteSearch.cooldownSec}
+              onRetryFailed={() => commuteSearch.retryFailed(commuteResult)}
               isRanking={commuteSearch.isRanking}
               errorMsg={commuteSearch.rankingErrorMsg}
             />

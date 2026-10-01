@@ -3,7 +3,12 @@
 import { useEffect, useRef, useState } from 'react';
 import { useGeocodeCandidates } from '@/hooks/use-geocode-candidates';
 import { useRouteRanking } from '@/hooks/use-route-ranking';
-import { cooldownRemainingMs, markSearched } from '@/lib/commute-rate-limit';
+import {
+  cooldownRemainingMs,
+  markSearched,
+  rankingCooldownRemainingMs,
+  markRankingSearched,
+} from '@/lib/commute-rate-limit';
 import { loadCachedCommuteResult, type CommuteDestination } from '@/lib/commute-result-cache';
 import type { GeocodeCandidate, RouteRankingResponse } from '@/types/commute';
 import type { SchoolLevelFilter, OwnershipFilter } from '@/lib/school-region';
@@ -65,10 +70,15 @@ export function useCommuteSearch({
   const [pickedOrigin, setPickedOrigin] = useState<GeocodeCandidate | null>(null);
   const [sortDir, setSortDir] = useState<'near' | 'far'>('near');
   const [cooldownMs, setCooldownMs] = useState(0);
+  const [rankingCooldownMs, setRankingCooldownMs] = useState(0);
 
   // 쿨다운 카운트다운. 1초마다 localStorage 를 다시 읽어 남은 시간을 반영한다.
+  // 주소 검색·길찾기(계산하기/나머지도 계산)는 독립된 쿨다운이라 따로 갱신한다.
   useEffect(() => {
-    const id = setInterval(() => setCooldownMs(cooldownRemainingMs()), 1000);
+    const id = setInterval(() => {
+      setCooldownMs(cooldownRemainingMs());
+      setRankingCooldownMs(rankingCooldownRemainingMs());
+    }, 1000);
     return () => clearInterval(id);
   }, [geocode.isPending, ranking.isPending]);
 
@@ -94,6 +104,8 @@ export function useCommuteSearch({
 
   const cooling = cooldownMs > 0;
   const cooldownSec = Math.ceil(cooldownMs / 1000);
+  const rankingCooling = rankingCooldownMs > 0;
+  const rankingCooldownSec = Math.ceil(rankingCooldownMs / 1000);
 
   /** 현재 도착지 조건(즐겨찾기 또는 시·군/학교급/설립구분) 식별자 — 요청 바디 구성·결과 캐싱에 공용으로 쓴다. */
   function currentDestination(): CommuteDestination {
@@ -102,8 +114,22 @@ export function useCommuteSearch({
       : { kind: 'filter', schulKndCode: level as SchulKndCode, sigungu, ownership };
   }
 
-  /** 실측(길찾기) 실행 — append=false면 confirmSearch(새 검색), true면 "나머지도 계산" 이어받기. */
-  function runRanking(origin: GeocodeCandidate, offset: number, append: boolean) {
+  /**
+   * 실측(길찾기) 실행 — append=false면 confirmSearch(새 검색), true면 "나머지도 계산"/재시도
+   * 이어받기. retryCodes를 주면 offset 배치 대신 그 학교들만("계산 실패" 재시도) 다시 돈다.
+   * 쿨다운은 "요청을 보낼 때"가 아니라 "응답이 돌아온 뒤"(onSuccess)에 기록한다 — 한 번에
+   * 150곳까지 처리하느라 계산 자체가 수십 초 걸릴 수 있는데, 보낼 때 기록하면 계산이 끝났을
+   * 땐 이미 그 시간만큼 쿨다운이 줄어있어 "1분"이 실제로는 더 짧게 느껴지는 문제가 있었다.
+   * skipCooldown=true(계산 실패 재시도 전용)면 쿨다운을 아예 기록하지 않는다 — 실패는 사용자가
+   * 남발해서가 아니라 서버·카카오 쪽 일시적 문제라, 기다리게 할 이유가 없다.
+   */
+  function runRanking(
+    origin: GeocodeCandidate,
+    offset: number,
+    append: boolean,
+    retryCodes?: string[],
+    skipCooldown?: boolean,
+  ) {
     const destination = currentDestination();
     ranking.mutate(
       destination.kind === 'favorites'
@@ -111,6 +137,7 @@ export function useCommuteSearch({
             origin: { lat: origin.lat, lng: origin.lng },
             favoriteCodes: destination.favoriteCodes,
             offset,
+            retryCodes,
           }
         : {
             origin: { lat: origin.lat, lng: origin.lng },
@@ -118,8 +145,17 @@ export function useCommuteSearch({
             sigungu: destination.sigungu,
             ownership: destination.ownership,
             offset,
+            retryCodes,
           },
-      { onSuccess: (res) => onResult(res, { destination, append }) },
+      {
+        onSuccess: (res) => {
+          if (!skipCooldown) {
+            markRankingSearched();
+            setRankingCooldownMs(rankingCooldownRemainingMs());
+          }
+          onResult(res, { destination, append });
+        },
+      },
     );
   }
 
@@ -166,11 +202,12 @@ export function useCommuteSearch({
 
   /**
    * ② 출발지 + 도착지 조건이 둘 다 갖춰진 뒤, "출퇴근 시간 계산" 버튼을 눌렀을 때 실행.
-   * 같은 출발지·도착지 조건으로 이미 검색한 적 있으면(로컬 캐시) API 없이 그 결과를 바로 쓴다.
+   * 같은 출발지·도착지 조건으로 이미 검색한 적 있으면(로컬 캐시) API 없이 그 결과를 바로 쓰고,
+   * 이땐 쿨다운도 적용하지 않는다(실제 API 호출이 없어 비용이 안 드니 막을 이유가 없다).
+   * 캐시가 없어 진짜 길찾기를 돌릴 때만 쿨다운(rankingCooling)을 확인한다.
    */
   function confirmSearch() {
     if (!pickedOrigin || !ready || ranking.isPending) return;
-    onSelectCode(null);
 
     const destination = currentDestination();
     const cached = loadCachedCommuteResult(
@@ -178,17 +215,37 @@ export function useCommuteSearch({
       destination,
     );
     if (cached) {
+      onSelectCode(null);
       onResult(cached, { destination, append: false });
       return;
     }
 
+    if (rankingCooling) return;
+    onSelectCode(null);
     onResult(null);
     runRanking(pickedOrigin, 0, false);
   }
 
+  /**
+   * "나머지도 계산" — 캐시에 없는 나머지 구간이라 항상 실제 API 호출. 쿨다운을 확인하지
+   * 않는다 — 사용자가 명시적으로 이어서 계산하길 원하는 거라 기다리게 할 이유가 없다.
+   */
   function loadMore(result: RouteRankingResponse | null) {
-    if (!pickedOrigin || !result || cooling || ranking.isPending) return;
-    runRanking(pickedOrigin, result.measuredCount, true);
+    if (!pickedOrigin || !result || ranking.isPending) return;
+    runRanking(pickedOrigin, result.measuredCount, true, undefined, true);
+  }
+
+  /**
+   * "계산 실패" 학교만 다시 시도 — offset(진행 위치)은 안 건드리고 실패한 코드만 보낸다.
+   * "나머지도 계산"(아직 시도 안 한 다음 구간)과는 별개 동작이라 섞이지 않는다. 쿨다운
+   * (rankingCooling)을 확인하지 않는다 — 실패는 사용자 책임이 아니라 서버·카카오 쪽
+   * 일시적 문제라 바로 재시도할 수 있어야 한다. 요청이 이미 진행 중일 때만 막는다.
+   */
+  function retryFailed(result: RouteRankingResponse | null) {
+    if (!pickedOrigin || !result || ranking.isPending) return;
+    const failedCodes = result.results.filter((r) => r.failed).map((r) => r.schulCode);
+    if (failedCodes.length === 0) return;
+    runRanking(pickedOrigin, result.measuredCount, true, failedCodes, true);
   }
 
   const geocodeErrorMsg =
@@ -214,6 +271,8 @@ export function useCommuteSearch({
     setSortDir,
     cooling,
     cooldownSec,
+    rankingCooling,
+    rankingCooldownSec,
     isSearching: geocode.isPending,
     isRanking: ranking.isPending,
     geocodeErrorMsg,
@@ -223,5 +282,6 @@ export function useCommuteSearch({
     pickCandidate,
     confirmSearch,
     loadMore,
+    retryFailed,
   };
 }

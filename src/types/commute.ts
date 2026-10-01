@@ -42,8 +42,13 @@ export interface RouteRankingRequest {
   sigungu?: string;
   /** 설립구분 — 필터바와 동일 기준('all'이면 전체). 즐겨찾기 모드가 아닐 때 필수 */
   ownership?: OwnershipFilter;
-  /** 이미 실측한 학교 수 — "나머지도 계산"에서 다음 배치를 이어 계산 */
+  /** 이미 실측한(시도한) 학교 수 — "나머지도 계산"에서 다음 배치를 이어 계산 */
   offset?: number;
+  /**
+   * 주어지면 offset 기반 배치 대신 이 학교들만 다시 시도한다 — "계산 실패" 학교 재시도 전용.
+   * offset(진행 위치)은 건드리지 않는다. 즐겨찾기 모드든 아니든 동일하게 동작.
+   */
+  retryCodes?: string[];
 }
 
 export interface RankedSchoolResult {
@@ -59,6 +64,12 @@ export interface RankedSchoolResult {
   distanceM: number | null;
   /** 경로 폴리라인 [lng, lat][] — 실측된 학교만. 클릭 시 지도에 그림 */
   path: [number, number][] | null;
+  /**
+   * true면 "시도는 했지만"(이번 배치 또는 재시도 대상에 포함) 경로를 못 구함 — 레이트리밋·
+   * 타임아웃·실제로 경로 없음 등. false면 아직 시도 전("대기")이거나 성공. durationSec===null과
+   * 함께 봐야 구분된다: durationSec null + failed false = 대기, null + failed true = 실패.
+   */
+  failed: boolean;
 }
 
 export interface RouteRankingResponse {

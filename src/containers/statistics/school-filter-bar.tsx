@@ -13,6 +13,7 @@ import {
   type OwnershipFilter,
 } from '@/lib/school-region';
 import { INDICATORS, SOCIAL_INDICATOR_LIST } from '@/lib/school-indicators';
+import { MAX_SCHOOLS_PER_SEARCH } from '@/lib/route-ranking-constants';
 import type { GeocodeCandidate } from '@/types/commute';
 import type { SchulKndCode } from '@/types/school-stats';
 
@@ -65,6 +66,11 @@ interface SchoolFilterBarProps {
   destinationReady: boolean;
   /** 길찾기 실행 중(재계산 포함) — 버튼에 "계산 중…" 표시 + 비활성화 */
   isRanking: boolean;
+  /** 길찾기 쿨다운(주소 검색과 별개) — "계산하기" 버튼 자체에 적용. 캐시 히트일 땐 적용 안 됨 */
+  rankingCooling: boolean;
+  rankingCooldownSec: number;
+  /** 현재 도착지 조건(시·군·학교급 또는 즐겨찾기)에 해당하는 학교 수 — 검색 전 상한 안내용 */
+  commuteTargetCount: number;
   /** "출퇴근 시간 계산" 버튼 — 출발지·도착지 둘 다 갖춰졌는지는 필터 바가 먼저 확인하고 부른다 */
   onConfirmSearch: () => void;
 
@@ -228,6 +234,9 @@ export function SchoolFilterBar({
   onUseSavedHome,
   destinationReady,
   isRanking,
+  rankingCooling,
+  rankingCooldownSec,
+  commuteTargetCount,
   onConfirmSearch,
   collapsed,
   onToggleCollapsed,
@@ -407,10 +416,14 @@ export function SchoolFilterBar({
           <button
             type="button"
             onClick={handleConfirmSearch}
-            disabled={isRanking}
+            disabled={isRanking || rankingCooling}
             className={calcButtonClass}
           >
-            {isRanking ? '계산 중…' : '계산하기'}
+            {isRanking
+              ? '계산 중…'
+              : rankingCooling
+                ? `${rankingCooldownSec}초 후 계산 가능`
+                : '계산하기'}
           </button>
 
           {/* 출발지 팝업 — 주소 검색 + 후보 5개 중 선택(예전 사이드바에 있던 흐름 그대로) */}
@@ -547,6 +560,16 @@ export function SchoolFilterBar({
                     sigunguOptions={sigunguOptions}
                   />
                 </div>
+              )}
+              {/* 150곳을 넘는 조건은 계산 버튼을 누르기 전, 조건을 고르는 이 다이얼로그에서
+                  바로 알려준다 — 평소엔(대부분의 시·군+학교급 조합이 150 미만이라) 안 보여서
+                  다이얼로그가 늘어나지 않는다. */}
+              {commuteTargetCount > MAX_SCHOOLS_PER_SEARCH && (
+                <p className="rounded-lg border border-amber-300 bg-amber-50 px-3 py-2 text-center text-sm font-semibold leading-snug text-amber-800">
+                  한번에 최대 {MAX_SCHOOLS_PER_SEARCH}개까지만 계산돼요. 
+                  <br/>
+                  나머지 {commuteTargetCount - MAX_SCHOOLS_PER_SEARCH}개는 결과창에서 추가로 계산 할  수 있어요.
+                </p>
               )}
               <DialogFooter>
                 <button
