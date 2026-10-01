@@ -95,7 +95,7 @@ interface SchoolFilterBarProps {
 }
 
 const selectClass =
-  'h-9 rounded-lg border border-zinc-200 bg-white px-2.5 text-sm text-zinc-700 focus:border-primary focus:outline-none';
+  'h-9 max-w-[8.5rem] truncate rounded-lg border border-zinc-200 bg-white px-2 text-sm text-zinc-700 focus:border-primary focus:outline-none';
 
 /** 모든 필터 항목에 동일하게 붙이는 캡션 — 항목마다 라벨이 있었다 없었다 하던 걸 통일. */
 const captionClass = 'text-[11px] font-medium uppercase tracking-wide text-zinc-400';
@@ -108,12 +108,16 @@ const calcButtonClass =
  * 크롬 브라우저 탭처럼, 선택된 탭이 바로 아래 콘텐츠(흰 배경)와 하나로 이어져 보이도록.
  * 비활성 탭은 회색(bg-zinc-100)으로 떠 있고, 활성 탭은 흰 배경 + `-mb-px`로 아래쪽
  * 경계선(TabsList가 앉아 있는 줄의 border-b)을 그 폭만큼 덮어서 경계가 끊겨 보이게 한다.
+ * (이 줄은 탭 말고도 결과 개수·접기 버튼이 같이 있어서, school-detail-panel.tsx처럼
+ * "비활성 탭만 자기 경계선을 그리는" 방식 대신 줄 전체의 공유 border-b를 그대로 쓴다.)
  * 기본 rounded-sm(전체 모서리)을 rounded-none으로 먼저 지우고 rounded-t-lg만 새로 준다 —
  * 순서가 반대면(rounded-t-lg 먼저) tailwind-merge가 rounded-sm과 같은 그룹으로 안 묶어서
  * 남겨두는 rounded-sm이 나중에 이길 수 있음.
+ * 활성 탭 위쪽엔 primary색 강조선을 넣어(school-detail-panel.tsx와 동일 패턴) 지금 어느
+ * 탭을 보고 있는지 눈에 띄게 한다.
  */
 const tabTriggerClass =
-  'relative rounded-none rounded-t-lg border border-b-0 border-zinc-200 bg-zinc-100 px-4 py-2 text-sm font-medium text-zinc-500 shadow-none transition-colors hover:bg-zinc-200/70 data-[state=active]:z-10 data-[state=active]:-mb-px data-[state=active]:bg-white data-[state=active]:text-zinc-900 data-[state=active]:shadow-none data-[state=active]:hover:bg-white';
+  'relative rounded-none rounded-t-lg border border-b-0 border-zinc-200 bg-zinc-100 px-4 py-2 text-sm font-medium text-zinc-500 transition-colors hover:bg-zinc-200/70 data-[state=active]:z-10 data-[state=active]:-mb-px data-[state=active]:bg-white data-[state=active]:font-semibold data-[state=active]:text-zinc-900 data-[state=active]:shadow-[inset_0_2px_0_0_#e77474] data-[state=active]:hover:bg-white';
 
 /** 캡션 + 컨트롤을 세로로 묶는 한 항목. 필터 바 전체가 이 단위로 일관되게 구성됨. */
 function FilterField({ label, children }: { label: string; children: React.ReactNode }) {
@@ -281,20 +285,17 @@ export function SchoolFilterBar({
     <div className="overflow-hidden rounded-xl border border-zinc-200 bg-white shadow-custom">
       {/* ── 가장 위 줄: 학교 순위 / 출퇴근 시간 계산 전환 탭 — 같은 필터 바가 두 기능을 같이
           다뤄서 헷갈린다는 피드백에 따라, 지금 뭘 보고 있는지 먼저 명확히 고르게 한다 ── */}
-      <div className="flex items-start justify-between border-b border-zinc-200 px-4 pt-3">
-        <div className="flex items-end gap-3">
-          <Tabs value={view} onValueChange={(v) => onViewChange(v as StatsView)}>
-            <TabsList className="h-auto items-end gap-1 rounded-none border-0 bg-transparent p-0">
-              <TabsTrigger value="ranking" className={tabTriggerClass}>
-                학교 순위
-              </TabsTrigger>
-              <TabsTrigger value="commute" className={tabTriggerClass}>
-                출퇴근 시간 계산기
-              </TabsTrigger>
-            </TabsList>
-          </Tabs>
-          <span className="pb-2 text-sm text-zinc-400">{resultCount}개 학교</span>
-        </div>
+      <div className="flex items-start justify-between border-b border-zinc-200 px-3 pt-3">
+        <Tabs value={view} onValueChange={(v) => onViewChange(v as StatsView)}>
+          <TabsList className="h-auto items-end gap-1 rounded-none border-0 bg-transparent p-0">
+            <TabsTrigger value="ranking" className={tabTriggerClass}>
+              학교 순위
+            </TabsTrigger>
+            <TabsTrigger value="commute" className={tabTriggerClass}>
+              출퇴근 시간 계산기
+            </TabsTrigger>
+          </TabsList>
+        </Tabs>
         <button
           type="button"
           onClick={onToggleCollapsed}
@@ -316,7 +317,7 @@ export function SchoolFilterBar({
           }`}
         >
           {/* ── 필터(어떤 학교를 볼지) — 설립구분/학교급/시군, 전부 이 대상을 좁히는 조건 ── */}
-          <div className="flex flex-wrap items-end gap-3">
+          <div className="flex flex-wrap items-end gap-2">
             <SchoolScopeFields
               ownership={ownership}
               onOwnershipChange={onOwnershipChange}
@@ -328,8 +329,9 @@ export function SchoolFilterBar({
             />
           </div>
 
-          {/* ── 표시·순위 기준 + "학교 순위" 버튼 — 위 필터 줄과 구분되도록 아래 줄로 ── */}
-          <div className="flex flex-wrap items-end gap-3">
+          {/* ── 표시·순위 기준 + "학교 순위" 버튼 — 위 필터 줄과 구분되도록 아래 줄로.
+              출퇴근 탭의 박스+버튼 줄과 같은 방식으로, 좁은 화면에선 버튼이 아래로 내려간다 ── */}
+          <div className="flex flex-col items-stretch gap-2 sm:flex-row sm:flex-wrap sm:items-end">
             <FilterField label="표시·순위 기준">
               <select
                 value={indicatorKey}
@@ -366,11 +368,11 @@ export function SchoolFilterBar({
             고르고 정리된 텍스트만 이 줄에 보여준다("최대한 간결했으면 좋겠다"는 요청) ── */}
         <div
           aria-hidden={view !== 'commute'}
-          className={`col-start-1 row-start-1 flex items-end gap-2 self-start px-4 py-3 ${
+          className={`col-start-1 row-start-1 flex flex-col items-stretch gap-2 self-start px-4 py-3 sm:flex-row sm:items-end ${
             view === 'commute' ? '' : 'invisible pointer-events-none'
           }`}
         >
-          <div className="flex w-72 max-w-full flex-col gap-3">
+          <div className="flex w-full flex-col gap-3 sm:w-72">
             <div className="flex flex-col gap-1">
               <span className={captionClass}>집주소로 검색</span>
               <button
@@ -560,14 +562,16 @@ export function SchoolFilterBar({
       {/* 지도 컨트롤 — 학교 개별 마커 / 행정구역 경계. 예전엔 지도 위 왼쪽에 따로 떠 있었는데,
           필터 바 안으로 옮겨서 필터 바를 접으면 같이 접히도록 함. 위쪽 탭·필터 영역과 성격이
           달라서(지도 자체를 다루는 설정) 두꺼운 경계선 + 더 진한 회색 배경으로 구분을 확실히 함 */}
-      <div className="flex flex-wrap items-center gap-2 border-t-2 border-zinc-300 bg-zinc-100 px-4 py-3">
-        <div className="flex items-center gap-1.5 rounded-lg border border-zinc-200 bg-white px-2.5 py-1.5 text-xs font-medium text-zinc-700">
-          <span className="whitespace-nowrap">학교 개별 마커</span>
-          <Switch checked={showAllMarkers} onCheckedChange={onShowAllMarkersChange} />
-        </div>
-        <div className="flex items-center gap-1.5 rounded-lg border border-zinc-200 bg-white px-2.5 py-1.5 text-xs font-medium text-zinc-700">
-          <span className="whitespace-nowrap">행정구역 경계</span>
-          <Switch checked={showBoundaries} onCheckedChange={onShowBoundariesChange} />
+      <div className="flex flex-col gap-2 border-t-2 border-zinc-300 bg-zinc-100 px-4 py-3">
+        <div className="flex flex-wrap items-center gap-1.5">
+          <div className="flex h-6 items-center gap-1 rounded-lg border border-zinc-200 bg-white px-1.5 text-xs font-medium text-zinc-700">
+            <span className="whitespace-nowrap">개별 마커</span>
+            <Switch checked={showAllMarkers} onCheckedChange={onShowAllMarkersChange} />
+          </div>
+          <div className="flex h-6 items-center gap-1 rounded-lg border border-zinc-200 bg-white px-1.5 text-xs font-medium text-zinc-700">
+            <span className="whitespace-nowrap">행정 구역</span>
+            <Switch checked={showBoundaries} onCheckedChange={onShowBoundariesChange} />
+          </div>
         </div>
         {/* 관심학교만 보기 — 지도·학교 순위 대상을 관심학교로 좁힌다
             (계획: _refs/즐겨찾기_구현계획/04_필터지도연동.md A) */}
@@ -582,13 +586,13 @@ export function SchoolFilterBar({
           />
         </div>
 
-        {/* 학교명 검색 — 다른 필터와 성격이 달라(자유 텍스트) 이 줄 가장 오른쪽에 배치 */}
+        {/* 학교명 검색 — 다른 필터와 성격이 달라(자유 텍스트) 토글들과 분리해 아래 줄로 */}
         <input
           type="text"
           value={search}
           onChange={(e) => onSearchChange(e.target.value)}
           placeholder="학교명 검색"
-          className="ml-auto h-9 w-28 rounded-lg border border-zinc-200 bg-white px-2.5 text-sm placeholder:text-zinc-400 focus:border-primary focus:outline-none"
+          className="ml-auto h-6 w-32 rounded-lg border border-zinc-200 bg-white px-2 text-xs placeholder:text-zinc-400 focus:border-primary focus:outline-none"
         />
       </div>
     </div>
