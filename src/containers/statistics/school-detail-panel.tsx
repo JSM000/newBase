@@ -398,8 +398,17 @@ export function SchoolDetailPanel({
                 <Eye className="h-3.5 w-3.5 shrink-0 -translate-y-px" />
                 {views.toLocaleString()}
               </span>
-              <span className="flex items-center gap-1" title="즐겨찾기 수">
-                <Heart className="h-3.5 w-3.5 shrink-0 -translate-y-px" />
+              <span
+                className={`flex items-center gap-1 leading-none ${
+                  favoriteCount > 0 ? 'text-red-600' : 'text-zinc-300'
+                }`}
+                title="즐겨찾기 수"
+              >
+                <Heart
+                  className={`h-[11px] w-[11px] shrink-0 -translate-y-px ${
+                    favoriteCount > 0 ? 'fill-red-600' : 'fill-zinc-300'
+                  }`}
+                />
                 {favoriteCount.toLocaleString()}
               </span>
               {ratingCount > 0 ? (

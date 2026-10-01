@@ -564,26 +564,27 @@ export function SchoolFilterBar({
           달라서(지도 자체를 다루는 설정) 두꺼운 경계선 + 더 진한 회색 배경으로 구분을 확실히 함 */}
       <div className="flex flex-col gap-2 border-t-2 border-zinc-300 bg-zinc-100 px-4 py-3">
         <div className="flex flex-wrap items-center gap-1.5">
-          <div className="flex h-6 items-center gap-1 rounded-lg border border-zinc-200 bg-white px-1.5 text-xs font-medium text-zinc-700">
+          <div className="flex h-6 w-36 items-center gap-1 rounded-lg border border-zinc-200 bg-white px-1.5 text-xs font-medium text-zinc-700">
             <span className="whitespace-nowrap">개별 마커</span>
             <Switch checked={showAllMarkers} onCheckedChange={onShowAllMarkersChange} />
           </div>
-          <div className="flex h-6 items-center gap-1 rounded-lg border border-zinc-200 bg-white px-1.5 text-xs font-medium text-zinc-700">
+          <div className="flex h-6 w-36 items-center gap-1 rounded-lg border border-zinc-200 bg-white px-1.5 text-xs font-medium text-zinc-700">
             <span className="whitespace-nowrap">행정 구역</span>
             <Switch checked={showBoundaries} onCheckedChange={onShowBoundariesChange} />
           </div>
-        </div>
-        {/* 관심학교만 보기 — 지도·학교 순위 대상을 관심학교로 좁힌다
-            (계획: _refs/즐겨찾기_구현계획/04_필터지도연동.md A) */}
-        <div className="flex items-center gap-1.5 rounded-lg border border-zinc-200 bg-white px-2.5 py-1.5 text-xs font-medium text-zinc-700">
-          <span className="whitespace-nowrap">
-            관심학교<span className="ml-1 text-zinc-400">({favoriteCount})</span>
-          </span>
-          <Switch
-            checked={favoritesOnly}
-            disabled={favoriteCount === 0}
-            onCheckedChange={onFavoritesOnlyChange}
-          />
+          {/* 관심학교만 보기 — 지도·학교 순위 대상을 관심학교로 좁힌다
+              (계획: _refs/즐겨찾기_구현계획/04_필터지도연동.md A). 옆에 개수가 붙어서
+              다른 둘보다 폭이 더 필요한 걸 기준(w-36)으로 셋 다 너비를 맞춤 */}
+          <div className="flex h-6 w-36 items-center gap-1 rounded-lg border border-zinc-200 bg-white px-1.5 text-xs font-medium text-zinc-700">
+            <span className="whitespace-nowrap">
+              관심학교<span className="ml-1 text-zinc-400">({favoriteCount})</span>
+            </span>
+            <Switch
+              checked={favoritesOnly}
+              disabled={favoriteCount === 0}
+              onCheckedChange={onFavoritesOnlyChange}
+            />
+          </div>
         </div>
 
         {/* 학교명 검색 — 다른 필터와 성격이 달라(자유 텍스트) 토글들과 분리해 아래 줄로 */}
