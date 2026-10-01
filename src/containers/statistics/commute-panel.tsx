@@ -6,6 +6,7 @@ import { formatDuration, formatDistance } from '@/utils/formatter';
 import { schulKndLabel, type SchoolLevelFilter, type OwnershipFilter } from '@/lib/school-region';
 import type { GeocodeCandidate, RouteRankingResponse } from '@/types/commute';
 import type { SchulKndCode } from '@/types/school-stats';
+import { FavoriteToggleButton } from './favorite-toggle-button';
 
 interface CommutePanelProps {
   isOpen: boolean;
@@ -13,6 +14,9 @@ interface CommutePanelProps {
   level: SchoolLevelFilter;
   sigungu: string;
   ownership: OwnershipFilter;
+  /** true면 위 세 필터 대신 즐겨찾기한 학교 전체가 대상 (계획: 04_필터지도연동.md B) */
+  favoritesOnly: boolean;
+  favoriteCount: number;
   result: RouteRankingResponse | null;
   selectedCode: string | null;
   onSelectCode: (code: string | null) => void;
@@ -40,6 +44,8 @@ export function CommutePanel({
   level,
   sigungu,
   ownership,
+  favoritesOnly,
+  favoriteCount,
   result,
   selectedCode,
   onSelectCode,
@@ -53,7 +59,7 @@ export function CommutePanel({
   isRanking,
   errorMsg,
 }: CommutePanelProps) {
-  const ready = level !== 'all' && sigungu !== 'all';
+  const ready = favoritesOnly ? favoriteCount > 0 : level !== 'all' && sigungu !== 'all';
 
   const ordered =
     result && sortDir === 'far'
@@ -71,9 +77,13 @@ export function CommutePanel({
         <div>
           <h2 className="text-lg font-bold text-zinc-800">집에서 학교까지</h2>
           <p className="mt-0.5 text-xs text-zinc-500">
-            {ready
-              ? `${sigungu} · ${schulKndLabel(level as SchulKndCode)}${ownership === 'all' ? '' : ` · ${ownership}`} 자동차 소요시간`
-              : '필터에서 시·군과 학교급을 먼저 선택하세요'}
+            {!ready
+              ? favoritesOnly
+                ? '관심학교가 없습니다'
+                : '필터에서 시·군과 학교급을 먼저 선택하세요'
+              : favoritesOnly
+                ? `관심학교 ${favoriteCount}개 자동차 소요시간`
+                : `${sigungu} · ${schulKndLabel(level as SchulKndCode)}${ownership === 'all' ? '' : ` · ${ownership}`} 자동차 소요시간`}
           </p>
         </div>
         <button
@@ -145,50 +155,58 @@ export function CommutePanel({
           const selected = s.schulCode === selectedCode;
           const measured = s.durationSec !== null;
           return (
-            <button
+            <div
               key={s.schulCode}
-              type="button"
-              onClick={() => onSelectCode(s.schulCode)}
               className={cn(
-                'flex w-full items-center gap-3 border-b border-zinc-50 px-4 py-2.5 text-left transition-colors',
-                selected ? 'bg-primary-50' : 'hover:bg-zinc-50',
+                'flex items-center border-b border-zinc-50',
+                selected ? 'bg-primary-50' : '',
               )}
             >
-              <span
+              <button
+                type="button"
+                onClick={() => onSelectCode(s.schulCode)}
                 className={cn(
-                  'flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-xs font-bold',
-                  measured
-                    ? 'bg-primary text-white'
-                    : 'bg-zinc-200 text-zinc-500',
+                  'flex min-w-0 flex-1 items-center gap-3 py-2.5 pl-4 text-left transition-colors',
+                  selected ? '' : 'hover:bg-zinc-50',
                 )}
               >
-                {rank}
-              </span>
-              <span className="min-w-0 flex-1">
-                <span className="block truncate text-sm font-medium text-zinc-800">
-                  {s.schulNm}
+                <span
+                  className={cn(
+                    'flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-xs font-bold',
+                    measured
+                      ? 'bg-primary text-white'
+                      : 'bg-zinc-200 text-zinc-500',
+                  )}
+                >
+                  {rank}
                 </span>
-                <span className="block truncate text-xs text-zinc-400">
-                  {s.address ?? ''}
-                </span>
-              </span>
-              <span className="shrink-0 text-right">
-                {measured ? (
-                  <>
-                    <span className="block text-sm font-semibold text-zinc-800">
-                      {formatDuration(s.durationSec!)}
-                    </span>
-                    <span className="block text-xs text-zinc-400">
-                      {s.distanceM !== null ? formatDistance(s.distanceM) : ''}
-                    </span>
-                  </>
-                ) : (
-                  <span className="block text-xs text-zinc-400">
-                    직선 {s.straightKm}km
+                <span className="min-w-0 flex-1">
+                  <span className="block truncate text-sm font-medium text-zinc-800">
+                    {s.schulNm}
                   </span>
-                )}
-              </span>
-            </button>
+                  <span className="block truncate text-xs text-zinc-400">
+                    {s.address ?? ''}
+                  </span>
+                </span>
+                <span className="shrink-0 text-right">
+                  {measured ? (
+                    <>
+                      <span className="block text-sm font-semibold text-zinc-800">
+                        {formatDuration(s.durationSec!)}
+                      </span>
+                      <span className="block text-xs text-zinc-400">
+                        {s.distanceM !== null ? formatDistance(s.distanceM) : ''}
+                      </span>
+                    </>
+                  ) : (
+                    <span className="block text-xs text-zinc-400">
+                      직선 {s.straightKm}km
+                    </span>
+                  )}
+                </span>
+              </button>
+              <FavoriteToggleButton schulCode={s.schulCode} stopPropagation size="sm" className="mr-3" />
+            </div>
           );
         })}
 

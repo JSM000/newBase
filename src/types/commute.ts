@@ -30,10 +30,18 @@ export interface GeocodeResponse {
 export interface RouteRankingRequest {
   /** 후보 목록에서 사용자가 고른 출발지 좌표 — 서버는 여기서 다시 지오코딩하지 않는다. */
   origin: { lat: number; lng: number };
-  schulKndCode: SchulKndCode;
-  sigungu: string;
-  /** 설립구분 — 필터바와 동일 기준('all'이면 전체) */
-  ownership: OwnershipFilter;
+  /**
+   * 즐겨찾기 학교 코드 목록 — 1개 이상 주어지면 "즐겨찾기만" 모드. 아래
+   * schulKndCode/sigungu/ownership 대신 이 코드들을 그대로 대상으로 삼는다(즐겨찾기는
+   * 여러 시·군·학교급에 걸칠 수 있어서 그 필터들과 같이 쓸 수 없다 — 계획:
+   * _refs/즐겨찾기_구현계획/04_필터지도연동.md B).
+   */
+  favoriteCodes?: string[];
+  /** 즐겨찾기 모드가 아닐 때 필수 */
+  schulKndCode?: SchulKndCode;
+  sigungu?: string;
+  /** 설립구분 — 필터바와 동일 기준('all'이면 전체). 즐겨찾기 모드가 아닐 때 필수 */
+  ownership?: OwnershipFilter;
   /** 이미 실측한 학교 수 — "나머지도 계산"에서 다음 배치를 이어 계산 */
   offset?: number;
 }

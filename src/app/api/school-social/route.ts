@@ -2,9 +2,10 @@ import { NextResponse } from 'next/server';
 import { getSupabase } from '@/lib/supabase';
 
 /**
- * 학교 별점 집계 + 조회수를 한 번에 반환 (계획 _refs/학교_별점_조회수_구현계획.md 3-3).
+ * 학교 별점 집계 + 조회수 + 즐겨찾기 수를 한 번에 반환 (계획 _refs/학교_별점_조회수_구현계획.md 3-3,
+ * 즐겨찾기 수는 _refs/즐겨찾기_구현계획/00_개요.md).
  *
- * 반환: { [schulCode]: { avg: number | null, count: number, views: number } }
+ * 반환: { [schulCode]: { avg: number | null, count: number, views: number, favoriteCount: number } }
  *
  * 캐싱: Route Handler는 Next 데이터 캐시에는 안 담기지만(동적 실행), 응답의
  * `Cache-Control` 헤더는 그대로 CDN(Vercel Edge)에 전달된다. `s-maxage=60`이라
@@ -18,17 +19,18 @@ export async function GET() {
     return NextResponse.json({}, { headers: { 'Cache-Control': 'no-store' } });
   }
 
-  const [ratingsRes, viewsRes] = await Promise.all([
+  const [ratingsRes, viewsRes, favoritesRes] = await Promise.all([
     supabase
       .from('school_rating_stats')
       .select('school_code, avg_rating, rating_count'),
     supabase.from('school_views').select('school_code, view_count'),
+    supabase.from('school_favorite_stats').select('school_code, favorite_count'),
   ]);
 
-  if (ratingsRes.error || viewsRes.error) {
+  if (ratingsRes.error || viewsRes.error || favoritesRes.error) {
     console.error(
       'school-social 조회 실패',
-      ratingsRes.error ?? viewsRes.error,
+      ratingsRes.error ?? viewsRes.error ?? favoritesRes.error,
     );
     return NextResponse.json(
       { error: '집계를 불러오지 못했습니다.' },
@@ -38,7 +40,7 @@ export async function GET() {
 
   const map: Record<
     string,
-    { avg: number | null; count: number; views: number }
+    { avg: number | null; count: number; views: number; favoriteCount: number }
   > = {};
 
   for (const r of ratingsRes.data ?? []) {
@@ -46,12 +48,18 @@ export async function GET() {
       avg: r.avg_rating === null ? null : Number(r.avg_rating),
       count: r.rating_count ?? 0,
       views: 0,
+      favoriteCount: 0,
     };
   }
   for (const v of viewsRes.data ?? []) {
-    const e = map[v.school_code] ?? { avg: null, count: 0, views: 0 };
+    const e = map[v.school_code] ?? { avg: null, count: 0, views: 0, favoriteCount: 0 };
     e.views = Number(v.view_count ?? 0);
     map[v.school_code] = e;
+  }
+  for (const f of favoritesRes.data ?? []) {
+    const e = map[f.school_code] ?? { avg: null, count: 0, views: 0, favoriteCount: 0 };
+    e.favoriteCount = Number(f.favorite_count ?? 0);
+    map[f.school_code] = e;
   }
 
   return NextResponse.json(map, {

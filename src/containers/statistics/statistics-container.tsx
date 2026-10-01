@@ -14,6 +14,7 @@ import {
 import { isSupabaseConfigured } from '@/lib/supabase';
 import { getMyRatings } from '@/lib/school-social-client';
 import { useUserSettingsStore } from '@/store/use-user-settings-store';
+import { useFavoriteSchoolsStore } from '@/store/use-favorite-schools-store';
 import { isExpired } from '@/lib/settings-retention';
 import type { School } from '@/types/school-stats';
 import type { ZoneMatchStatus } from './school-detail-panel';
@@ -22,6 +23,7 @@ import {
   DEFAULT_INDICATOR_KEY,
   SOCIAL_INDICATOR_DEFS,
   RATING_INDICATOR_KEY,
+  FAVORITE_INDICATOR_KEY,
   type Indicator,
 } from '@/lib/school-indicators';
 import {
@@ -103,6 +105,12 @@ export function StatisticsContainer() {
   );
   const [search, setSearch] = useState('');
   const [ownership, setOwnership] = useState<OwnershipFilter>('공립');
+  // 즐겨찾기만 보기 — 지도/학교 순위 대상 필터(2차, 계획: _refs/즐겨찾기_구현계획/04_필터지도연동.md A).
+  // 길찾기 대상 필터("즐겨찾기만" 옵션, 04-B)는 별도 상태(commuteFavoritesOnly) — 두 화면의
+  // 즐겨찾기 사용 목적이 달라(지도는 "보이는 학교 좁히기", 길찾기는 "이 학교들끼리만 비교") 같이 안 묶는다.
+  const [favoritesOnly, setFavoritesOnly] = useState(false);
+  const [commuteFavoritesOnly, setCommuteFavoritesOnly] = useState(false);
+  const favoriteCodes = useFavoriteSchoolsStore((s) => s.favoriteCodes);
   const [indicatorKey, setIndicatorKey] = useState<string>(DEFAULT_INDICATOR_KEY);
   const [selected, setSelected] = useState<School | null>(null);
   const [panelMode, setPanelMode] = useState<PanelMode>('none');
@@ -178,12 +186,17 @@ export function StatisticsContainer() {
   const homeCoords = useUserSettingsStore((s) => s.homeCoords);
 
   // 집주소 검색 — 입력은 필터바, 후보 선택·결과는 CommutePanel(사이드바)이 나눠 쓴다.
-  const commuteSearchReady = level !== 'all' && sigungu !== 'all';
+  // 즐겨찾기만 모드면 시·군/학교급 대신 즐겨찾기 목록이 있는지로 준비 여부를 판단한다.
+  const commuteSearchReady = commuteFavoritesOnly
+    ? favoriteCodes.length > 0
+    : level !== 'all' && sigungu !== 'all';
   const commuteSearch = useCommuteSearch({
     ready: commuteSearchReady,
     level,
     sigungu,
     ownership,
+    favoritesOnly: commuteFavoritesOnly,
+    favoriteCodes,
     onResult: mergeCommuteResult,
     onSelectCode: setCommuteSelected,
   });
@@ -206,7 +219,9 @@ export function StatisticsContainer() {
               const e = social?.[s.schulCode];
               return e && e.count > 0 ? e.avg : null;
             }
-          : (s: School) => social?.[s.schulCode]?.views ?? 0;
+          : def.key === FAVORITE_INDICATOR_KEY
+            ? (s: School) => social?.[s.schulCode]?.favoriteCount ?? 0
+            : (s: School) => social?.[s.schulCode]?.views ?? 0;
       return { ...def, accessor };
     }
     return INDICATOR_BY_KEY[indicatorKey] ?? INDICATOR_BY_KEY[DEFAULT_INDICATOR_KEY];
@@ -258,17 +273,27 @@ export function StatisticsContainer() {
     [allSchools],
   );
 
+  // favoritesOnly가 꺼져있으면 항상 null(참조 그대로) — favoriteCodes가 바뀔 때마다(어디서든
+  // 즐겨찾기를 누를 때마다) filtered가 새 배열이 되는 걸 막는다. filtered가 바뀌면 KakaoMap의
+  // schools prop도 바뀌어 "보이는 학교에 맞춰 화면 이동" effect가 다시 돌아 지도가 전체
+  // 학교 범위로 축소돼버렸었다(즐겨찾기 누를 때마다 지도가 줄어드는 버그의 원인).
+  const favoriteSetForFilter = useMemo(
+    () => (favoritesOnly ? new Set(favoriteCodes) : null),
+    [favoritesOnly, favoriteCodes],
+  );
+
   const filtered = useMemo(() => {
     const q = search.trim();
     return allSchools.filter((s) => {
       if (!s.position) return false;
+      if (favoriteSetForFilter && !favoriteSetForFilter.has(s.schulCode)) return false;
       if (level !== 'all' && s.schulKndCode !== level) return false;
       if (sigungu !== 'all' && normalizeSigungu(s.sigunguName) !== sigungu) return false;
       if (ownership !== 'all' && s.fondScCode !== ownership) return false;
       if (q && !s.schulNm.includes(q)) return false;
       return true;
     });
-  }, [allSchools, level, sigungu, ownership, search]);
+  }, [allSchools, level, sigungu, ownership, search, favoriteSetForFilter]);
 
   const noDataCount = useMemo(
     () => filtered.filter((s) => indicator.accessor(s) === null).length,
@@ -436,6 +461,11 @@ export function StatisticsContainer() {
                   onShowAllMarkersChange={setShowAllMarkers}
                   showBoundaries={showBoundaries}
                   onShowBoundariesChange={setShowBoundaries}
+                  favoritesOnly={favoritesOnly}
+                  onFavoritesOnlyChange={setFavoritesOnly}
+                  commuteFavoritesOnly={commuteFavoritesOnly}
+                  onCommuteFavoritesOnlyChange={setCommuteFavoritesOnly}
+                  favoriteCount={favoriteCodes.length}
                 />
               </div>
             </div>
@@ -474,6 +504,8 @@ export function StatisticsContainer() {
               level={level}
               sigungu={sigungu}
               ownership={ownership}
+              favoritesOnly={commuteFavoritesOnly}
+              favoriteCount={favoriteCodes.length}
               result={commuteResult}
               selectedCode={commuteSelected}
               onSelectCode={setCommuteSelected}

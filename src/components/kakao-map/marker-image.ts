@@ -21,6 +21,15 @@ const PIN_HEAD_LOCAL = { x: 12, y: 9, r: 7 };
 const PIN_TIP_LOCAL = { x: 12, y: 22 };
 
 /**
+ * 즐겨찾기 배지용 하트 path(잘 알려진 24x24 하트 아이콘 path, 중심은 대략 (12,12)) — 핀 머리
+ * 우상단에 겹쳐 그린다. 별점(school-rating.tsx)은 별 모양을 쓰므로 즐겨찾기는 하트로 구분.
+ */
+const FAVORITE_HEART_PATH =
+  'M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z';
+/** primary(#e77474, 코랄)보다 진하고 순수한 빨강 — Tailwind red-600. FavoriteToggleButton과 동일 색. */
+const FAVORITE_HEART_COLOR = '#dc2626';
+
+/**
  * 구간 인덱스(0~4)별 핀 배율. 색만으로는 5단계 구분이 어려워 크기를 두 번째 채널로 쓴다.
  * 낮음 = 작게, 높음 = 크게. 최소~최대 약 2.8배 차이. 범례(indicator-legend.tsx)도 이 값을 공유.
  * 자료 없음은 가장 작게(NO_DATA_SCALE).
@@ -43,10 +52,23 @@ function toScreen(local: { x: number; y: number }) {
   return { x: PIN_PAD_X + local.x * PIN_SCALE, y: PIN_PAD_Y + local.y * PIN_SCALE };
 }
 
-function svgPin(color: string, selected: boolean, k: number): string {
+function svgPin(color: string, selected: boolean, k: number, favorite: boolean): string {
   const stroke = selected ? '#0f172a' : '#1f2937';
   const strokeW = selected ? 2.2 : 1.6; // <g>에 scale이 걸려 있어 실제 렌더 두께는 이 값 * PIN_SCALE
   const head = toScreen(PIN_HEAD_LOCAL);
+  // 배지는 head와 같은 화면 좌표계(이미 PIN_PAD/PIN_SCALE 적용됨)에 그려서 k와 무관하게
+  // 핀 전체와 같이 비례 확대/축소되게 한다 — selected 헤일로 원과 동일한 방식.
+  const badgeCenter = { x: head.x + 9, y: head.y - 9 };
+  // 하트 path는 24x24 기준(대략 x:2~22, y:3~21.35)이라, scale(0.35) + translate(-12,-12)로
+  // 원점 중심 ~7x6.4 크기로 줄여 배지 원(r=5.5) 안에 들어오게 한다.
+  const favoriteBadge = favorite
+    ? `<g transform="translate(${badgeCenter.x},${badgeCenter.y})">
+         <circle r="5.5" fill="#ffffff" stroke="${FAVORITE_HEART_COLOR}" stroke-width="0.8"/>
+         <g transform="scale(0.35) translate(-12,-12)">
+           <path d="${FAVORITE_HEART_PATH}" fill="${FAVORITE_HEART_COLOR}"/>
+         </g>
+       </g>`
+    : '';
 
   // viewBox 좌표계(0~PIN_W)는 그대로 두고 렌더 픽셀 크기만 k배 — 핀 전체가 비례 축소/확대된다.
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${PIN_W * k}" height="${PIN_H * k}" viewBox="0 0 ${PIN_W} ${PIN_H}">
@@ -60,6 +82,7 @@ function svgPin(color: string, selected: boolean, k: number): string {
       <path d="${PIN_PATH}" fill="${color}" stroke="${stroke}" stroke-width="${strokeW}"/>
       <circle cx="${PIN_HEAD_LOCAL.x}" cy="${PIN_HEAD_LOCAL.y}" r="3" fill="#ffffff"/>
     </g>
+    ${favoriteBadge}
   </svg>`;
   return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
 }
@@ -71,15 +94,17 @@ export function getMarkerImage(
   bucket: number | null,
   /** 주어지면 bucket 기반 배율 대신 이 값을 그대로 쓴다 (출퇴근 탭 등, 지표 구간과 무관한 고정 크기) */
   scaleOverride?: number,
+  /** 즐겨찾기한 학교면 핀 머리에 작은 별 배지 (계획: _refs/즐겨찾기_구현계획/02_토글UI.md) */
+  favorite = false,
 ): unknown {
-  const key = `${color}|${selected ? 's' : 'n'}|${scaleOverride ?? bucket ?? 'x'}`;
+  const key = `${color}|${selected ? 's' : 'n'}|${scaleOverride ?? bucket ?? 'x'}|${favorite ? 'f' : ''}`;
   const hit = cache.get(key);
   if (hit) return hit;
 
   const k = scaleOverride ?? scaleFor(bucket);
   const tip = toScreen(PIN_TIP_LOCAL);
   const image = new maps.MarkerImage(
-    svgPin(color, selected, k),
+    svgPin(color, selected, k, favorite),
     new maps.Size(PIN_W * k, PIN_H * k),
     { offset: new maps.Point(tip.x * k, tip.y * k) },
   );

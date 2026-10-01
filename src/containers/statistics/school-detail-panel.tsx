@@ -1,5 +1,7 @@
 'use client';
 
+import { Fragment } from 'react';
+import { Eye, Heart, X } from 'lucide-react';
 import { Fragment, useState } from 'react';
 import { Eye, MessageCircle, Star, X } from 'lucide-react';
 import type { School } from '@/types/school-stats';
@@ -7,6 +9,7 @@ import type { SchoolZoneLink } from '@/types/school-zones';
 import { DETAIL_GROUPS } from '@/lib/school-indicators';
 import { schulKndLabel } from '@/lib/school-region';
 import type { SocialEntry } from '@/hooks/use-school-social';
+import { FavoriteToggleButton } from './favorite-toggle-button';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { SchoolRating } from './school-rating';
 
@@ -372,6 +375,7 @@ export function SchoolDetailPanel({
 
   const founded = formatFounded(school.foundedYmd);
   const views = social?.views ?? 0;
+  const favoriteCount = social?.favoriteCount ?? 0;
   const ratingCount = social?.count ?? 0;
 
   return (
