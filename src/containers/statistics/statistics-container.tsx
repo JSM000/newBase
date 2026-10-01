@@ -43,6 +43,7 @@ import {
   type RankSortDirection,
 } from './school-ranking-panel';
 import { CommutePanel } from './commute-panel';
+import { SchoolCompareModal } from './school-compare-modal';
 import { useCommuteSearch } from './use-commute-search';
 
 /** 오른쪽 사이드바는 한 번에 하나만 — 상세/순위/길찾기가 같은 자리를 공유(계획 3-3). */
@@ -110,8 +111,8 @@ export function StatisticsContainer() {
   // 길찾기 대상 필터("즐겨찾기만" 옵션, 04-B)는 별도 상태(commuteFavoritesOnly)로 시작했는데,
   // "길찾기에서 관심학교만 검색하면 지도에도 관심학교만 보이면 좋겠다"는 요청으로 한쪽 방향으로만
   // 묶었다 — commuteFavoritesOnly를 켜면 favoritesOnly도 같이 켜진다(아래 onCommuteFavoritesOnlyChange).
-  // 반대 방향(지도 쪽 토글을 켠다고 길찾기 쪽까지 켜짐)은 아님 — 지도는 여전히 "보이는 학교
-  // 좁히기" 용도로 독립적으로도 쓰임.
+  // 반대 방향(지도 쪽 토글을 켠다고 길찾기 쪽까지 켜짐)은 아님 — 지도 쪽은 길찾기와 별개로
+  // 혼자서도 켤 수 있음(둘 다 "켜면 지역/학교급 무관하게 관심학교 전체 대상"으로 동작은 동일).
   const [favoritesOnly, setFavoritesOnly] = useState(false);
   const [commuteFavoritesOnly, setCommuteFavoritesOnly] = useState(false);
   const favoriteCodes = useFavoriteSchoolsStore((s) => s.favoriteCodes);
@@ -124,6 +125,9 @@ export function StatisticsContainer() {
   // 탭+필터 바 접힘 상태 — 사이드바와 마찬가지로 지도 위에 오버레이로 뜨고, 접으면 지도가
   // 화면을 최대한 차지한다. 페이지에 처음 들어왔을 땐 필터를 바로 볼 수 있게 펼친 채로 시작.
   const [filterBarOpen, setFilterBarOpen] = useState(true);
+  // 학교 비교 모달 — panelMode(사이드바)와 별개의 큰 모달이라 독립 상태로 둔다
+  // (계획: _refs/즐겨찾기_구현계획/03_목록보기.md "학교 비교 탭").
+  const [compareOpen, setCompareOpen] = useState(false);
 
   // 지도 컨트롤(학교 개별 마커/행정구역 경계) — 필터 바 안에서 같이 접혔다 펼쳐지도록
   // KakaoMap 내부 state가 아니라 여기서 들고 필터 바·지도 양쪽에 내려준다.
@@ -271,6 +275,14 @@ export function StatisticsContainer() {
 
   const allSchools = useMemo(() => data?.schools ?? [], [data]);
 
+  // 학교 비교 모달용 — 관심학교 코드를 School 객체로 매핑(추가한 순서 유지).
+  const favoriteSchools = useMemo(() => {
+    const bySchulCode = new Map(allSchools.map((s) => [s.schulCode, s]));
+    return favoriteCodes
+      .map((code) => bySchulCode.get(code))
+      .filter((s): s is School => s !== undefined);
+  }, [allSchools, favoriteCodes]);
+
   // 지도에 넘길 길찾기 오버레이 — 매 렌더 새 객체가 되지 않도록 메모이즈
   // (안 그러면 KakaoMap 의 오버레이 effect 가 매번 재실행됨). 경로는 선택된 학교의 결과에서 꺼냄.
   const routeOverlay = useMemo(() => {
@@ -328,10 +340,17 @@ export function StatisticsContainer() {
     const q = search.trim();
     return allSchools.filter((s) => {
       if (!s.position) return false;
-      if (favoriteSetForFilter && !favoriteSetForFilter.has(s.schulCode)) return false;
-      if (level !== 'all' && s.schulKndCode !== level) return false;
-      if (sigungu !== 'all' && normalizeSigungu(s.sigunguName) !== sigungu) return false;
-      if (ownership !== 'all' && s.fondScCode !== ownership) return false;
+      if (favoriteSetForFilter) {
+        // 관심학교만 보기 — 시·군/학교급/설립구분과 교집합이 아니라 "대체": 저장된
+        // 관심학교 전체를 대상으로 삼는다(길찾기의 "관심학교만 계산하기"와 같은 원칙).
+        // 교집합으로 두면 "충주시 선택 + 관심학교 토글"처럼 지금 지역에 관심학교가
+        // 하나도 없을 때 아무것도 안 보여서 혼란스럽다는 피드백으로 바꿨다.
+        if (!favoriteSetForFilter.has(s.schulCode)) return false;
+      } else {
+        if (level !== 'all' && s.schulKndCode !== level) return false;
+        if (sigungu !== 'all' && normalizeSigungu(s.sigunguName) !== sigungu) return false;
+        if (ownership !== 'all' && s.fondScCode !== ownership) return false;
+      }
       if (q && !s.schulNm.includes(q)) return false;
       return true;
     });
@@ -460,7 +479,12 @@ export function StatisticsContainer() {
             {/* 탭+필터 바 — 사이드바(오른쪽)와 같은 방식으로 지도 위에 오버레이. 접으면 지도가
                 화면을 최대한 차지하고, 펼치면 이 카드가 위쪽에서 덮어씌운다. */}
             <div className="pointer-events-none absolute inset-x-3 top-3 z-20">
-              <div className="pointer-events-auto inline-block max-w-full">
+              {/* w-full max-w-[22rem]: 탭마다 카드 폭이 다르게 보이던 걸 고정폭으로 통일(이
+                  값은 사용자가 직접 조정함). 이 div의 부모(absolute inset-x-3)는 left·right가
+                  둘 다 지정돼 있어 너비가 이미 확정된 값이라, w-full이 순환 참조 없이 "그
+                  확정폭을 꽉 채움"으로 정상 계산된다. 창이 이보다 좁아지면 그만큼 같이
+                  줄어든다. */}
+              <div className="pointer-events-auto w-full max-w-[22rem]">
                 <SchoolFilterBar
                   level={level}
                   onLevelChange={setLevel}
@@ -478,6 +502,7 @@ export function StatisticsContainer() {
                   view={statsView}
                   onViewChange={setStatsView}
                   onShowRanking={() => setPanelMode('ranking')}
+                  onShowCompare={() => setCompareOpen(true)}
                   originLabel={commuteSearch.pickedOrigin?.label ?? null}
                   addressValue={commuteSearch.address}
                   onAddressChange={commuteSearch.setAddress}
@@ -565,6 +590,13 @@ export function StatisticsContainer() {
               cooldownSec={commuteSearch.cooldownSec}
               isRanking={commuteSearch.isRanking}
               errorMsg={commuteSearch.rankingErrorMsg}
+            />
+
+            <SchoolCompareModal
+              open={compareOpen}
+              onOpenChange={setCompareOpen}
+              schools={favoriteSchools}
+              social={social}
             />
         </div>
       )}
