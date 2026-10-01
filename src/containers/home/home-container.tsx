@@ -12,17 +12,17 @@ const MENUS = [
     desc: '지역가산·우대가산 등 자주 쓰는 개인 정보를 미리 저장해두고 다음에도 자동으로 불러옵니다.',
   },
   {
-    href: '/calculator',
-    icon: Calculator,
-    title: '전보 점수 계산',
-    desc: 'NEIS 인사기록카드로 관외전보 점수를 자동 계산하고 전보 대상 여부를 확인합니다.',
-  },
-  {
     href: '/statistics',
     icon: MapIcon,
     title: '충북 학교 통계 지도',
     desc: '지도에서 학교를 골라 전보 점수·근무 여건 통계를 보고, 집에서 학교까지 소요시간도 확인합니다.',
   },
+  {
+    href: '/calculator',
+    icon: Calculator,
+    title: '전보 점수 계산',
+    desc: 'NEIS 인사기록카드로 관외전보 점수를 자동 계산하고 전보 대상 여부를 확인합니다.',
+  }
 ] as const;
 
 export function HomeContainer() {

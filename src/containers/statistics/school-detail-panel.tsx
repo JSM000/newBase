@@ -1,13 +1,26 @@
 'use client';
 
-import { Fragment } from 'react';
-import { Eye, X } from 'lucide-react';
+import { Fragment, useState } from 'react';
+import { Eye, MessageCircle, Star, X } from 'lucide-react';
 import type { School } from '@/types/school-stats';
 import type { SchoolZoneLink } from '@/types/school-zones';
 import { DETAIL_GROUPS } from '@/lib/school-indicators';
 import { schulKndLabel } from '@/lib/school-region';
 import type { SocialEntry } from '@/hooks/use-school-social';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { SchoolRating } from './school-rating';
+
+type DetailTab = 'info' | 'community';
+
+/**
+ * 크롬 브라우저 탭처럼, 선택된 탭이 바로 아래 콘텐츠(흰 배경)와 하나로 이어져 보이도록.
+ * 비활성 탭만 자기 아래쪽 경계선(`data-[state=inactive]:border-b`)을 그려서 콘텐츠와
+ * 분리돼 보이게 하고, 활성 탭은 애초에 아래쪽 경계선이 없어서(공유 경계선을 -mb-px로
+ * "덮는" 방식 대신) 픽셀 단위 겹침 없이 자연스럽게 이어진다. 활성 탭은 위쪽에 primary색
+ * 강조선을 넣어 "지금 뭘 보고 있는지" 눈에 띄게 한다.
+ */
+const tabTriggerClass =
+  'relative rounded-none rounded-t-lg border border-b-0 border-zinc-200 bg-zinc-100 px-4 py-2.5 text-sm font-medium text-zinc-500 transition-colors hover:bg-zinc-200/70 data-[state=inactive]:border-b data-[state=active]:z-10 data-[state=active]:bg-white data-[state=active]:font-semibold data-[state=active]:text-zinc-900 data-[state=active]:shadow-[inset_0_2px_0_0_#e77474] data-[state=active]:hover:bg-white';
 
 /** 'idle' = 상세 패널이 안 열림, 'unmatched' = 학구도 쪽 이름 매칭 실패(섹션 자체를 숨김) */
 export type ZoneMatchStatus = 'idle' | 'loading' | 'matched' | 'unmatched';
@@ -28,7 +41,7 @@ interface SchoolDetailPanelProps {
 
 function formatFounded(ymd: string | null): string | null {
   if (!ymd || ymd.length !== 8) return null;
-  return `${ymd.slice(0, 4)}.${ymd.slice(4, 6)}.${ymd.slice(6, 8)} 설립`;
+  return `${ymd.slice(0, 4)}.${ymd.slice(4, 6)}.${ymd.slice(6, 8)}`;
 }
 
 function isNewSchool(ymd: string | null): boolean {
@@ -345,118 +358,175 @@ export function SchoolDetailPanel({
   myRating = null,
   onRate,
 }: SchoolDetailPanelProps) {
+  const [tab, setTab] = useState<DetailTab>('info');
+  // 다른 학교를 선택하면(패널 내용이 바뀌면) 탭을 "상세정보"로 되돌린다 — 이전 학교의
+  // 커뮤니티 탭을 보고 있다가 다른 학교로 넘어가면 헷갈리기 쉬워서. 탭이 "바뀌는 그 순간"만
+  // 조정하는 렌더 중 비교 패턴(useEffect 안에서 setState 하지 않음).
+  const [prevSchoolCode, setPrevSchoolCode] = useState<string | null>(school?.schulCode ?? null);
+  if (school && school.schulCode !== prevSchoolCode) {
+    setPrevSchoolCode(school.schulCode);
+    setTab('info');
+  }
+
   if (!school) return null;
 
   const founded = formatFounded(school.foundedYmd);
   const views = social?.views ?? 0;
+  const ratingCount = social?.count ?? 0;
 
   return (
     <aside className="absolute inset-y-0 right-0 z-30 flex w-full max-w-sm flex-col border-l border-zinc-200 bg-white shadow-2xl">
       <header className="flex items-start justify-between gap-3 border-b border-zinc-100 p-4">
-        <div>
-          <div className="flex items-center gap-2">
-            <h2 className="text-lg font-bold text-zinc-800">{school.schulNm}</h2>
+        <div className="min-w-0 flex-1">
+          <div className="flex items-baseline gap-2">
+            <h2 className="min-w-0 truncate text-lg font-bold text-zinc-800">{school.schulNm}</h2>
             {isNewSchool(school.foundedYmd) && (
-              <span className="rounded bg-secondary-100 px-1.5 py-0.5 text-[11px] font-semibold text-secondary-700">
+              <span className="shrink-0 rounded bg-secondary-100 px-1.5 py-0.5 text-[11px] font-semibold text-secondary-700">
                 신설
               </span>
             )}
+            <span className="shrink-0 text-xs text-zinc-500">
+              {school.fondScCode ? school.fondScCode : ''}
+              {schulKndLabel(school.schulKndCode) ? ` · ${schulKndLabel(school.schulKndCode)}` : ''}
+            </span>
           </div>
-          <p className="mt-0.5 text-xs text-zinc-500">
-            {schulKndLabel(school.schulKndCode)}
-            {school.fondScCode ? ` · ${school.fondScCode}` : ''}
-            {school.adrcdNm ? ` · ${school.adrcdNm.replace('충청북도 ', '')}` : ''}
-          </p>
-          {school.eduSupportOfficeNm && (
-            <p className="text-xs text-zinc-400">
-              {school.eduSupportOfficeNm.replace('충청북도', '')}
-            </p>
-          )}
           {socialEnabled && (
-            <p className="mt-1 flex items-center gap-1 text-xs text-zinc-400">
-              <Eye className="h-3.5 w-3.5" />조회 {views.toLocaleString()}
-            </p>
+            <div className="mt-1.5 flex items-center gap-3 text-xs text-zinc-400">
+              <span className="flex items-center gap-1" title="조회수">
+                <Eye className="h-3.5 w-3.5 shrink-0 -translate-y-px" />
+                {views.toLocaleString()}
+              </span>
+              {ratingCount > 0 ? (
+                <span className="flex items-center gap-1 leading-none font-semibold text-amber-500">
+                  <Star className="h-[11px] w-[11px] shrink-0 -translate-y-px fill-amber-500" />
+                  {social?.avg?.toFixed(1)} ({ratingCount}명)
+                </span>
+              ) : (
+                <span className="flex items-center gap-1 leading-none" title="이동 추천도 평가 없음">
+                  <Star className="h-[11px] w-[11px] shrink-0 -translate-y-px fill-zinc-300 text-zinc-300" />- (0명)
+                </span>
+              )}
+            </div>
           )}
         </div>
         <button
           onClick={onClose}
-          className="rounded-md p-1 text-zinc-400 hover:bg-zinc-100 hover:text-zinc-700"
+          className="shrink-0 rounded-md p-1 text-zinc-400 hover:bg-zinc-100 hover:text-zinc-700"
           aria-label="닫기"
         >
           <X className="h-5 w-5" />
         </button>
       </header>
 
+      <div className="px-1.5 pt-3">
+        <Tabs value={tab} onValueChange={(v) => setTab(v as DetailTab)}>
+          <TabsList className="grid h-auto w-full grid-cols-2 gap-1 rounded-none border-0 bg-transparent p-0">
+            <TabsTrigger value="info" className={tabTriggerClass}>
+              상세정보
+            </TabsTrigger>
+            <TabsTrigger value="community" className={tabTriggerClass}>
+              커뮤니티
+            </TabsTrigger>
+          </TabsList>
+        </Tabs>
+      </div>
+
       <div className="flex-1 space-y-5 overflow-y-auto p-4">
-        {(school.address || founded) && (
-          <p className="text-xs leading-relaxed text-zinc-500">
-            {school.roadAddress || school.address}
-            {founded ? ` · ${founded}` : ''}
-          </p>
-        )}
+        {tab === 'info' ? (
+          <>
+            <ZoneSection school={school} zoneStatus={zoneStatus} zoneLink={zoneLink} />
 
-        <ZoneSection school={school} zoneStatus={zoneStatus} zoneLink={zoneLink} />
-        {socialEnabled && onRate && (
-          <SchoolRating
-            avg={social?.avg ?? null}
-            count={social?.count ?? 0}
-            myRating={myRating}
-            onRate={onRate}
-          />
-        )}
-
-        {DETAIL_GROUPS.map((group) => (
-          <section key={group.title}>
-            <h3 className="mb-2 text-xs font-semibold uppercase tracking-wide text-zinc-500">
-              {group.title}
-            </h3>
-            <dl className="divide-y divide-zinc-100 rounded-lg border border-zinc-100">
-              {group.fields.map((field) => {
-                const value = field.render(school);
-                const reason = field.excludedReasonField
-                  ? (school[field.excludedReasonField] as string | null)
-                  : null;
-                const showReason = value === '—' && reason;
-                return (
-                  <Fragment key={field.label}>
-                    <div className="px-3 py-2 text-sm">
-                      <dt className="flex items-center gap-1 text-xs text-zinc-400">
-                        {field.label}
-                        {field.estimated && (
-                          <span className="text-[10px] font-semibold text-amber-500">추정</span>
-                        )}
-                      </dt>
-                      <dd className="mt-0.5 text-zinc-700">{value}</dd>
-                      {showReason && (
-                        <dd className="mt-0.5 text-[11px] leading-snug text-amber-600">
-                          공시제외: {reason}
-                        </dd>
+            {DETAIL_GROUPS.map((group) => (
+              <section key={group.title}>
+                <h3 className="mb-2 text-xs font-semibold uppercase tracking-wide text-zinc-500">
+                  {group.title}
+                </h3>
+                <dl className="divide-y divide-zinc-100 rounded-lg border border-zinc-100">
+                  {group.title === '학교 참고 정보' && (
+                    <>
+                      {(school.roadAddress || school.address) && (
+                        <div className="px-3 py-2 text-sm">
+                          <dt className="text-xs text-zinc-400">주소</dt>
+                          <dd className="mt-0.5 text-zinc-700">
+                            {school.roadAddress || school.address}
+                          </dd>
+                        </div>
                       )}
-                    </div>
-                    {field.label === '전체 교원수' && (
-                      <>
-                        <StaffStatusRow school={school} />
-                        <StaffAvailabilityRow school={school} />
-                        <TransferStudentRow school={school} />
-                        <AdminStaffRow school={school} />
-                        <CounselingRow school={school} />
-                      </>
-                    )}
-                    {field.label === '교과전담 규모 (추정)' && (
-                      <SubjectTeacherBreakdown school={school} />
-                    )}
-                    {field.label === '시설안전 점검' && <FacilitiesRow school={school} />}
-                  </Fragment>
-                );
-              })}
-            </dl>
-          </section>
-        ))}
+                      {founded && (
+                        <div className="px-3 py-2 text-sm">
+                          <dt className="text-xs text-zinc-400">설립일</dt>
+                          <dd className="mt-0.5 text-zinc-700">{founded}</dd>
+                        </div>
+                      )}
+                    </>
+                  )}
+                  {group.fields.map((field) => {
+                    const value = field.render(school);
+                    const reason = field.excludedReasonField
+                      ? (school[field.excludedReasonField] as string | null)
+                      : null;
+                    const showReason = value === '—' && reason;
+                    return (
+                      <Fragment key={field.label}>
+                        <div className="px-3 py-2 text-sm">
+                          <dt className="flex items-center gap-1 text-xs text-zinc-400">
+                            {field.label}
+                            {field.estimated && (
+                              <span className="text-[10px] font-semibold text-amber-500">추정</span>
+                            )}
+                          </dt>
+                          <dd className="mt-0.5 text-zinc-700">{value}</dd>
+                          {showReason && (
+                            <dd className="mt-0.5 text-[11px] leading-snug text-amber-600">
+                              공시제외: {reason}
+                            </dd>
+                          )}
+                        </div>
+                        {field.label === '전체 교원수' && (
+                          <>
+                            <StaffStatusRow school={school} />
+                            <StaffAvailabilityRow school={school} />
+                            <TransferStudentRow school={school} />
+                            <AdminStaffRow school={school} />
+                            <CounselingRow school={school} />
+                          </>
+                        )}
+                        {field.label === '교과전담 규모 (추정)' && (
+                          <SubjectTeacherBreakdown school={school} />
+                        )}
+                        {field.label === '시설안전 점검' && <FacilitiesRow school={school} />}
+                      </Fragment>
+                    );
+                  })}
+                </dl>
+              </section>
+            ))}
+          </>
+        ) : (
+          <>
+            {socialEnabled && onRate ? (
+              <SchoolRating
+                avg={social?.avg ?? null}
+                count={ratingCount}
+                myRating={myRating}
+                onRate={onRate}
+              />
+            ) : (
+              <p className="text-sm text-zinc-400">이동 추천도 기능은 준비 중입니다.</p>
+            )}
 
-        <p className="border-t border-zinc-100 pt-3 text-[11px] leading-relaxed text-zinc-400">
-          출처: 학교알리미 공시자료. 점수 참고 지표는 학교 속성으로 좌우되는 항목만 표시하며,
-          실제 점수는 개인 이력·교육지원청 공식 서류로 확인해야 합니다.
-        </p>
+            {/* 댓글 기능 자리 확보 — 아직 미구현, UI만 스캐폴딩 */}
+            <section>
+              <h3 className="mb-2 flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-zinc-500">
+                <MessageCircle className="h-3.5 w-3.5" />
+                댓글
+              </h3>
+              <div className="rounded-lg border border-dashed border-zinc-200 p-6 text-center text-xs text-zinc-400">
+                댓글 기능은 준비 중입니다.
+              </div>
+            </section>
+          </>
+        )}
       </div>
     </aside>
   );

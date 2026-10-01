@@ -100,10 +100,12 @@ export function useRateSchool() {
       if (ctx?.prev) qc.setQueryData(SOCIAL_KEY, ctx.prev);
     },
 
-    // 서버값으로 수렴 — CDN 캐시 때문에 최대 ~60초 뒤 정확한 평균이 반영됨
-    onSettled: () => {
-      qc.invalidateQueries({ queryKey: SOCIAL_KEY });
-    },
+    // onSettled에서 바로 invalidateQueries 하지 않는다 — /api/school-social 응답이
+    // CDN에 s-maxage=60으로 캐시돼 있어서, 등록 직후 다시 불러오면 방금 쓴 값이 아직
+    // 반영 안 된 오래된 캐시가 돌아와 위 낙관적 업데이트를 덮어써버린다(버튼을 눌러도
+    // 바로 반영 안 되고 두 번 눌러야 보이던 버그의 원인). 낙관적 업데이트를 그대로 두고,
+    // 실제 서버 평균은 staleTime(60초)이 지난 뒤 다음 자연스러운 refetch(재마운트,
+    // 창 포커스 등)에서 알아서 수렴한다.
   });
 }
 

@@ -538,7 +538,7 @@ export const KakaoMap = forwardRef<KakaoMapHandle, KakaoMapProps>(function Kakao
       const line = new maps.Polyline({
         path: latlngs,
         strokeWeight: 7,
-        strokeColor: '#4285f4', // 구글맵 스타일 경로 파란색 — 진한 남색(#1d4ed8)이 촌스럽다는 피드백으로 더 산뜻한 톤으로 교체
+        strokeColor: '#059669', // emerald-600 — 다른 곳(school-detail-panel ok뱃지)과 같은 녹색 톤
         strokeOpacity: 0.95,
         strokeStyle: 'solid',
         zIndex: 25,

@@ -16,6 +16,7 @@ interface SchoolRatingProps {
 
 /**
  * 상세 패널의 "이동 추천도" 별점 위젯 (계획 _refs/학교_별점_조회수_구현계획.md 4).
+ * 하트는 즐겨찾기 기능용으로 따로 쓸 예정이라 여기서는 원래대로 별을 쓴다.
  * 별 클릭 즉시 반영(낙관적). 참여자 수를 항상 병기하고 최소 표본 제한은 없다.
  */
 export function SchoolRating({
