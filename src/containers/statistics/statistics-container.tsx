@@ -33,6 +33,7 @@ import {
   type OwnershipFilter,
 } from '@/lib/school-region';
 import { compareByCommute } from '@/lib/route-origin';
+import { saveCachedCommuteResult, type CommuteDestination } from '@/lib/commute-result-cache';
 import type { RouteRankingResponse } from '@/types/commute';
 import { SchoolFilterBar, type StatsView } from './school-filter-bar';
 import { IndicatorLegend } from './indicator-legend';
@@ -106,8 +107,11 @@ export function StatisticsContainer() {
   const [search, setSearch] = useState('');
   const [ownership, setOwnership] = useState<OwnershipFilter>('공립');
   // 즐겨찾기만 보기 — 지도/학교 순위 대상 필터(2차, 계획: _refs/즐겨찾기_구현계획/04_필터지도연동.md A).
-  // 길찾기 대상 필터("즐겨찾기만" 옵션, 04-B)는 별도 상태(commuteFavoritesOnly) — 두 화면의
-  // 즐겨찾기 사용 목적이 달라(지도는 "보이는 학교 좁히기", 길찾기는 "이 학교들끼리만 비교") 같이 안 묶는다.
+  // 길찾기 대상 필터("즐겨찾기만" 옵션, 04-B)는 별도 상태(commuteFavoritesOnly)로 시작했는데,
+  // "길찾기에서 관심학교만 검색하면 지도에도 관심학교만 보이면 좋겠다"는 요청으로 한쪽 방향으로만
+  // 묶었다 — commuteFavoritesOnly를 켜면 favoritesOnly도 같이 켜진다(아래 onCommuteFavoritesOnlyChange).
+  // 반대 방향(지도 쪽 토글을 켠다고 길찾기 쪽까지 켜짐)은 아님 — 지도는 여전히 "보이는 학교
+  // 좁히기" 용도로 독립적으로도 쓰임.
   const [favoritesOnly, setFavoritesOnly] = useState(false);
   const [commuteFavoritesOnly, setCommuteFavoritesOnly] = useState(false);
   const favoriteCodes = useFavoriteSchoolsStore((s) => s.favoriteCodes);
@@ -137,6 +141,12 @@ export function StatisticsContainer() {
   if (prevStatsView !== statsView) {
     setPrevStatsView(statsView);
     setShowAllMarkers(statsView === 'commute');
+    // 길찾기 사이드바(panelMode='commute')가 열린 채로 "학교 순위" 탭으로 바꾸면 닫는다.
+    // 안 그러면 panelMode가 여전히 commute라, 지도에서 학교를 눌렀을 때 상세정보 대신
+    // (사용자 눈엔 이미 떠난 탭인) 길찾기 경로 선택으로 처리되는 혼란이 있었다.
+    if (statsView !== 'commute' && panelMode === 'commute') {
+      setPanelMode('none');
+    }
   }
   // 상세 패널을 닫았을 때 돌아갈 자리 — 순위 목록을 보다가 상세로 들어간 거면 'ranking'으로 복귀
   const [returnMode, setReturnMode] = useState<PanelMode>('none');
@@ -148,22 +158,43 @@ export function StatisticsContainer() {
     null,
   );
   const [commuteSelected, setCommuteSelected] = useState<string | null>(null);
+  // 방금 받은 응답이 어떤 도착지 조건으로 검색한 것인지 — 아래 캐시 저장 effect에 넘긴다.
+  const lastCommuteDestinationRef = useRef<CommuteDestination | null>(null);
 
-  // "나머지도 계산" 응답을 이전 결과에 병합 (출발지가 같을 때만).
-  function mergeCommuteResult(res: RouteRankingResponse | null) {
-    setCommuteSelected(null);
-    setCommuteResult((prev) => {
-      if (
-        !res ||
-        !prev ||
-        prev.origin.lat !== res.origin.lat ||
-        prev.origin.lng !== res.origin.lng
-      ) {
-        return res;
-      }
+  /**
+   * confirmSearch/loadMore 응답을 반영 — "새 검색인지"는 출발지·도착지가 이전과 같은지로
+   * 판단하지 않고(그러면 같은 조건으로 재검색/캐시 히트했을 때 "이어붙이기"로 오판해 자동 선택이
+   * 안 먹힘 — 길찾기 탭을 떠났다 돌아와 "계산하기"를 다시 눌러도 경로가 안 뜨던 버그가 이거였다),
+   * 어떤 동작이 응답을 만들었는지(append)로 직접 판단한다. confirmSearch는 조건이 이전과 완전히
+   * 같아도(캐시 히트 포함) 항상 "새로 계산함" 취급 — 결과 교체 + 가장 가까운 학교 자동 선택.
+   * loadMore만 "이어붙이기" — 기존 결과에 병합하고 지금 선택은 그대로 둔다.
+   */
+  function mergeCommuteResult(
+    res: RouteRankingResponse | null,
+    info?: { destination: CommuteDestination; append: boolean },
+  ) {
+    if (!res) {
+      setCommuteSelected(null);
+      setCommuteResult(null);
+      return;
+    }
+
+    if (info) lastCommuteDestinationRef.current = info.destination;
+
+    if (!info?.append) {
+      // 새 검색 — 결과 중 가장 가까운(정렬상 첫 번째) 학교를 자동 선택해서 경로를 바로
+      // 보여준다. 학교를 직접 눌러야 경로가 보인다는 걸 모르고 목록만 훑고 지나칠 수 있어서,
+      // 예시로 하나는 먼저 띄워준다.
+      setCommuteSelected(res.results[0]?.schulCode ?? null);
+      setCommuteResult(res);
+      return;
+    }
+
+    setCommuteResult((p) => {
+      if (!p) return res;
       const merged = res.results.map((r) => {
         if (r.durationSec !== null) return r;
-        const old = prev.results.find((p) => p.schulCode === r.schulCode);
+        const old = p.results.find((o) => o.schulCode === r.schulCode);
         return old && old.durationSec !== null ? old : r;
       });
       merged.sort(compareByCommute);
@@ -175,6 +206,16 @@ export function StatisticsContainer() {
       };
     });
   }
+
+  // commuteResult가 갱신될 때마다(새 검색이든 "나머지도 계산" 병합이든) 로컬에 캐시해서,
+  // 다음에 같은 출발지·도착지로 검색하면 API 없이 바로 꺼내 쓸 수 있게 한다. setCommuteResult의
+  // 업데이터 함수 안에서 바로 저장하지 않는 이유는 그 함수가 순수해야 하기 때문 — 커밋된
+  // 최신 상태를 확정적으로 넘겨받는 effect에서 저장한다.
+  useEffect(() => {
+    if (commuteResult && lastCommuteDestinationRef.current) {
+      saveCachedCommuteResult(commuteResult.origin, lastCommuteDestinationRef.current, commuteResult);
+    }
+  }, [commuteResult]);
 
   // 이 브라우저가 남긴 별점 (localStorage) — 위젯의 "내 평가" 표시용.
   // lazy 초기화: SSR에선 {}, 클라이언트 첫 렌더에서 localStorage를 읽는다
@@ -197,6 +238,7 @@ export function StatisticsContainer() {
     ownership,
     favoritesOnly: commuteFavoritesOnly,
     favoriteCodes,
+    homeCoords,
     onResult: mergeCommuteResult,
     onSelectCode: setCommuteSelected,
   });
@@ -464,7 +506,12 @@ export function StatisticsContainer() {
                   favoritesOnly={favoritesOnly}
                   onFavoritesOnlyChange={setFavoritesOnly}
                   commuteFavoritesOnly={commuteFavoritesOnly}
-                  onCommuteFavoritesOnlyChange={setCommuteFavoritesOnly}
+                  onCommuteFavoritesOnlyChange={(v) => {
+                    setCommuteFavoritesOnly(v);
+                    // 길찾기에서 "관심학교만 계산하기"를 켜면 지도의 "관심학교" 토글도
+                    // 같이 켜서, 길찾기 대상과 지도에 보이는 마커가 일치하도록 맞춘다.
+                    if (v) setFavoritesOnly(true);
+                  }}
                   favoriteCount={favoriteCodes.length}
                 />
               </div>

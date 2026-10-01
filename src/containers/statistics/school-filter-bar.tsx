@@ -263,6 +263,9 @@ export function SchoolFilterBar({
       );
       return;
     }
+    // "관심학교만 계산하기"가 켜진 채로 계산을 실행하는 시점엔, 지도의 "관심학교" 토글이
+    // (다른 경로로 꺼져 있었더라도) 항상 같이 켜져 있도록 여기서 한 번 더 보장한다.
+    if (commuteFavoritesOnly && !favoritesOnly) onFavoritesOnlyChange(true);
     onConfirmSearch();
   }
 

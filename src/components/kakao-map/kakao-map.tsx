@@ -72,7 +72,8 @@ const FOCUS_LEVEL = 3; // 순위 목록 등에서 특정 학교로 이동할 때
 // 행정구역 채움 투명도 — 지도 라벨·마커가 비쳐 보이도록 낮게.
 const BOUNDARY_FILL_OPACITY = 0.14;
 
-// 출퇴근 시간 계산기 탭 전용 마커·클러스터 색 — 표시·순위 기준 색상과 겹치지 않게 primary 고정.
+// 출퇴근 시간 계산기 탭 전용 마커·클러스터 색 — 다른 탭 마커와 통일감을 위해 primary 유지.
+// 경로선(routeLine)만 마커와 구분되는 청록색(#278C8C)으로 표시해 지도 위에서 눈에 띄게 한다.
 const COMMUTE_MARKER_COLOR = '#e77474';
 
 /**
@@ -552,7 +553,7 @@ export const KakaoMap = forwardRef<KakaoMapHandle, KakaoMapProps>(function Kakao
       const line = new maps.Polyline({
         path: latlngs,
         strokeWeight: 7,
-        strokeColor: '#059669', // emerald-600 — 다른 곳(school-detail-panel ok뱃지)과 같은 녹색 톤
+        strokeColor: '#278C8C', // 마커(primary)와 구분되는 청록색 — 경로선만 눈에 띄게
         strokeOpacity: 0.95,
         strokeStyle: 'solid',
         zIndex: 25,

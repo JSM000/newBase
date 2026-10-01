@@ -1,9 +1,10 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useGeocodeCandidates } from '@/hooks/use-geocode-candidates';
 import { useRouteRanking } from '@/hooks/use-route-ranking';
 import { cooldownRemainingMs, markSearched } from '@/lib/commute-rate-limit';
+import { loadCachedCommuteResult, type CommuteDestination } from '@/lib/commute-result-cache';
 import type { GeocodeCandidate, RouteRankingResponse } from '@/types/commute';
 import type { SchoolLevelFilter, OwnershipFilter } from '@/lib/school-region';
 import type { SchulKndCode } from '@/types/school-stats';
@@ -17,7 +18,17 @@ interface UseCommuteSearchArgs {
   /** true면 level/sigungu/ownership 대신 favoriteCodes를 대상으로 검색 (계획: 04_필터지도연동.md B) */
   favoritesOnly: boolean;
   favoriteCodes: string[];
-  onResult: (r: RouteRankingResponse | null) => void;
+  /** 저장된 집 좌표 — 있으면 출발지를 직접 고르지 않아도 처음부터 자동으로 채워둔다. */
+  homeCoords: { lat: number; lng: number } | null;
+  /**
+   * append=false(confirmSearch) → 항상 결과 교체 + 가장 가까운 학교 자동 선택.
+   * append=true(loadMore) → 기존 결과에 이어붙이고 지금 선택은 그대로 둔다.
+   * "같은 조건으로 재검색이면 이어붙이기"로 판단하지 않는 이유: confirmSearch는 사용자가
+   * 명시적으로 "계산하기"를 누른 거라, 이전과 조건이 완전히 같아도(캐시 히트 포함) 매번 새로
+   * 계산한 것처럼 동작해야 한다 — 안 그러면 탭을 옮겼다 돌아와 다시 누를 때 자동 선택이
+   * 안 먹혀서 경로가 안 뜨는 문제가 있었다.
+   */
+  onResult: (r: RouteRankingResponse | null, info?: { destination: CommuteDestination; append: boolean }) => void;
   onSelectCode: (code: string | null) => void;
 }
 
@@ -43,6 +54,7 @@ export function useCommuteSearch({
   ownership,
   favoritesOnly,
   favoriteCodes,
+  homeCoords,
   onResult,
   onSelectCode,
 }: UseCommuteSearchArgs) {
@@ -60,22 +72,54 @@ export function useCommuteSearch({
     return () => clearInterval(id);
   }, [geocode.isPending, ranking.isPending]);
 
+  // 저장된 집 좌표가 있으면 출발지 팝업을 열어 직접 고르지 않아도 바로 길찾기를 쓸 수 있게,
+  // 처음 한 번만 자동으로 출발지로 채워둔다. ref로 "최초 1회"만 동작하게 막아서, 이후
+  // 사용자가 다른 주소를 검색하려고 출발지를 지워도(pickedOrigin이 다시 null이 돼도) 덮어쓰지 않는다.
+  const autoFilledHomeRef = useRef(false);
+  useEffect(() => {
+    if (autoFilledHomeRef.current || !homeCoords) return;
+    autoFilledHomeRef.current = true;
+    setPickedOrigin(
+      (prev) =>
+        prev ?? {
+          label: '저장된 집 위치',
+          roadAddress: null,
+          addressType: 'SAVED',
+          source: 'address',
+          lat: homeCoords.lat,
+          lng: homeCoords.lng,
+        },
+    );
+  }, [homeCoords]);
+
   const cooling = cooldownMs > 0;
   const cooldownSec = Math.ceil(cooldownMs / 1000);
 
-  /** 실측(길찾기) 실행 — offset=0 이면 새 검색, 그 이상이면 "나머지도 계산" 이어받기. */
-  function runRanking(origin: GeocodeCandidate, offset: number) {
+  /** 현재 도착지 조건(즐겨찾기 또는 시·군/학교급/설립구분) 식별자 — 요청 바디 구성·결과 캐싱에 공용으로 쓴다. */
+  function currentDestination(): CommuteDestination {
+    return favoritesOnly
+      ? { kind: 'favorites', favoriteCodes }
+      : { kind: 'filter', schulKndCode: level as SchulKndCode, sigungu, ownership };
+  }
+
+  /** 실측(길찾기) 실행 — append=false면 confirmSearch(새 검색), true면 "나머지도 계산" 이어받기. */
+  function runRanking(origin: GeocodeCandidate, offset: number, append: boolean) {
+    const destination = currentDestination();
     ranking.mutate(
-      favoritesOnly
-        ? { origin: { lat: origin.lat, lng: origin.lng }, favoriteCodes, offset }
+      destination.kind === 'favorites'
+        ? {
+            origin: { lat: origin.lat, lng: origin.lng },
+            favoriteCodes: destination.favoriteCodes,
+            offset,
+          }
         : {
             origin: { lat: origin.lat, lng: origin.lng },
-            schulKndCode: level as SchulKndCode,
-            sigungu,
-            ownership,
+            schulKndCode: destination.schulKndCode,
+            sigungu: destination.sigungu,
+            ownership: destination.ownership,
             offset,
           },
-      { onSuccess: (res) => onResult(res) },
+      { onSuccess: (res) => onResult(res, { destination, append }) },
     );
   }
 
@@ -120,17 +164,31 @@ export function useCommuteSearch({
     setCandidates(null);
   }
 
-  /** ② 출발지 + 도착지 조건이 둘 다 갖춰진 뒤, "출퇴근 시간 계산" 버튼을 눌렀을 때 실행. */
+  /**
+   * ② 출발지 + 도착지 조건이 둘 다 갖춰진 뒤, "출퇴근 시간 계산" 버튼을 눌렀을 때 실행.
+   * 같은 출발지·도착지 조건으로 이미 검색한 적 있으면(로컬 캐시) API 없이 그 결과를 바로 쓴다.
+   */
   function confirmSearch() {
     if (!pickedOrigin || !ready || ranking.isPending) return;
-    onResult(null);
     onSelectCode(null);
-    runRanking(pickedOrigin, 0);
+
+    const destination = currentDestination();
+    const cached = loadCachedCommuteResult(
+      { lat: pickedOrigin.lat, lng: pickedOrigin.lng },
+      destination,
+    );
+    if (cached) {
+      onResult(cached, { destination, append: false });
+      return;
+    }
+
+    onResult(null);
+    runRanking(pickedOrigin, 0, false);
   }
 
   function loadMore(result: RouteRankingResponse | null) {
     if (!pickedOrigin || !result || cooling || ranking.isPending) return;
-    runRanking(pickedOrigin, result.measuredCount);
+    runRanking(pickedOrigin, result.measuredCount, true);
   }
 
   const geocodeErrorMsg =
