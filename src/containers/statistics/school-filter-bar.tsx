@@ -80,6 +80,18 @@ interface SchoolFilterBarProps {
   onShowAllMarkersChange: (v: boolean) => void;
   showBoundaries: boolean;
   onShowBoundariesChange: (v: boolean) => void;
+
+  /**
+   * ── 관심학교 연동 (2차, 계획: _refs/즐겨찾기_구현계획/04_필터지도연동.md) ──
+   * A. 지도/학교 순위 대상을 관심학교로만 좁히는 스위치.
+   */
+  favoritesOnly: boolean;
+  onFavoritesOnlyChange: (v: boolean) => void;
+  /** B. 길찾기 도착지를 시·군/학교급 대신 관심학교 전체로 삼는 옵션(도착지 팝업 안). */
+  commuteFavoritesOnly: boolean;
+  onCommuteFavoritesOnlyChange: (v: boolean) => void;
+  /** 관심학교 개수 — 0개면 두 스위치 다 비활성화(고를 게 없으므로) */
+  favoriteCount: number;
 }
 
 const selectClass =
@@ -219,13 +231,20 @@ export function SchoolFilterBar({
   onShowAllMarkersChange,
   showBoundaries,
   onShowBoundariesChange,
+  favoritesOnly,
+  onFavoritesOnlyChange,
+  commuteFavoritesOnly,
+  onCommuteFavoritesOnlyChange,
+  favoriteCount,
 }: SchoolFilterBarProps) {
   const [originDialogOpen, setOriginDialogOpen] = useState(false);
   const [destinationDialogOpen, setDestinationDialogOpen] = useState(false);
 
-  const destinationSummary = destinationReady
-    ? `${sigungu} · ${schulKndLabel(level as SchulKndCode)}${ownership === 'all' ? '' : ` · ${ownership}`}`
-    : null;
+  const destinationSummary = !destinationReady
+    ? null
+    : commuteFavoritesOnly
+      ? `관심학교 ${favoriteCount}개`
+      : `${sigungu} · ${schulKndLabel(level as SchulKndCode)}${ownership === 'all' ? '' : ` · ${ownership}`}`;
 
   function handleConfirmSearch() {
     if (!originLabel) {
@@ -233,7 +252,11 @@ export function SchoolFilterBar({
       return;
     }
     if (!destinationReady) {
-      window.alert('도착지 조건(시·군, 학교급)을 먼저 선택해주세요.');
+      window.alert(
+        commuteFavoritesOnly
+          ? '관심학교가 없습니다. 학교 상세 정보에서 하트 아이콘으로 먼저 추가해주세요.'
+          : '도착지 조건(시·군, 학교급)을 먼저 선택해주세요.',
+      );
       return;
     }
     onConfirmSearch();
@@ -479,17 +502,47 @@ export function SchoolFilterBar({
               <DialogHeader>
                 <DialogTitle>도착지 조건</DialogTitle>
               </DialogHeader>
-              <div className="flex flex-wrap items-end gap-3">
-                <SchoolScopeFields
-                  ownership={ownership}
-                  onOwnershipChange={onOwnershipChange}
-                  level={level}
-                  onLevelChange={onLevelChange}
-                  sigungu={sigungu}
-                  onSigunguChange={onSigunguChange}
-                  sigunguOptions={sigunguOptions}
-                />
-              </div>
+
+              {/* 관심학교만 계산하기 — 박스 전체가 버튼(스위치 아님). 켜면 아래 시·군/학교급/
+                  설립구분 대신 관심학교 전체가 도착지가 된다(관심학교는 여러 시·군·학교급에
+                  걸칠 수 있어 그 필터들과 같이 못 씀). 처음 진입 시엔 항상 꺼진 상태.
+                  계획: _refs/즐겨찾기_구현계획/04_필터지도연동.md B */}
+              <button
+                type="button"
+                disabled={favoriteCount === 0}
+                aria-pressed={commuteFavoritesOnly}
+                onClick={() => onCommuteFavoritesOnlyChange(!commuteFavoritesOnly)}
+                className={`flex w-full items-center justify-center rounded-lg border px-3 py-2 text-sm font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-40 ${
+                  commuteFavoritesOnly
+                    ? 'border-primary bg-primary text-white'
+                    : 'border-zinc-200 bg-zinc-50 text-zinc-700 hover:bg-zinc-100'
+                }`}
+              >
+                관심학교만 계산하기
+                <span className={commuteFavoritesOnly ? 'ml-1 text-white/80' : 'ml-1 text-zinc-400'}>
+                  ({favoriteCount}개)
+                </span>
+              </button>
+
+              {/* 관심학교만 켜져 있으면 나머지 필터는 아예 안 보이게 — 어차피 무시되는
+                  조건을 흐리게 남겨두는 것보다, 지금 뭘로 대상을 고르는지 헷갈리지 않게
+                  숨기는 쪽이 더 명확하다는 피드백. 끄면 다시 나타난다.
+                  [&>div]:flex-1 [&_select]:w-full — 위 버튼이 다이얼로그 폭 전체(w-full)라,
+                  select 3개가 원래 폭(각자 내용 크기)만 차지해서 버튼보다 좁아 보이던 걸
+                  맞춘다 — 셀렉트 3개가 버튼과 같은 폭을 균등하게 나눠 가짐. */}
+              {!commuteFavoritesOnly && (
+                <div className="flex flex-wrap items-end gap-3 [&>div]:flex-1 [&_select]:w-full">
+                  <SchoolScopeFields
+                    ownership={ownership}
+                    onOwnershipChange={onOwnershipChange}
+                    level={level}
+                    onLevelChange={onLevelChange}
+                    sigungu={sigungu}
+                    onSigunguChange={onSigunguChange}
+                    sigunguOptions={sigunguOptions}
+                  />
+                </div>
+              )}
               <DialogFooter>
                 <button
                   type="button"
@@ -515,6 +568,18 @@ export function SchoolFilterBar({
         <div className="flex items-center gap-1.5 rounded-lg border border-zinc-200 bg-white px-2.5 py-1.5 text-xs font-medium text-zinc-700">
           <span className="whitespace-nowrap">행정구역 경계</span>
           <Switch checked={showBoundaries} onCheckedChange={onShowBoundariesChange} />
+        </div>
+        {/* 관심학교만 보기 — 지도·학교 순위 대상을 관심학교로 좁힌다
+            (계획: _refs/즐겨찾기_구현계획/04_필터지도연동.md A) */}
+        <div className="flex items-center gap-1.5 rounded-lg border border-zinc-200 bg-white px-2.5 py-1.5 text-xs font-medium text-zinc-700">
+          <span className="whitespace-nowrap">
+            관심학교<span className="ml-1 text-zinc-400">({favoriteCount})</span>
+          </span>
+          <Switch
+            checked={favoritesOnly}
+            disabled={favoriteCount === 0}
+            onCheckedChange={onFavoritesOnlyChange}
+          />
         </div>
 
         {/* 학교명 검색 — 다른 필터와 성격이 달라(자유 텍스트) 이 줄 가장 오른쪽에 배치 */}

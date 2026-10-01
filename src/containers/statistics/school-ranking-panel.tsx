@@ -16,6 +16,7 @@ import {
 } from '@/lib/school-indicators';
 import { schulKndLabel } from '@/lib/school-region';
 import type { SocialMap } from '@/hooks/use-school-social';
+import { FavoriteToggleButton } from './favorite-toggle-button';
 
 export type RankSortDirection = 'asc' | 'desc';
 
@@ -156,7 +157,10 @@ export function SchoolRankingPanel({
               const isMatch =
                 query.trim() !== '' && school.schulNm.includes(query.trim());
               return (
-                <li key={school.schulCode} className="border-b border-zinc-50">
+                <li
+                  key={school.schulCode}
+                  className={`flex items-center border-b border-zinc-50 ${isMatch ? 'bg-amber-50' : ''}`}
+                >
                   <button
                     ref={(el) => {
                       if (el) itemRefs.current.set(school.schulCode, el);
@@ -164,9 +168,7 @@ export function SchoolRankingPanel({
                     }}
                     type="button"
                     onClick={() => onSelectSchool(school)}
-                    className={`flex w-full items-center gap-3 px-4 py-2.5 text-left hover:bg-zinc-50 ${
-                      isMatch ? 'bg-amber-50' : ''
-                    }`}
+                    className="flex min-w-0 flex-1 items-center gap-3 py-2.5 pl-4 text-left hover:bg-zinc-50"
                   >
                     <span className="w-6 shrink-0 text-right text-sm font-semibold text-zinc-400">
                       {i + 1}
@@ -189,6 +191,7 @@ export function SchoolRankingPanel({
                       )}
                     </span>
                   </button>
+                  <FavoriteToggleButton schulCode={school.schulCode} stopPropagation size="sm" className="mr-3" />
                 </li>
               );
             })}

@@ -15,6 +15,7 @@ import { groupSchoolsBySigungu, groupSchoolsBySubRegion, normalizeSigungu } from
 import { loadKakaoMaps, KAKAO_APP_KEY } from '@/lib/kakao-loader';
 import { useSchoolClusters } from '@/hooks/use-school-clusters';
 import { useChungbukBoundaries } from '@/hooks/use-chungbuk-boundaries';
+import { useFavoriteSchoolsStore } from '@/store/use-favorite-schools-store';
 import { formatDuration } from '@/utils/formatter';
 import { getMarkerImage, createRegionClusterElement, COMMUTE_MARKER_SCALE } from './marker-image';
 
@@ -168,6 +169,11 @@ export const KakaoMap = forwardRef<KakaoMapHandle, KakaoMapProps>(function Kakao
     }
     return m;
   }, [schools, indicator]);
+
+  // 즐겨찾기 — 개별 마커 배지 + 호버 툴팁 표시용 (계획: _refs/즐겨찾기_구현계획/02_토글UI.md D·E).
+  // 클러스터 tier(여러 학교 뭉친 뱃지)에는 표시 안 함 — 1차 범위 아님.
+  const favoriteCodes = useFavoriteSchoolsStore((s) => s.favoriteCodes);
+  const favoriteSet = useMemo(() => new Set(favoriteCodes), [favoriteCodes]);
 
   // 콜백을 ref로 잡아 마커 재구성 effect의 의존성에서 제외
   const onSelectRef = useRef(onSelectSchool);
@@ -452,10 +458,18 @@ export const KakaoMap = forwardRef<KakaoMapHandle, KakaoMapProps>(function Kakao
         ? COMMUTE_MARKER_COLOR
         : value === null ? NO_DATA_COLOR : bucketColor(indicator, value);
       const isSelected = school.schulCode === selectedSchoolCode;
+      const isFavorite = favoriteSet.has(school.schulCode);
 
       const marker = new maps.Marker({
         position: pos,
-        image: getMarkerImage(maps, color, isSelected, bucket, isCommuteMode ? COMMUTE_MARKER_SCALE : undefined),
+        image: getMarkerImage(
+          maps,
+          color,
+          isSelected,
+          bucket,
+          isCommuteMode ? COMMUTE_MARKER_SCALE : undefined,
+          isFavorite,
+        ),
         title: school.schulNm,
         clickable: true,
       });
@@ -483,7 +497,7 @@ export const KakaoMap = forwardRef<KakaoMapHandle, KakaoMapProps>(function Kakao
         // pointer-events:none — 툴팁이 마커와 겹쳐도 마우스를 가로채지 않아야 한다.
         tooltip.setContent(
           `<div style="pointer-events:none;padding:6px 10px;background:#111827;color:#fff;border-radius:8px;font-size:12px;white-space:nowrap;box-shadow:0 2px 8px rgba(0,0,0,.25)">
-             <b>${school.schulNm}</b>
+             <b>${isFavorite ? '<span style="color:#dc2626">♥</span> ' : ''}${school.schulNm}</b>
              ${detailLine ? `<span style="opacity:.75;margin-left:6px">${detailLine}</span>` : ''}
            </div>`,
         );
@@ -502,7 +516,7 @@ export const KakaoMap = forwardRef<KakaoMapHandle, KakaoMapProps>(function Kakao
     }
 
     markersRef.current = markers;
-  }, [status, schools, indicator, selectedSchoolCode, viewTier, sigunguCenters, subRegionCenters, commuteStats, isCommuteMode]);
+  }, [status, schools, indicator, selectedSchoolCode, viewTier, sigunguCenters, subRegionCenters, commuteStats, isCommuteMode, favoriteSet]);
 
   // ── 길찾기: 집(출발) 마커 + 선택 학교까지 경로 폴리라인 ──
   useEffect(() => {

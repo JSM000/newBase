@@ -12,7 +12,8 @@ import {
 } from '@/lib/school-social-client';
 
 /**
- * 학교 소셜 데이터(별점 집계 + 조회수) — 계획 _refs/학교_별점_조회수_구현계획.md 3-3/3-4.
+ * 학교 소셜 데이터(별점 집계 + 조회수 + 즐겨찾기 수) — 계획
+ * _refs/학교_별점_조회수_구현계획.md 3-3/3-4, 즐겨찾기 수는 _refs/즐겨찾기_구현계획/00_개요.md.
  *
  * - 읽기: `/api/school-social` (CDN 캐시 s-maxage=60). useQuery staleTime 60초.
  * - 쓰기: 브라우저 → Supabase RPC 직접 호출 + 낙관적 업데이트.
@@ -22,11 +23,12 @@ export interface SocialEntry {
   avg: number | null;
   count: number;
   views: number;
+  favoriteCount: number;
 }
 export type SocialMap = Record<string, SocialEntry>;
 
 const SOCIAL_KEY = ['school-social'] as const;
-const EMPTY: SocialEntry = { avg: null, count: 0, views: 0 };
+const EMPTY: SocialEntry = { avg: null, count: 0, views: 0, favoriteCount: 0 };
 
 async function fetchSocial(): Promise<SocialMap> {
   const res = await fetch('/api/school-social');
@@ -104,6 +106,63 @@ export function useRateSchool() {
     onSettled: () => {
       qc.invalidateQueries({ queryKey: SOCIAL_KEY });
     },
+  });
+}
+
+/**
+ * 즐겨찾기 토글을 서버 집계(school_favorite_stats)에 동기화 — 로컬 상태(zustand
+ * use-favorite-schools-store)는 이미 토글된 뒤 호출된다. 낙관적으로 즐겨찾기 수를
+ * ±1 반영하고, 실패하면 되돌린다(rate_school처럼 onMutate/onError는 쓰되, onSettled의
+ * invalidateQueries는 일부러 안 씀 — 이유는 아래 onSettled 자리의 주석 참고).
+ */
+export function useSyncFavorite() {
+  const qc = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({
+      schoolCode,
+      favorited,
+    }: {
+      schoolCode: string;
+      favorited: boolean;
+    }) => {
+      const supabase = getSupabase();
+      if (!supabase) return;
+      const { error } = await supabase.rpc(
+        favorited ? 'add_school_favorite' : 'remove_school_favorite',
+        { p_client_id: getClientId(), p_school_code: schoolCode },
+      );
+      if (error) throw error;
+    },
+
+    onMutate: async ({ schoolCode, favorited }) => {
+      await qc.cancelQueries({ queryKey: SOCIAL_KEY });
+      const prev = qc.getQueryData<SocialMap>(SOCIAL_KEY);
+
+      qc.setQueryData<SocialMap>(SOCIAL_KEY, (cur) => {
+        const map: SocialMap = { ...(cur ?? {}) };
+        const e = map[schoolCode] ?? EMPTY;
+        map[schoolCode] = {
+          ...e,
+          favoriteCount: Math.max(0, e.favoriteCount + (favorited ? 1 : -1)),
+        };
+        return map;
+      });
+
+      return { prev };
+    },
+
+    onError: (_err, _vars, ctx) => {
+      if (ctx?.prev) qc.setQueryData(SOCIAL_KEY, ctx.prev);
+    },
+
+    // onSettled에서 invalidateQueries를 일부러 안 부른다(useRateSchool과 다른 점) —
+    // /api/school-social는 Cache-Control: s-maxage=60으로 CDN에 캐시돼서, 여기서 바로
+    // refetch하면 방금 커밋된 변경(예: 상세 패널 열 때 막 +1된 조회수)이 아직 반영 안 된
+    // stale 응답이 돌아올 수 있고, 그게 낙관적 업데이트를 덮어써버린다 — 실측 버그: 즐겨찾기
+    // 누르면 조회수가 1 줄어드는 것처럼 보임(사실은 즐겨찾기 클릭이 유발한 refetch가 조회수
+    // 낙관적 값을 stale 서버값으로 되돌린 것). useRecordView처럼 낙관적 값을 그대로 두고,
+    // 다음 자연스러운 refetch(포커스 복귀 등, staleTime 60초 지난 뒤)에서 서버 값에 수렴시킨다.
   });
 }
 

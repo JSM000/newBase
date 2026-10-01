@@ -1,12 +1,13 @@
 'use client';
 
 import { Fragment } from 'react';
-import { Eye, X } from 'lucide-react';
+import { Eye, Heart, X } from 'lucide-react';
 import type { School } from '@/types/school-stats';
 import type { SchoolZoneLink } from '@/types/school-zones';
 import { DETAIL_GROUPS } from '@/lib/school-indicators';
 import { schulKndLabel } from '@/lib/school-region';
 import type { SocialEntry } from '@/hooks/use-school-social';
+import { FavoriteToggleButton } from './favorite-toggle-button';
 import { SchoolRating } from './school-rating';
 
 /** 'idle' = 상세 패널이 안 열림, 'unmatched' = 학구도 쪽 이름 매칭 실패(섹션 자체를 숨김) */
@@ -349,6 +350,7 @@ export function SchoolDetailPanel({
 
   const founded = formatFounded(school.foundedYmd);
   const views = social?.views ?? 0;
+  const favoriteCount = social?.favoriteCount ?? 0;
 
   return (
     <aside className="absolute inset-y-0 right-0 z-30 flex w-full max-w-sm flex-col border-l border-zinc-200 bg-white shadow-2xl">
@@ -373,18 +375,27 @@ export function SchoolDetailPanel({
             </p>
           )}
           {socialEnabled && (
-            <p className="mt-1 flex items-center gap-1 text-xs text-zinc-400">
-              <Eye className="h-3.5 w-3.5" />조회 {views.toLocaleString()}
+            <p className="mt-1 flex items-center gap-3 text-xs text-zinc-400">
+              <span className="flex items-center gap-1">
+                <Eye className="h-3.5 w-3.5" />조회 {views.toLocaleString()}
+              </span>
+              <span className="flex items-center gap-1">
+                <Heart className="h-3.5 w-3.5 fill-red-600 text-red-600" />
+                관심 {favoriteCount.toLocaleString()}
+              </span>
             </p>
           )}
         </div>
-        <button
-          onClick={onClose}
-          className="rounded-md p-1 text-zinc-400 hover:bg-zinc-100 hover:text-zinc-700"
-          aria-label="닫기"
-        >
-          <X className="h-5 w-5" />
-        </button>
+        <div className="flex shrink-0 items-center gap-1">
+          <FavoriteToggleButton schulCode={school.schulCode} />
+          <button
+            onClick={onClose}
+            className="rounded-md p-1 text-zinc-400 hover:bg-zinc-100 hover:text-zinc-700"
+            aria-label="닫기"
+          >
+            <X className="h-5 w-5" />
+          </button>
+        </div>
       </header>
 
       <div className="flex-1 space-y-5 overflow-y-auto p-4">

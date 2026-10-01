@@ -35,10 +35,12 @@ export type RankingError = { error: 'not_configured' };
 interface RankingInput {
   /** 사용자가 후보 목록에서 고른 출발지 좌표 — 이미 확정됨, 여기선 지오코딩 안 함. */
   origin: LatLng;
-  schulKndCode: SchulKndCode;
-  sigungu: string;
+  /** 있으면(1개 이상) 즐겨찾기 모드 — 아래 schulKndCode/sigungu/ownership을 무시하고 이 코드들만 대상. */
+  favoriteCodes?: string[];
+  schulKndCode?: SchulKndCode;
+  sigungu?: string;
   /** 설립구분 필터('all'이면 전체) — 지도·순위 표시와 같은 기준으로 대상을 좁힌다. */
-  ownership: OwnershipFilter;
+  ownership?: OwnershipFilter;
   offset: number;
 }
 
@@ -82,14 +84,20 @@ export async function computeRanking(
 
   const origin = input.origin;
 
-  // 대상 학교 = 선택 시군구·학교급·설립구분(지도 필터와 동일 기준), 좌표 있는 것. haversine 오름차순.
+  // 대상 학교 결정 — 즐겨찾기 모드면 그 코드 목록 그대로, 아니면 기존처럼 선택
+  // 시군구·학교급·설립구분(지도 필터와 동일 기준). 둘 다 좌표 있는 것만, haversine 오름차순.
   // sigunguName은 괴산군/증평군을 그대로 갖고 있으므로 normalizeSigungu로 병합 단위와 비교한다.
-  const targets = ALL_SCHOOLS.filter(
-    (s: School) =>
-      normalizeSigungu(s.sigunguName) === input.sigungu &&
-      s.schulKndCode === input.schulKndCode &&
-      (input.ownership === 'all' || s.fondScCode === input.ownership) &&
-      s.position,
+  const favoriteCodes = input.favoriteCodes;
+  const targets = (
+    favoriteCodes && favoriteCodes.length > 0
+      ? ALL_SCHOOLS.filter((s: School) => favoriteCodes.includes(s.schulCode) && s.position)
+      : ALL_SCHOOLS.filter(
+          (s: School) =>
+            normalizeSigungu(s.sigunguName) === input.sigungu &&
+            s.schulKndCode === input.schulKndCode &&
+            (input.ownership === 'all' || s.fondScCode === input.ownership) &&
+            s.position,
+        )
   )
     .map((s: School) => ({
       school: s,

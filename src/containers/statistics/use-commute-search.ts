@@ -9,11 +9,14 @@ import type { SchoolLevelFilter, OwnershipFilter } from '@/lib/school-region';
 import type { SchulKndCode } from '@/types/school-stats';
 
 interface UseCommuteSearchArgs {
-  /** 도착지(시·군·학교급)를 고른 상태인지 — confirmSearch(길찾기 실행) 가능 여부 */
+  /** 도착지(시·군·학교급 또는 즐겨찾기)를 고른 상태인지 — confirmSearch(길찾기 실행) 가능 여부 */
   ready: boolean;
   level: SchoolLevelFilter;
   sigungu: string;
   ownership: OwnershipFilter;
+  /** true면 level/sigungu/ownership 대신 favoriteCodes를 대상으로 검색 (계획: 04_필터지도연동.md B) */
+  favoritesOnly: boolean;
+  favoriteCodes: string[];
   onResult: (r: RouteRankingResponse | null) => void;
   onSelectCode: (code: string | null) => void;
 }
@@ -38,6 +41,8 @@ export function useCommuteSearch({
   level,
   sigungu,
   ownership,
+  favoritesOnly,
+  favoriteCodes,
   onResult,
   onSelectCode,
 }: UseCommuteSearchArgs) {
@@ -61,13 +66,15 @@ export function useCommuteSearch({
   /** 실측(길찾기) 실행 — offset=0 이면 새 검색, 그 이상이면 "나머지도 계산" 이어받기. */
   function runRanking(origin: GeocodeCandidate, offset: number) {
     ranking.mutate(
-      {
-        origin: { lat: origin.lat, lng: origin.lng },
-        schulKndCode: level as SchulKndCode,
-        sigungu,
-        ownership,
-        offset,
-      },
+      favoritesOnly
+        ? { origin: { lat: origin.lat, lng: origin.lng }, favoriteCodes, offset }
+        : {
+            origin: { lat: origin.lat, lng: origin.lng },
+            schulKndCode: level as SchulKndCode,
+            sigungu,
+            ownership,
+            offset,
+          },
       { onSuccess: (res) => onResult(res) },
     );
   }

@@ -194,6 +194,7 @@ export const DEFAULT_INDICATOR_KEY = 'studentCountTotal';
  */
 export const RATING_INDICATOR_KEY = 'social:rating';
 export const VIEWS_INDICATOR_KEY = 'social:views';
+export const FAVORITE_INDICATOR_KEY = 'social:favorites';
 
 export const SOCIAL_INDICATOR_DEFS: Record<string, Omit<Indicator, 'accessor'>> = {
   [RATING_INDICATOR_KEY]: {
@@ -210,6 +211,14 @@ export const SOCIAL_INDICATOR_DEFS: Record<string, Omit<Indicator, 'accessor'>> 
     unit: '회',
     thresholds: [5, 20, 50, 100],
     description: '학교 상세를 연 누적 횟수(세션당 1회). 관심도 신호로 보는 참고용.',
+  },
+  [FAVORITE_INDICATOR_KEY]: {
+    key: FAVORITE_INDICATOR_KEY,
+    label: '관심학교 등록 수',
+    thresholds: [1, 3, 6, 12],
+    format: (v) => `♥ ${v}`,
+    description:
+      '이 학교를 관심학교로 등록한 사용자 수(브라우저 기준). 관심도 신호로 보는 참고용 — 경계값은 1차값이라 분포 보고 조정 가능.',
   },
 };
 
