@@ -1,9 +1,7 @@
 'use client';
 
-import { Fragment } from 'react';
-import { Eye, Heart, X } from 'lucide-react';
 import { Fragment, useState } from 'react';
-import { Eye, MessageCircle, Star, X } from 'lucide-react';
+import { Eye, Heart, MessageCircle, Star, X } from 'lucide-react';
 import type { School } from '@/types/school-stats';
 import type { SchoolZoneLink } from '@/types/school-zones';
 import { DETAIL_GROUPS } from '@/lib/school-indicators';
@@ -400,6 +398,10 @@ export function SchoolDetailPanel({
                 <Eye className="h-3.5 w-3.5 shrink-0 -translate-y-px" />
                 {views.toLocaleString()}
               </span>
+              <span className="flex items-center gap-1" title="즐겨찾기 수">
+                <Heart className="h-3.5 w-3.5 shrink-0 -translate-y-px" />
+                {favoriteCount.toLocaleString()}
+              </span>
               {ratingCount > 0 ? (
                 <span className="flex items-center gap-1 leading-none font-semibold text-amber-500">
                   <Star className="h-[11px] w-[11px] shrink-0 -translate-y-px fill-amber-500" />
@@ -413,13 +415,16 @@ export function SchoolDetailPanel({
             </div>
           )}
         </div>
-        <button
-          onClick={onClose}
-          className="shrink-0 rounded-md p-1 text-zinc-400 hover:bg-zinc-100 hover:text-zinc-700"
-          aria-label="닫기"
-        >
-          <X className="h-5 w-5" />
-        </button>
+        <div className="flex shrink-0 items-center gap-1">
+          <FavoriteToggleButton schulCode={school.schulCode} />
+          <button
+            onClick={onClose}
+            className="shrink-0 rounded-md p-1 text-zinc-400 hover:bg-zinc-100 hover:text-zinc-700"
+            aria-label="닫기"
+          >
+            <X className="h-5 w-5" />
+          </button>
+        </div>
       </header>
 
       <div className="px-1.5 pt-3">
