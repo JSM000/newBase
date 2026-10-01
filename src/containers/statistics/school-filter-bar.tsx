@@ -17,7 +17,7 @@ import { MAX_SCHOOLS_PER_SEARCH } from '@/lib/route-ranking-constants';
 import type { GeocodeCandidate } from '@/types/commute';
 import type { SchulKndCode } from '@/types/school-stats';
 
-export type StatsView = 'ranking' | 'commute';
+export type StatsView = 'ranking' | 'commute' | 'compare';
 
 interface SchoolFilterBarProps {
   level: SchoolLevelFilter;
@@ -42,6 +42,8 @@ interface SchoolFilterBarProps {
   onViewChange: (v: StatsView) => void;
   /** "학교 순위" 탭에서 노출되는 버튼 — 눌러야 사이드바가 열리고 순위 결과가 보인다 */
   onShowRanking: () => void;
+  /** "학교 비교" 탭에서 노출되는 버튼 — 눌러야 비교 모달이 열린다(관심학교 2개 이상 필요) */
+  onShowCompare: () => void;
 
   /**
    * ── "출퇴근 시간 계산기" 탭 — 지도 길찾기 서비스처럼 출발지(집주소)/도착지(시·군·학교급)를
@@ -125,10 +127,17 @@ const calcButtonClass =
 const tabTriggerClass =
   'relative rounded-none rounded-t-lg border border-b-0 border-zinc-200 bg-zinc-100 px-4 py-2 text-sm font-medium text-zinc-500 transition-colors hover:bg-zinc-200/70 data-[state=active]:z-10 data-[state=active]:-mb-px data-[state=active]:bg-white data-[state=active]:font-semibold data-[state=active]:text-zinc-900 data-[state=active]:shadow-[inset_0_2px_0_0_#e77474] data-[state=active]:hover:bg-white';
 
-/** 캡션 + 컨트롤을 세로로 묶는 한 항목. 필터 바 전체가 이 단위로 일관되게 구성됨. */
+/**
+ * 캡션 + 컨트롤을 세로로 묶는 한 항목. 필터 바 전체가 이 단위로 일관되게 구성됨.
+ * `min-w-0`: flex/grid 아이템은 기본값이 "자기 콘텐츠 기준 자동 최소 크기"라, 안에 든
+ * select가 `max-w-[8.5rem]`로 캡을 씌워도(selectClass) 옵션 텍스트가 길면(예: "교과전담
+ * 규모 (추정)") 그 min-content 크기가 이 아이템의 "자동 최소 크기"로 그대로 올라가서
+ * 조상 전체(필터 바 전체를 감싼 inline-block)를 그 캡보다 더 넓게 밀어붙인다 — 토글
+ * 줄이나 비교 탭 텍스트를 줄여도 필터 바가 안 좁아지던 진짜 원인이 이거였다.
+ */
 function FilterField({ label, children }: { label: string; children: React.ReactNode }) {
   return (
-    <div className="flex flex-col gap-1">
+    <div className="flex min-w-0 flex-col gap-1">
       <span className={captionClass}>{label}</span>
       {children}
     </div>
@@ -221,6 +230,7 @@ export function SchoolFilterBar({
   view,
   onViewChange,
   onShowRanking,
+  onShowCompare,
   originLabel,
   addressValue,
   onAddressChange,
@@ -287,7 +297,7 @@ export function SchoolFilterBar({
         className="flex items-center gap-2 rounded-xl border border-zinc-200 bg-white/95 px-4 py-2 text-sm font-medium text-zinc-700 shadow-custom backdrop-blur hover:bg-white"
       >
         <ChevronDown className="h-4 w-4 text-zinc-400" />
-        {view === 'ranking' ? '학교 순위' : '출퇴근 시간 계산기'}
+        {view === 'ranking' ? '학교 순위' : view === 'commute' ? '출퇴근 시간' : '학교 비교'}
         <span className="text-zinc-400">· {resultCount}개 학교</span>
       </button>
     );
@@ -295,6 +305,9 @@ export function SchoolFilterBar({
 
   return (
     <div className="overflow-hidden rounded-xl border border-zinc-200 bg-white shadow-custom">
+      {/* 카드 자체엔 폭을 안 둔다 — 부모(statistics-container.tsx)가 w-full max-w-[32rem]로
+          이미 고정폭을 확정해서 내려주고, 이 div는 block 기본값(width:auto)으로 그 폭을
+          그대로 꽉 채운다. 그래서 탭을 뭘 보든(콘텐츠 크기가 달라도) 카드 폭은 항상 같다. */}
       {/* ── 가장 위 줄: 학교 순위 / 출퇴근 시간 계산 전환 탭 — 같은 필터 바가 두 기능을 같이
           다뤄서 헷갈린다는 피드백에 따라, 지금 뭘 보고 있는지 먼저 명확히 고르게 한다 ── */}
       <div className="flex items-start justify-between border-b border-zinc-200 px-3 pt-3">
@@ -304,7 +317,10 @@ export function SchoolFilterBar({
               학교 순위
             </TabsTrigger>
             <TabsTrigger value="commute" className={tabTriggerClass}>
-              출퇴근 시간 계산기
+              출퇴근 시간
+            </TabsTrigger>
+            <TabsTrigger value="compare" className={tabTriggerClass}>
+              학교 비교
             </TabsTrigger>
           </TabsList>
         </Tabs>
@@ -318,17 +334,18 @@ export function SchoolFilterBar({
         </button>
       </div>
 
-      {/* 두 탭 콘텐츠를 같은 grid 셀에 같이 두고 한쪽만 visibility로 감춘다 — 세로 길이가 더 긴
-          "학교 순위" 탭 기준으로 grid 행 높이가 자동으로 고정돼서, 탭을 바꿔도(콘텐츠가 짧은
-          "출퇴근 시간 계산기" 탭으로 가도) 필터 바 전체 높이가 흔들리지 않는다. */}
-      <div className="grid">
-        <div
-          aria-hidden={view !== 'ranking'}
-          className={`col-start-1 row-start-1 flex flex-col gap-3 self-start px-4 py-3 ${
-            view === 'ranking' ? '' : 'invisible pointer-events-none'
-          }`}
-        >
-          {/* ── 필터(어떤 학교를 볼지) — 설립구분/학교급/시군, 전부 이 대상을 좁히는 조건 ── */}
+      {/* 탭 콘텐츠 — 전엔 세 탭을 전부 마운트해두고 비활성 탭만 visibility로 숨겨서(grid 같은
+          칸에 겹쳐두는 방식) 탭을 바꿔도 높이가 안 흔들리게 했었는데, visibility:hidden은
+          레이아웃 공간을 그대로 차지해서 숨은 탭의 "폭"까지 카드 전체 크기 계산에 계속
+          끼어들었다 — 그래서 어떤 탭을 보든 항상 가장 넓은 탭(학교 순위) 기준으로 카드 폭이
+          고정되고, 좁은 화면에서도 안 줄어드는 버그로 이어졌다(DevTools 실측으로 확인:
+          내용이 짧은 비교 탭도 항상 그 476px에 맞춰 늘어나 있었음). 비활성 탭을 아예 DOM에서
+          빼는(조건부 렌더링) 방식으로 바꿔서, 지금 보는 탭의 콘텐츠만으로 카드 폭이 결정되게
+          한다 — 그 대신 탭마다 높이가 다르면 전환 시 카드 높이가 바뀔 수 있다. */}
+      {view === 'ranking' && (
+        <div className="flex flex-col gap-3 px-4 py-3">
+          {/* ── 필터(어떤 학교를 볼지) — 설립구분/학교급/시군, 전부 이 대상을 좁히는 조건.
+              세로로 쌓이지 않고 항상 가로 한 줄(필요하면 자체 wrap)로 유지한다. */}
           <div className="flex flex-wrap items-end gap-2">
             <SchoolScopeFields
               ownership={ownership}
@@ -341,9 +358,10 @@ export function SchoolFilterBar({
             />
           </div>
 
-          {/* ── 표시·순위 기준 + "학교 순위" 버튼 — 위 필터 줄과 구분되도록 아래 줄로.
-              출퇴근 탭의 박스+버튼 줄과 같은 방식으로, 좁은 화면에선 버튼이 아래로 내려간다 ── */}
-          <div className="flex flex-col items-stretch gap-2 sm:flex-row sm:flex-wrap sm:items-end">
+          {/* ── 표시·순위 기준 + "확인하기" 버튼 — 위 필터 줄과 구분되도록 아래 줄로.
+              calcButtonClass의 ml-auto로 카드 오른쪽 벽에 붙는다(카드 폭은 이제 부모가
+              고정해서 내려주므로, 세로로 쌓이는 반응형 분기는 더 이상 쓰지 않는다). */}
+          <div className="flex flex-wrap items-end gap-2">
             <FilterField label="표시·순위 기준">
               <select
                 value={indicatorKey}
@@ -375,16 +393,19 @@ export function SchoolFilterBar({
             </button>
           </div>
         </div>
+      )}
 
-        {/* ── 출퇴근 시간 계산기: 일반 지도 길찾기 서비스처럼 출발지/도착지를 각각 팝업에서
-            고르고 정리된 텍스트만 이 줄에 보여준다("최대한 간결했으면 좋겠다"는 요청) ── */}
-        <div
-          aria-hidden={view !== 'commute'}
-          className={`col-start-1 row-start-1 flex flex-col items-stretch gap-2 self-start px-4 py-3 sm:flex-row sm:items-end ${
-            view === 'commute' ? '' : 'invisible pointer-events-none'
-          }`}
-        >
-          <div className="flex w-full flex-col gap-3 sm:w-72">
+      {/* ── 출퇴근 시간 계산기: 일반 지도 길찾기 서비스처럼 출발지/도착지를 각각 팝업에서
+          고르고 정리된 텍스트만 이 줄에 보여준다("최대한 간결했으면 좋겠다"는 요청) ── */}
+      {view === 'commute' && (
+        <div className="flex items-end gap-2 px-4 py-3">
+          {/* flex-1 min-w-0: 고정폭(w-72)이던 걸 flex-1로 바꿔서, "계산하기" 버튼(shrink-0로
+              자기 폭 유지)을 뺀 나머지 공간을 그대로 채우게 했다 — 버튼의 실제 렌더링 폭을
+              내가 직접 재서 빼는 대신 flexbox가 계산하게 하는 것. 그 결과 이 줄의 전체 폭이
+              카드 폭(부모가 고정)과 항상 정확히 맞아떨어져서, "계산하기" 버튼이 "확인하기"
+              버튼과 같은 자리(오른쪽 벽)에 선다. 반응형 분기(좁은 화면에서 세로로 쌓임)는
+              없앴다 — 항상 가로 한 줄. */}
+          <div className="flex min-w-0 flex-1 flex-col gap-3">
             <div className="flex flex-col gap-1">
               <span className={captionClass}>집주소로 검색</span>
               <button
@@ -583,25 +604,44 @@ export function SchoolFilterBar({
             </DialogContent>
           </Dialog>
         </div>
-      </div>
+      )}
+
+      {/* ── 학교 비교: 필터와 무관하게 저장된 관심학교 전체를 대상으로 하므로, 이 탭엔
+          시·군/학교급 같은 조건이 아예 없다 — 바로 "비교하기" 버튼 하나로 큰 모달을 연다. */}
+      {view === 'compare' && (
+        <div className="flex items-center gap-3 px-4 py-3">
+          <span className="text-sm text-zinc-600 whitespace-nowrap">관심학교 {favoriteCount}개</span>
+          <button
+            type="button"
+            onClick={onShowCompare}
+            disabled={favoriteCount < 2}
+            className={calcButtonClass}
+          >
+            비교하기
+          </button>
+        </div>
+      )}
 
       {/* 지도 컨트롤 — 학교 개별 마커 / 행정구역 경계. 예전엔 지도 위 왼쪽에 따로 떠 있었는데,
           필터 바 안으로 옮겨서 필터 바를 접으면 같이 접히도록 함. 위쪽 탭·필터 영역과 성격이
           달라서(지도 자체를 다루는 설정) 두꺼운 경계선 + 더 진한 회색 배경으로 구분을 확실히 함 */}
       <div className="flex flex-col gap-2 border-t-2 border-zinc-300 bg-zinc-100 px-4 py-3">
+        {/* 이 세 토글은 각자 콘텐츠(라벨+스위치)에 꼭 맞는 폭으로, 항상 가로 한 줄에 둔다
+            (필요하면 flex-wrap으로 줄바꿈) — 세로로 쌓는 반응형은 쓰지 않는다. */}
         <div className="flex flex-wrap items-center gap-1.5">
-          <div className="flex h-6 w-36 items-center gap-1 rounded-lg border border-zinc-200 bg-white px-1.5 text-xs font-medium text-zinc-700">
+          <div className="flex h-6 items-center gap-1 rounded-lg border border-zinc-200 bg-white px-1.5 text-xs font-medium text-zinc-700">
             <span className="whitespace-nowrap">개별 마커</span>
             <Switch checked={showAllMarkers} onCheckedChange={onShowAllMarkersChange} />
           </div>
-          <div className="flex h-6 w-36 items-center gap-1 rounded-lg border border-zinc-200 bg-white px-1.5 text-xs font-medium text-zinc-700">
+          <div className="flex h-6 items-center gap-1 rounded-lg border border-zinc-200 bg-white px-1.5 text-xs font-medium text-zinc-700">
             <span className="whitespace-nowrap">행정 구역</span>
             <Switch checked={showBoundaries} onCheckedChange={onShowBoundariesChange} />
           </div>
-          {/* 관심학교만 보기 — 지도·학교 순위 대상을 관심학교로 좁힌다
-              (계획: _refs/즐겨찾기_구현계획/04_필터지도연동.md A). 옆에 개수가 붙어서
-              다른 둘보다 폭이 더 필요한 걸 기준(w-36)으로 셋 다 너비를 맞춤 */}
-          <div className="flex h-6 w-36 items-center gap-1 rounded-lg border border-zinc-200 bg-white px-1.5 text-xs font-medium text-zinc-700">
+          {/* 관심학교만 보기 — 켜면 시·군/학교급/설립구분과 무관하게 저장된 관심학교
+              전체를 대상으로 삼는다(교집합 아님 — 길찾기의 "관심학교만 계산하기"와 동일
+              원칙, 계획: _refs/즐겨찾기_구현계획/04_필터지도연동.md A).
+              w-28 고정폭 — 숫자가 세 자리("100")까지 가도 들썩이지 않을 정도로만 맞춤. */}
+          <div className="flex h-6 w-28 items-center gap-1 rounded-lg border border-zinc-200 bg-white px-1.5 text-xs font-medium text-zinc-700">
             <span className="whitespace-nowrap">
               관심학교<span className="ml-1 text-zinc-400">({favoriteCount})</span>
             </span>
