@@ -43,7 +43,7 @@ export function IndicatorLegend({ indicator, noDataCount }: IndicatorLegendProps
           {indicator.unit ? ` (${indicator.unit})` : ''}
         </span>
         <svg
-          className={`h-4 w-4 shrink-0 text-zinc-400 transition-transform ${open ? '' : 'rotate-180'}`}
+          className={`h-4 w-4 shrink-0 text-zinc-400 transition-transform ${open ? 'rotate-180' : ''}`}
           viewBox="0 0 20 20"
           fill="none"
           stroke="currentColor"

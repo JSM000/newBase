@@ -288,17 +288,23 @@ export function SchoolFilterBar({
     onConfirmSearch();
   }
 
-  // 접힌 상태 — 지도 위에 얇은 알약 형태로만 떠 있고, 누르면 펼쳐진다.
+  // 접힌 상태 — 펼친 카드와 같은 폭(부모가 정한 폭을 w-full로 꽉 채움)의 한 줄 카드.
+  // 펼치기 버튼이 접기 버튼과 같은 자리(오른쪽 위)에 오도록 패딩·버튼 크기를 펼친 헤더와 맞춘다.
   if (collapsed) {
     return (
       <button
         type="button"
         onClick={onToggleCollapsed}
-        className="flex items-center gap-2 rounded-xl border border-zinc-200 bg-white/95 px-4 py-2 text-sm font-medium text-zinc-700 shadow-custom backdrop-blur hover:bg-white"
+        className="group flex w-full items-start justify-between rounded-xl border border-zinc-200 bg-white/95 px-3 py-3 text-left shadow-custom backdrop-blur hover:bg-white"
+        aria-label="필터 바 펼치기"
       >
-        <ChevronDown className="h-4 w-4 text-zinc-400" />
-        {view === 'ranking' ? '학교 순위' : view === 'commute' ? '출퇴근 시간' : '학교 비교'}
-        <span className="text-zinc-400">· {resultCount}개 학교</span>
+        <span className="py-1 text-sm font-medium text-zinc-700">
+          {view === 'ranking' ? '학교 순위' : view === 'commute' ? '출퇴근 시간' : '학교 비교'}
+          <span className="text-zinc-400"> · {resultCount}개 학교</span>
+        </span>
+        <span className="rounded-md p-1 text-zinc-400 group-hover:bg-zinc-100 group-hover:text-zinc-700">
+          <ChevronDown className="h-5 w-5" />
+        </span>
       </button>
     );
   }
