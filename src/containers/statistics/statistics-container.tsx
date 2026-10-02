@@ -24,6 +24,7 @@ import {
   SOCIAL_INDICATOR_DEFS,
   RATING_INDICATOR_KEY,
   FAVORITE_INDICATOR_KEY,
+  COMMENT_INDICATOR_KEY,
   type Indicator,
 } from '@/lib/school-indicators';
 import {
@@ -272,7 +273,9 @@ export function StatisticsContainer() {
             }
           : def.key === FAVORITE_INDICATOR_KEY
             ? (s: School) => social?.[s.schulCode]?.favoriteCount ?? 0
-            : (s: School) => social?.[s.schulCode]?.views ?? 0;
+            : def.key === COMMENT_INDICATOR_KEY
+              ? (s: School) => social?.[s.schulCode]?.commentCount ?? 0
+              : (s: School) => social?.[s.schulCode]?.views ?? 0;
       return { ...def, accessor };
     }
     return INDICATOR_BY_KEY[indicatorKey] ?? INDICATOR_BY_KEY[DEFAULT_INDICATOR_KEY];

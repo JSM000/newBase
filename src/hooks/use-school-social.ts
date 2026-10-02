@@ -12,7 +12,7 @@ import {
 } from '@/lib/school-social-client';
 
 /**
- * 학교 소셜 데이터(별점 집계 + 조회수 + 즐겨찾기 수) — 계획
+ * 학교 소셜 데이터(별점 집계 + 조회수 + 즐겨찾기 수 + 댓글 수) — 계획
  * _refs/학교_별점_조회수_구현계획.md 3-3/3-4, 즐겨찾기 수는 _refs/즐겨찾기_구현계획/00_개요.md.
  *
  * - 읽기: `/api/school-social` (CDN 캐시 s-maxage=60). useQuery staleTime 60초.
@@ -24,11 +24,19 @@ export interface SocialEntry {
   count: number;
   views: number;
   favoriteCount: number;
+  commentCount: number;
 }
 export type SocialMap = Record<string, SocialEntry>;
 
-const SOCIAL_KEY = ['school-social'] as const;
-const EMPTY: SocialEntry = { avg: null, count: 0, views: 0, favoriteCount: 0 };
+export const SOCIAL_KEY = ['school-social'] as const;
+export const EMPTY_SOCIAL_ENTRY: SocialEntry = {
+  avg: null,
+  count: 0,
+  views: 0,
+  favoriteCount: 0,
+  commentCount: 0,
+};
+const EMPTY = EMPTY_SOCIAL_ENTRY;
 
 async function fetchSocial(): Promise<SocialMap> {
   const res = await fetch('/api/school-social');

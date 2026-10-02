@@ -13,6 +13,26 @@
 const CLIENT_ID_KEY = 'school-social:client-id';
 const MY_RATINGS_KEY = 'school-social:my-ratings';
 const VIEWED_SESSION_KEY = 'school-social:viewed-session';
+const COMMENT_NICKNAME_KEY = 'school-social:comment-nickname';
+
+/** 댓글 작성 시 마지막으로 쓴 닉네임 — 다음 작성 때 미리 채워준다. */
+export function getSavedNickname(): string {
+  if (typeof window === 'undefined') return '';
+  try {
+    return localStorage.getItem(COMMENT_NICKNAME_KEY) ?? '';
+  } catch {
+    return '';
+  }
+}
+
+export function setSavedNickname(nickname: string): void {
+  try {
+    if (nickname) localStorage.setItem(COMMENT_NICKNAME_KEY, nickname);
+    else localStorage.removeItem(COMMENT_NICKNAME_KEY);
+  } catch {
+    /* 스토리지 불가 — 무시 */
+  }
+}
 
 export function getClientId(): string {
   if (typeof window === 'undefined') return '';

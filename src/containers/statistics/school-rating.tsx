@@ -31,21 +31,11 @@ export function SchoolRating({
 
   return (
     <div className="rounded-lg border border-zinc-100 bg-zinc-50/70 p-3">
-      <div className="flex items-center justify-between">
-        <span className="text-xs font-semibold text-zinc-500">이동 추천도</span>
-        <span className="text-xs text-zinc-400">
-          {count > 0 ? (
-            <>
-              <span className="font-semibold text-amber-500">
-                ★ {avg?.toFixed(1)}
-              </span>{' '}
-              · {count}명
-            </>
-          ) : (
-            '아직 평가 없음'
-          )}
-        </span>
-      </div>
+      <span className="text-xs font-semibold text-zinc-500">학교 추천</span>
+      <span className="ml-1.5 mt-1.5 text-[11px] leading-snug text-zinc-400">
+      - 이동할 학교로서의 추천도
+      </span>
+  
 
       <div
         className="mt-1.5 flex items-center gap-0.5"
@@ -76,10 +66,6 @@ export function SchoolRating({
           </span>
         )}
       </div>
-
-      <p className="mt-1.5 text-[11px] leading-snug text-zinc-400">
-        전보로 이동할 학교로서의 추천도 — 재미로 보는 참고용입니다.
-      </p>
     </div>
   );
 }

@@ -10,6 +10,7 @@ import type { SocialEntry } from '@/hooks/use-school-social';
 import { FavoriteToggleButton } from './favorite-toggle-button';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { SchoolRating } from './school-rating';
+import { SchoolComments, SchoolCommentForm } from './school-comments';
 
 type DetailTab = 'info' | 'community';
 
@@ -375,6 +376,7 @@ export function SchoolDetailPanel({
   const views = social?.views ?? 0;
   const favoriteCount = social?.favoriteCount ?? 0;
   const ratingCount = social?.count ?? 0;
+  const commentCount = social?.commentCount ?? 0;
 
   return (
     <aside className="absolute inset-y-0 right-0 z-30 flex w-full max-w-sm flex-col border-l border-zinc-200 bg-white shadow-2xl">
@@ -411,6 +413,10 @@ export function SchoolDetailPanel({
                 />
                 {favoriteCount.toLocaleString()}
               </span>
+              <span className="flex items-center gap-1 leading-none" title="댓글 수">
+                <MessageCircle className="h-3.5 w-3.5 shrink-0 -translate-y-px" />
+                {commentCount.toLocaleString()}
+              </span>
               {ratingCount > 0 ? (
                 <span className="flex items-center gap-1 leading-none font-semibold text-amber-500">
                   <Star className="h-[11px] w-[11px] shrink-0 -translate-y-px fill-amber-500" />
@@ -443,7 +449,7 @@ export function SchoolDetailPanel({
               상세정보
             </TabsTrigger>
             <TabsTrigger value="community" className={tabTriggerClass}>
-              커뮤니티
+              커뮤니티{socialEnabled && commentCount > 0 ? ` (${commentCount})` : ''}
             </TabsTrigger>
           </TabsList>
         </Tabs>
@@ -533,19 +539,29 @@ export function SchoolDetailPanel({
               <p className="text-sm text-zinc-400">이동 추천도 기능은 준비 중입니다.</p>
             )}
 
-            {/* 댓글 기능 자리 확보 — 아직 미구현, UI만 스캐폴딩 */}
-            <section>
-              <h3 className="mb-2 flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-zinc-500">
-                <MessageCircle className="h-3.5 w-3.5" />
-                댓글
-              </h3>
-              <div className="rounded-lg border border-dashed border-zinc-200 p-6 text-center text-xs text-zinc-400">
-                댓글 기능은 준비 중입니다.
-              </div>
-            </section>
+            {socialEnabled ? (
+              <SchoolComments schoolCode={school.schulCode} />
+            ) : (
+              <section>
+                <h3 className="mb-2 flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-zinc-500">
+                  <MessageCircle className="h-3.5 w-3.5" />
+                  댓글
+                </h3>
+                <div className="rounded-lg border border-dashed border-zinc-200 p-6 text-center text-xs text-zinc-400">
+                  댓글 기능은 준비 중입니다.
+                </div>
+              </section>
+            )}
           </>
         )}
       </div>
+
+      {/* 댓글 입력칸 — 스크롤 영역(flex-1) 밖에 둬서 댓글이 길어져도 사이드바 아래쪽에 고정된다. */}
+      {tab === 'community' && socialEnabled && (
+        <div className="shrink-0">
+          <SchoolCommentForm key={school.schulCode} schoolCode={school.schulCode} />
+        </div>
+      )}
     </aside>
   );
 }

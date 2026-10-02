@@ -124,6 +124,11 @@ export function SchoolCompareModal({ open, onOpenChange, schools, social }: Scho
                   schools={schools}
                   render={(s) => `♥ ${social?.[s.schulCode]?.favoriteCount ?? 0}`}
                 />
+                <CompareRow
+                  label="댓글 수"
+                  schools={schools}
+                  render={(s) => `${social?.[s.schulCode]?.commentCount ?? 0}개`}
+                />
 
                 {DETAIL_GROUPS.map((group) => (
                   <Fragment key={group.title}>
