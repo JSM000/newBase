@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState, type FormEvent } from 'react';
 import { ChevronRight } from 'lucide-react';
 import { AppHeader } from '@/components/app-header';
 import { ExcelDataDialog } from '@/components/excel-data-dialog';
+import { SavedParsedDataDialog } from '@/components/saved-parsed-data-dialog';
 import {
   Select,
   SelectContent,
@@ -82,6 +83,7 @@ export function SettingsContainer() {
   const [favoritesConfirmOpen, setFavoritesConfirmOpen] = useState(false);
   const [favoritesListOpen, setFavoritesListOpen] = useState(false);
   const [excelDialogOpen, setExcelDialogOpen] = useState(false);
+  const [savedDataOpen, setSavedDataOpen] = useState(false);
 
   useEffect(() => {
     const id = setInterval(() => setCooldownMs(cooldownRemainingMs()), 1000);
@@ -407,6 +409,14 @@ export function SettingsContainer() {
                 <span className="text-zinc-600">
                   {formatDateTime(new Date(savedParsedFile.savedAt))} 저장됨
                 </span>
+                <button
+                  type="button"
+                  onClick={() => setSavedDataOpen(true)}
+                  className="flex items-center gap-0.5 text-xs font-semibold text-primary hover:underline"
+                >
+                  저장 내용 보기
+                  <ChevronRight className="h-3.5 w-3.5" />
+                </button>
               </div>
             )}
             <Button
@@ -450,6 +460,7 @@ export function SettingsContainer() {
       </main>
 
       <ExcelDataDialog open={excelDialogOpen} onOpenChange={setExcelDialogOpen} />
+      <SavedParsedDataDialog open={savedDataOpen} onOpenChange={setSavedDataOpen} />
     </div>
   );
 }

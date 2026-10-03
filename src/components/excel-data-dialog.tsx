@@ -13,6 +13,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import type { ParsedFile } from '@/types/score';
+import { SavedParsedDataDialog } from '@/components/saved-parsed-data-dialog';
 
 interface ExcelDataDialogProps {
   open: boolean;
@@ -39,6 +40,7 @@ export function ExcelDataDialog({ open, onOpenChange, onParsed }: ExcelDataDialo
   const clearParsedFile = useUserSettingsStore((s) => s.clearParsedFile);
 
   const [dragging, setDragging] = useState(false);
+  const [viewerOpen, setViewerOpen] = useState(false);
   const [fileError, setFileError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -92,13 +94,22 @@ export function ExcelDataDialog({ open, onOpenChange, onParsed }: ExcelDataDialo
             <span className="text-zinc-600">
               {formatDateTime(new Date(savedParsedFile.savedAt))} 저장됨
             </span>
-            <button
-              type="button"
-              className="text-xs font-semibold text-red-500 hover:underline"
-              onClick={clearParsedFile}
-            >
-              삭제
-            </button>
+            <div className="flex items-center gap-3">
+              <button
+                type="button"
+                className="text-xs font-semibold text-primary hover:underline"
+                onClick={() => setViewerOpen(true)}
+              >
+                저장 내용 보기
+              </button>
+              <button
+                type="button"
+                className="text-xs font-semibold text-red-500 hover:underline"
+                onClick={clearParsedFile}
+              >
+                삭제
+              </button>
+            </div>
           </div>
         )}
 
@@ -162,6 +173,7 @@ export function ExcelDataDialog({ open, onOpenChange, onParsed }: ExcelDataDialo
           </ul>
         </div>
       </DialogContent>
+      <SavedParsedDataDialog open={viewerOpen} onOpenChange={setViewerOpen} />
     </Dialog>
   );
 }
