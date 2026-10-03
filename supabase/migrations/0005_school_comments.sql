@@ -186,6 +186,8 @@ revoke all on function public.add_school_comment(uuid, text, text, text, text) f
 grant execute on function public.add_school_comment(uuid, text, text, text, text) to anon;
 
 -- 삭제(soft delete). 같은 client_id 이거나 비밀번호가 맞으면 지운다. 지웠으면 true, 아니면 false.
+-- ※ 0007_hard_delete_own_comments.sql 에서 "작성자 삭제는 행을 실제로 지움"으로 바뀌었다.
+--   이 파일을 다시 실행했다면 0007 도 다시 실행할 것(안 그러면 soft delete 로 되돌아감).
 drop function if exists public.delete_school_comment(bigint, uuid, text);
 create function public.delete_school_comment(
   p_comment_id bigint,
