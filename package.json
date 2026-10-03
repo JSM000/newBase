@@ -8,6 +8,7 @@
     "start": "next start",
     "lint": "eslint",
     "check:privacy": "node scripts/check-no-network-in-score-calc.mjs",
+    "check:pii": "node --no-warnings scripts/check-pii-detect.mjs",
     "collect:schools": "node scripts/collect-school-stats.mjs",
     "build:dataset": "node scripts/build-schools-dataset.mjs",
     "build:clusters": "node scripts/build-school-clusters.mjs",

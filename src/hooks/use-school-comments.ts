@@ -2,7 +2,7 @@
 
 import { useInfiniteQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { getSupabase, isSupabaseConfigured } from '@/lib/supabase';
-import { getClientId } from '@/lib/school-social-client';
+import { getClientId, markCommentReported } from '@/lib/school-social-client';
 import { EMPTY_SOCIAL_ENTRY, SOCIAL_KEY, type SocialMap } from './use-school-social';
 
 /**
@@ -38,8 +38,10 @@ const commentsKey = (schoolCode: string) => ['school-comments', schoolCode] as c
 /** RPC 예외 메시지 코드(마이그레이션 참고) → 사용자 문구 */
 export function commentErrorMessage(err: unknown): string {
   const msg = err instanceof Error ? err.message : typeof err === 'object' && err && 'message' in err ? String((err as { message: unknown }).message) : '';
+  if (msg.includes('contains_pii'))
+    return '전화번호·주민등록번호·이메일·계좌번호 등 개인정보가 포함되어 등록할 수 없습니다.';
   if (msg.includes('rate_limited')) return '잠시 후 다시 작성해 주세요. (연속 작성 제한)';
-  if (msg.includes('daily_limited')) return '오늘 작성할 수 있는 댓글 수를 넘었습니다.';
+  if (msg.includes('daily_limited')) return '오늘 할 수 있는 횟수를 넘었습니다. 내일 다시 시도해 주세요.';
   if (msg.includes('invalid_body')) return `댓글은 1~${COMMENT_LIMITS.bodyMax}자로 입력해 주세요.`;
   if (msg.includes('invalid_nickname')) return `닉네임은 ${COMMENT_LIMITS.nicknameMax}자 이하로 입력해 주세요.`;
   if (msg.includes('invalid_password'))
@@ -118,6 +120,40 @@ export function useDeleteComment(schoolCode: string) {
     },
     onSuccess: (deleted) => {
       if (deleted) refresh(schoolCode, -1);
+    },
+  });
+}
+
+export type CommentReportReason = 'privacy' | 'abuse' | 'other';
+export type CommentReportResult = 'reported' | 'already' | 'hidden' | 'not_found';
+
+export const REPORT_REASON_LABEL: Record<CommentReportReason, string> = {
+  privacy: '개인정보 노출',
+  abuse: '비방·욕설',
+  other: '기타',
+};
+
+/** 신고. 서로 다른 신고자 5명 이상이면 서버가 자동으로 숨긴다(0006 마이그레이션). */
+export function useReportComment(schoolCode: string) {
+  const refresh = useRefreshAfterChange();
+  return useMutation({
+    mutationFn: async (input: { commentId: number; reason: CommentReportReason }) => {
+      const supabase = getSupabase();
+      if (!supabase) throw new Error('Supabase 미설정');
+      const { data, error } = await supabase.rpc('report_school_comment', {
+        p_comment_id: input.commentId,
+        p_client_id: getClientId(),
+        p_reason: input.reason,
+      });
+      if (error) throw error;
+      return data as CommentReportResult;
+    },
+    onSuccess: (result, input) => {
+      if (result === 'reported' || result === 'already' || result === 'hidden') {
+        markCommentReported(input.commentId);
+      }
+      // 이번 신고로 숨겨졌으면 목록에서 빠지고 댓글 수도 하나 줄어든다
+      if (result === 'hidden') refresh(schoolCode, -1);
     },
   });
 }

@@ -14,6 +14,7 @@ const CLIENT_ID_KEY = 'school-social:client-id';
 const MY_RATINGS_KEY = 'school-social:my-ratings';
 const VIEWED_SESSION_KEY = 'school-social:viewed-session';
 const COMMENT_NICKNAME_KEY = 'school-social:comment-nickname';
+const REPORTED_COMMENTS_KEY = 'school-social:reported-comments';
 
 /** 댓글 작성 시 마지막으로 쓴 닉네임 — 다음 작성 때 미리 채워준다. */
 export function getSavedNickname(): string {
@@ -22,6 +23,29 @@ export function getSavedNickname(): string {
     return localStorage.getItem(COMMENT_NICKNAME_KEY) ?? '';
   } catch {
     return '';
+  }
+}
+
+/** 이 브라우저가 신고한 댓글 id — "신고됨" 표시용(서버도 중복 신고를 막지만 버튼 상태를 바로 보여주려고). */
+export function getReportedCommentIds(): number[] {
+  if (typeof window === 'undefined') return [];
+  try {
+    const raw = localStorage.getItem(REPORTED_COMMENTS_KEY);
+    return raw ? (JSON.parse(raw) as number[]) : [];
+  } catch {
+    return [];
+  }
+}
+
+export function markCommentReported(commentId: number): void {
+  try {
+    const ids = getReportedCommentIds();
+    if (!ids.includes(commentId)) {
+      // 무한히 쌓이지 않게 최근 200개만
+      localStorage.setItem(REPORTED_COMMENTS_KEY, JSON.stringify([...ids, commentId].slice(-200)));
+    }
+  } catch {
+    /* 스토리지 불가 — 무시 */
   }
 }
 

@@ -18,6 +18,8 @@ const ROOT = path.resolve(__dirname, "..");
 
 const SCANNED_PATHS = [
   "src/lib/excel-parser.ts",
+  // 개인정보 검출 규칙 — 업로드 파일 내용을 검사하므로 여기에도 전송 코드가 들어가면 안 된다.
+  "src/lib/pii-detect.ts",
   "src/lib/score-calculator.ts",
   "src/lib/transfer-eligibility.ts",
   "src/store/use-score-store.ts",
@@ -27,6 +29,8 @@ const SCANNED_PATHS = [
   // 엑셀 업로드·파싱·저장 코드는 전부 이 공용 모달 하나에 모여 있다
   // (계산기·설정 페이지 둘 다 이걸 연다 — 로컬 설정 계획 05번 참고).
   "src/components/excel-data-dialog.tsx",
+  // 저장된 추출 데이터를 그대로 보여주는 모달 — 인사기록 내용이 지나가므로 같이 스캔.
+  "src/components/saved-parsed-data-dialog.tsx",
   "src/containers/settings/settings-container.tsx",
   "src/store/use-user-settings-store.ts",
   "src/types/user-settings.ts",

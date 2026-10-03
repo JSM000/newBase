@@ -8,6 +8,7 @@ import {
   DegreeEntry,
   SupplementaryEntry,
 } from '@/types/score';
+import { detectPii, hasBlockingPii } from '@/lib/pii-detect';
 
 type Row = (string | number | boolean)[];
 type ColMap = Record<string, number>;
@@ -296,6 +297,32 @@ function parseSupplementary(data: Row[], sectionStart: number, sectionEnd: numbe
  * 브라우저에서 바로 읽은 바이트(ArrayBuffer)를 파싱한다 — 서버로 보내지 않음.
  * NEIS 인사기록카드에 개인정보가 있어 파일이 기기 밖으로 나가지 않게 하려는 의도적 설계.
  */
+/** 인사기록카드 구획이 하나도 없는데 차단 등급 개인정보가 이만큼 이상이면 다른 파일로 보고 처리 중단. */
+const NON_CARD_PII_THRESHOLD = 5;
+
+/**
+ * 학생 명단·연락망 같은 다른 엑셀을 실수로 올렸을 때 막는다(계획: _refs/개인정보_검출_구현계획/03_인사기록카드.md 3-3).
+ * 인사기록카드 구획 제목이 하나도 없고, 시트에 주민등록번호·전화번호·이메일 등이 여러 건 있으면
+ * 파싱 결과를 만들지 않고 예외를 던진다 — 호출부(excel-data-dialog)가 오류만 보여주고 아무것도 저장하지 않는다.
+ * 검사 결과는 개수만 세고 바로 버린다(값을 메시지·로그에 남기지 않음).
+ */
+function assertLooksLikePersonnelCard(data: Row[], sectionRows: number[]): void {
+  if (sectionRows.some((r) => r >= 0)) return;
+  let count = 0;
+  for (const row of data) {
+    for (const v of row) {
+      if (typeof v !== 'string' && typeof v !== 'number') continue;
+      const matches = detectPii(String(v));
+      if (hasBlockingPii(matches)) count += matches.filter((m) => m.severity === 'block').length;
+      if (count >= NON_CARD_PII_THRESHOLD) {
+        throw new Error(
+          '인사기록카드가 아닌 파일로 보입니다. 개인정보(연락처 등)가 포함된 다른 파일일 수 있어 처리하지 않았고, 아무것도 저장하지 않았습니다. NEIS에서 내려받은 인사기록카드 파일인지 확인해 주세요.',
+        );
+      }
+    }
+  }
+}
+
 export function parseExcelBuffer(bytes: ArrayBuffer): ParsedFile {
   const errors: string[] = [];
   const wb = XLSX.read(new Uint8Array(bytes), { type: 'array' });
@@ -314,6 +341,8 @@ export function parseExcelBuffer(bytes: ArrayBuffer): ParsedFile {
     degree:        findSection(data, /^18\.\s*대학원/),
     credential:    findSection(data, /^19\.\s*자격취득/),
   };
+
+  assertLooksLikePersonnelCard(data, Object.values(sec));
 
   let training: TrainingEntry[] = [];
   try {

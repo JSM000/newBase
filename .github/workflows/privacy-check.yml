@@ -14,4 +14,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      # check-pii-detect.mjs 가 .ts 를 직접 import 한다 — Node 의 TypeScript 타입 제거 기능(22.6+) 필요
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
       - run: node scripts/check-no-network-in-score-calc.mjs
+      - run: node --no-warnings scripts/check-pii-detect.mjs
